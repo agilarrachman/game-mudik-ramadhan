@@ -5,7 +5,7 @@
 // 3. Bukit besar dan gunung MINIMAL di |x| > 45 (lapisan paling belakang).
 // 4. Jalan selalu terlihat jelas sampai horizon pada semua tema.
 
-(function() {
+(function () {
   'use strict';
 
   // ---- State ----
@@ -72,7 +72,7 @@
   const CITY_KEYS = ['jakarta', 'cikampek', 'cirebon', 'brebes', 'semarang', 'surabaya'];
 
   function getCityByKm(km) {
-    if (km < 5)  return CITIES.jakarta;
+    if (km < 5) return CITIES.jakarta;
     if (km < 10) return CITIES.cikampek;
     if (km < 15) return CITIES.cirebon;
     if (km < 20) return CITIES.brebes;
@@ -185,8 +185,8 @@
   function buatMonas() {
     const g = new THREE.Group();
     const whiteMat = makeMat('#F4F6F8', 0.5);
-    const goldMat  = makeMat('#FFD34D', 0.2, 0.4);
-    const baseMat  = makeMat('#8E98A8', 0.8);
+    const goldMat = makeMat('#FFD34D', 0.2, 0.4);
+    const baseMat = makeMat('#8E98A8', 0.8);
 
     // Pelataran dasar bertingkat
     const base = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 5.0, 1.2, 8), baseMat);
@@ -259,7 +259,7 @@
   function buatGapuraKeraton() {
     const g = new THREE.Group();
     const brickMat = makeMat('#C4483C', 0.85);
-    const darkMat  = makeMat('#7A2820', 0.9);
+    const darkMat = makeMat('#7A2820', 0.9);
 
     // Dua candi bentar terbelah (kiri dan kanan)
     [-2.2, 2.2].forEach(x => {
@@ -286,7 +286,7 @@
   function buatTuguTelurAsin() {
     const g = new THREE.Group();
     const baseMat = makeMat('#8DA0B0', 0.8);
-    const eggMat  = makeMat('#6EC4BC', 0.35); // toska telur asin
+    const eggMat = makeMat('#6EC4BC', 0.35); // toska telur asin
     const yolkMat = makeMat('#FF9428', 0.25); // kuning telur oranye
 
     // Pilar tugu berundak
@@ -353,10 +353,10 @@
   // 6. SURABAYA: Patung Sura & Baya (Hiu & Buaya)
   function buatPatungSuroboyo() {
     const g = new THREE.Group();
-    const rockMat  = makeMat('#707A84', 0.9);
-    const suraMat  = makeMat('#8EC0E4', 0.35); // Ikan Hiu Sura
-    const boyoMat  = makeMat('#4FA258', 0.65); // Buaya Baya
-    const goldMat  = makeMat('#FFD34D', 0.3);
+    const rockMat = makeMat('#707A84', 0.9);
+    const suraMat = makeMat('#8EC0E4', 0.35); // Ikan Hiu Sura
+    const boyoMat = makeMat('#4FA258', 0.65); // Buaya Baya
+    const goldMat = makeMat('#FFD34D', 0.3);
 
     // Karang / pilar pedestal
     const karang = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 3.2, 4.0, 10), rockMat);
@@ -502,8 +502,8 @@
   // Ondel-ondel Betawi
   function buatOndelOndel() {
     const g = new THREE.Group();
-    const redMat   = makeMat('#E83845', 0.6);
-    const robeMat  = makeMat('#FFC83B', 0.8);
+    const redMat = makeMat('#E83845', 0.6);
+    const robeMat = makeMat('#FFC83B', 0.8);
     const headDressMat = makeMat('#2E9E6B', 0.7);
 
     // Badan silinder jubah
@@ -574,7 +574,7 @@
   function buatPohonRindang() {
     const g = new THREE.Group();
     const trunkMat = makeMat('#6E4A28', 0.9);
-    const leafMat  = makeMat('#4FA36B', 0.85);
+    const leafMat = makeMat('#4FA36B', 0.85);
 
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.38, 2.2, 10), trunkMat);
     trunk.position.y = 1.1;
@@ -593,7 +593,7 @@
   function buatKelapa() {
     const g = new THREE.Group();
     const trunkMat = makeMat('#926838', 0.9);
-    const leafMat  = makeMat('#3CA058', 0.85);
+    const leafMat = makeMat('#3CA058', 0.85);
 
     const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.16, 4.2, 10), trunkMat);
     trunk.position.set(0.3, 2.1, 0);
@@ -618,7 +618,7 @@
   function buatSawahBertingkat() {
     const g = new THREE.Group();
     const paddyMat = makeMat(CONFIG.COLOR.PADDY, 0.9);
-    const dikeMat  = makeMat('#8A6420', 0.9);
+    const dikeMat = makeMat('#8A6420', 0.9);
 
     for (let i = 0; i < 3; i++) {
       const terrace = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 3.5), paddyMat);
@@ -639,7 +639,7 @@
   // Petak bawang merah Brebes
   function buatPetakBawang() {
     const g = new THREE.Group();
-    const soilMat  = makeMat('#5C3D20', 0.95);
+    const soilMat = makeMat('#5C3D20', 0.95);
     const onionMat = makeMat('#8ED250', 0.85);
 
     const soil = new THREE.Mesh(new THREE.PlaneGeometry(6.0, 4.0), soilMat);
@@ -683,7 +683,7 @@
   function buatBambuRuncing() {
     const g = new THREE.Group();
     const bambooMat = makeMat('#86C444', 0.5);
-    const goldMat   = makeMat('#F0D048', 0.4);
+    const goldMat = makeMat('#F0D048', 0.4);
 
     const heights = [4.8, 5.8, 6.8, 5.4, 4.4];
     [-1.2, -0.6, 0, 0.6, 1.2].forEach((x, idx) => {
@@ -722,39 +722,39 @@
     let obj;
     switch (type) {
       // Landmark
-      case 'monas':            obj = buatMonas(); break;
-      case 'pabrik_cikampek':  obj = buatPabrikCikampek(); break;
-      case 'gapura_keraton':   obj = buatGapuraKeraton(); break;
-      case 'tugu_telur_asin':  obj = buatTuguTelurAsin(); break;
-      case 'lawang_sewu':      obj = buatLawangSewu(); break;
-      case 'patung_suroboyo':  obj = buatPatungSuroboyo(); break;
+      case 'monas': obj = buatMonas(); break;
+      case 'pabrik_cikampek': obj = buatPabrikCikampek(); break;
+      case 'gapura_keraton': obj = buatGapuraKeraton(); break;
+      case 'tugu_telur_asin': obj = buatTuguTelurAsin(); break;
+      case 'lawang_sewu': obj = buatLawangSewu(); break;
+      case 'patung_suroboyo': obj = buatPatungSuroboyo(); break;
 
       // Properti Bahu Jalan
       case 'lampu_kota':
-      case 'lampu_kolonial':   obj = buatTiangLampu(); break;
-      case 'guardrail':        obj = buatGuardrail(); break;
-      case 'drum_jalan':       obj = buatDrumJalan(); break;
+      case 'lampu_kolonial': obj = buatTiangLampu(); break;
+      case 'guardrail': obj = buatGuardrail(); break;
+      case 'drum_jalan': obj = buatDrumJalan(); break;
 
       // Properti Lapisan Tengah
-      case 'bajaj':            obj = buatBajaj(); break;
-      case 'becak':            obj = buatBecak(); break;
-      case 'ondel':            obj = buatOndelOndel(); break;
+      case 'bajaj': obj = buatBajaj(); break;
+      case 'becak': obj = buatBecak(); break;
+      case 'ondel': obj = buatOndelOndel(); break;
       case 'pohon_rindang':
-      case 'pohon_beringin':   obj = buatPohonRindang(); break;
-      case 'kelapa':           obj = buatKelapa(); break;
-      case 'sawah_luas':       obj = buatSawahBertingkat(); break;
-      case 'petak_bawang':     obj = buatPetakBawang(); break;
-      case 'patung_udang':     obj = buatPatungUdang(); break;
-      case 'bambu_runcing':    obj = buatBambuRuncing(); break;
+      case 'pohon_beringin': obj = buatPohonRindang(); break;
+      case 'kelapa': obj = buatKelapa(); break;
+      case 'sawah_luas': obj = buatSawahBertingkat(); break;
+      case 'petak_bawang': obj = buatPetakBawang(); break;
+      case 'patung_udang': obj = buatPatungUdang(); break;
+      case 'bambu_runcing': obj = buatBambuRuncing(); break;
       case 'warung_telur':
       case 'kios_lumpia':
-      case 'lumbung_padi':     obj = buatWarung('Warung Mudik', '#2E9E6B'); break;
+      case 'lumbung_padi': obj = buatWarung('Warung Mudik', '#2E9E6B'); break;
       case 'reklame_jkt':
-      case 'mega_mendung':     obj = buatReklame('Mudik Lebaran'); break;
+      case 'mega_mendung': obj = buatReklame('Mudik Lebaran'); break;
 
       // Lapisan Jauh
       case 'bukit_jauh':
-      default:                 obj = buatBukitJauh(); break;
+      default: obj = buatBukitJauh(); break;
     }
 
     obj.userData.decoType = type;
@@ -1018,6 +1018,19 @@
     }
   }
 
+  // Update tema berdasarkan index kota (tidak butuh km maupun scene param)
+  function setThemeByIndex(idx) {
+    const key = CITY_KEYS[idx] || 'jakarta';
+    if (key === currentCityKey) return;
+    currentCityKey = key;
+    const city = CITIES[key];
+    if (!city) return;
+    if (scene && scene.fog) scene.fog.color.set(city.fog);
+    if (skydomeMesh) skydomeMesh.material.color.set(city.skyTop);
+    if (matGrass) matGrass.color.set(new THREE.Color(city.grass).convertSRGBToLinear());
+    if (matShoulder) matShoulder.color.set(new THREE.Color(city.shoulder).convertSRGBToLinear());
+  }
+
   // Reset jalan untuk restart stabil
   function resetRoad() {
     const segLen = CONFIG.ROAD_LENGTH / CONFIG.ROAD_SEGMENTS;
@@ -1041,6 +1054,7 @@
     init: initRoad,
     update: updateRoad,
     setTheme: setTheme,
+    setThemeByIndex: setThemeByIndex,
     reset: resetRoad,
     getCurrentCity: () => CITIES[currentCityKey] || CITIES.jakarta,
     hitungPosisiLateralAman: hitungPosisiLateralAman,

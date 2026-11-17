@@ -1,7 +1,7 @@
 // game.js — Loop game, spawn rintangan, tabrakan, kecepatan, skor, resetGame()
 // Semua parameter dari config.js. Tidak ada alokasi objek di dalam loop utama.
 
-(function () {
+(function() {
   'use strict';
 
   // =========================================================
@@ -15,21 +15,22 @@
   let laneAnimProgress = 1;  // 0..1, 1 = selesai
   let laneAnimDir = 0;       // -1 atau +1
   let laneAnimFrom = 1;
-  let laneAnimTo = 1;
+  let laneAnimTo   = 1;
   let laneAnimTime = CONFIG.LANE_ANIM_MS / 1000;
 
   // Fisik
-  let speed = CONFIG.SPEED_START;
-  let distance = 0;  // unit dunia
-  let elapsed = 0;  // detik sejak game mulai
+  let speed     = CONFIG.SPEED_START;
+  let distance  = 0;  // unit dunia
+  let elapsed   = 0;  // detik sejak game mulai
   let timeScale = 1.0;
 
   // Skor
-  let distKm = 0;
-  let bestKm = 0;
+  let distKm    = 0;
+  let bestKm    = 0;
 
   // Checkpoint
   let lastCheckpointKm = -1;
+  let lastCityIndex = -1;
 
   // Rintangan
   const obstaclePool = [];
@@ -38,18 +39,18 @@
   let lastSpawnLane = 1;  // jalur kosong baris spawn terakhir
 
   // Efek tabrakan
-  let crashed = false;
-  let crashTimer = 0;
-  let crashBody = null;  // group bodi mobil
-  let crashVelY = 0;
-  let crashRotSpd = 0;
-  let crashDone = false;
+  let crashed      = false;
+  let crashTimer   = 0;
+  let crashBody    = null;  // group bodi mobil
+  let crashVelY    = 0;
+  let crashRotSpd  = 0;
+  let crashDone    = false;
 
   // Partikel debu
   const dustParticles = [];
 
   // Camera shake
-  let shakeAmp = 0;
+  let shakeAmp   = 0;
   let shakeTimer = 0;
   let cameraBase = new THREE.Vector3();
   let shakeOffset = new THREE.Vector3();
@@ -86,13 +87,13 @@
   }
 
   function createObstacle(sc) {
-    const tipe = 'hatchback';  // placeholder; akan diset saat spawn
-    const warna = CONFIG.COLOR.OBSTACLE[0];
+    const tipe   = 'hatchback';  // placeholder; akan diset saat spawn
+    const warna  = CONFIG.COLOR.OBSTACLE[0];
     const result = buatMobil({ tipe, warna });
     result.group.visible = false;
     result.active = false;
-    result.lane = 0;
-    result.type = tipe;
+    result.lane   = 0;
+    result.type   = tipe;
     sc.add(result.group);
     return result;
   }
@@ -186,8 +187,8 @@
 
       obs.active = true;
       obs.group.visible = true;
-      obs.lane = lane;
-      obs.type = type.id;
+      obs.lane   = lane;
+      obs.type   = type.id;
       obs.group.position.set(getLaneX(lane), 0, zPos);
       obs.group.rotation.set(0, 0, 0);  // Menghadap ke arah perjalanan (-Z), bagian belakang (+Z) menghadap ke pemain
       obs.group.scale.set(0.01, 0.01, 0.01);  // efek pop
@@ -266,15 +267,15 @@
   // EFEK TABRAKAN
   // =========================================================
   function triggerCrash() {
-    crashed = true;
-    crashTimer = 0;
-    timeScale = CONFIG.CRASH_SLOW_FACTOR;
-    crashVelY = CONFIG.CRASH_FLY_SPEED;
+    crashed     = true;
+    crashTimer  = 0;
+    timeScale   = CONFIG.CRASH_SLOW_FACTOR;
+    crashVelY   = CONFIG.CRASH_FLY_SPEED;
     crashRotSpd = CONFIG.CRASH_SPIN_SPEED;
-    crashDone = false;
+    crashDone   = false;
 
     // Guncang kamera
-    shakeAmp = CONFIG.CRASH_SHAKE_AMP;
+    shakeAmp   = CONFIG.CRASH_SHAKE_AMP;
     shakeTimer = 0;
 
     Audio3D.playSFX('crash');
@@ -291,8 +292,8 @@
       // Cari partikel tidak aktif
       p = dustParticles.find(x => !x.active);
       if (!p) {
-        const geo = new THREE.SphereGeometry(0.08, 6, 4);
-        const mat = new THREE.MeshBasicMaterial({
+        const geo  = new THREE.SphereGeometry(0.08, 6, 4);
+        const mat  = new THREE.MeshBasicMaterial({
           color: 0xBBBBBB, transparent: true, opacity: 0.5, depthWrite: false,
         });
         const mesh = new THREE.Mesh(geo, mat);
@@ -301,8 +302,8 @@
         dustParticles.push(p);
       }
 
-      p.active = true;
-      p.life = 0;
+      p.active  = true;
+      p.life    = 0;
       p.maxLife = CONFIG.DUST_LIFETIME;
       const wx = getLaneX(playerLane) + (Math.random() - 0.5) * 1.0;
       p.mesh.position.set(wx, 0.08, 0.6 + (i * 0.5));
@@ -344,13 +345,13 @@
     });
     for (let i = 0; i < 20; i++) {
       const ang = Math.random() * Math.PI * 2;
-      const r = 1.5 + Math.random() * 2.5;
+      const r   = 1.5 + Math.random() * 2.5;
       const len = 0.8 + Math.random() * 1.2;
       const pts = [
         new THREE.Vector3(Math.cos(ang) * r, Math.sin(ang) * r * 0.5 + 1.0, 0),
         new THREE.Vector3(Math.cos(ang) * r, Math.sin(ang) * r * 0.5 + 1.0, len),
       ];
-      const geo = new THREE.BufferGeometry().setFromPoints(pts);
+      const geo  = new THREE.BufferGeometry().setFromPoints(pts);
       const line = new THREE.Line(geo, mat.clone());
       speedLinesGroup.add(line);
     }
@@ -374,26 +375,26 @@
   // =========================================================
   function resetGame() {
     // Kecepatan dan waktu
-    speed = CONFIG.SPEED_START;
-    elapsed = 0;
-    distance = 0;
-    distKm = 0;
+    speed     = CONFIG.SPEED_START;
+    elapsed   = 0;
+    distance  = 0;
+    distKm    = 0;
     timeScale = 1.0;
 
     // Pemain
-    playerLane = 1;
+    playerLane     = 1;
     laneAnimProgress = 1;
-    laneAnimDir = 0;
-    laneAnimFrom = 1;
-    laneAnimTo = 1;
+    laneAnimDir    = 0;
+    laneAnimFrom   = 1;
+    laneAnimTo     = 1;
 
     // Crash
-    crashed = false;
+    crashed   = false;
     crashTimer = 0;
-    crashDone = false;
+    crashDone  = false;
 
     // Camera shake
-    shakeAmp = 0;
+    shakeAmp   = 0;
     shakeTimer = 0;
     shakeOffset.set(0, 0, 0);
 
@@ -419,7 +420,7 @@
     // Daur ulang semua rintangan
     activeObstacles.slice().forEach(obs => recycleObstacle(obs));
     activeObstacles.length = 0;
-    lastSpawnZ = -CONFIG.SPAWN_DISTANCE;
+    lastSpawnZ    = -CONFIG.SPAWN_DISTANCE;
     lastSpawnLane = 1;
 
     // Reset partikel
@@ -427,6 +428,8 @@
 
     // Checkpoint
     lastCheckpointKm = -1;
+    lastCityIndex = -1;
+    UI.resetPopupQueue();
     hornCooldown = 0;
 
     // Reset jalan
@@ -440,8 +443,8 @@
   // INISIALISASI
   // =========================================================
   function init(sc, cam, ren) {
-    scene = sc;
-    camera = cam;
+    scene    = sc;
+    camera   = cam;
     renderer = ren;
 
     cameraBase.set(CONFIG.CAMERA_POS.x, CONFIG.CAMERA_POS.y, CONFIG.CAMERA_POS.z);
@@ -476,11 +479,11 @@
     const newLane = playerLane + dir;
     if (newLane < 0 || newLane > 2) return true;  // batas
 
-    laneAnimFrom = playerLane;
-    laneAnimTo = newLane;
+    laneAnimFrom     = playerLane;
+    laneAnimTo       = newLane;
     laneAnimProgress = 0;
-    laneAnimDir = dir;
-    playerLane = newLane;
+    laneAnimDir      = dir;
+    playerLane       = newLane;
 
     Audio3D.playSFX('shift');
     return true;
@@ -506,22 +509,21 @@
     // ---- Update waktu dan kecepatan ----
     if (isPlaying) {
       elapsed += dt;
-      speed = Math.min(CONFIG.SPEED_MAX, CONFIG.SPEED_START + CONFIG.ACCEL * elapsed);
+      speed    = Math.min(CONFIG.SPEED_MAX, CONFIG.SPEED_START + CONFIG.ACCEL * elapsed);
 
       // Jarak
-      const moveZ = (speed - CONFIG.OBSTACLE_SPEED) * dt;
+      const moveZ  = (speed - CONFIG.OBSTACLE_SPEED) * dt;
       distance += (speed * dt);
-      distKm = distance / CONFIG.UNIT_PER_KM;
+      distKm   = distance / CONFIG.UNIT_PER_KM;
 
       // Rekor
       if (distKm > bestKm) {
         bestKm = distKm;
-        try { localStorage.setItem('mudik_best', String(bestKm)); } catch (e) { }
+        try { localStorage.setItem('mudik_best', String(bestKm)); } catch (e) {}
       }
 
       // Update jalan & lingkungan
       World.update(speed * dt, dt);
-      World.setTheme(distKm, scene);
 
       // ---- Animasi pindah jalur ----
       if (laneAnimProgress < 1) {
@@ -599,13 +601,17 @@
         hornCooldown = 1.5;
       }
 
-      // ---- Checkpoint ----
-      const cpIdx = Math.floor(distKm / CONFIG.CHECKPOINT_INTERVAL_KM);
-      if (cpIdx > lastCheckpointKm && distKm > 0.1) {
-        lastCheckpointKm = cpIdx;
-        const cpList = CONFIG.CHECKPOINTS;
-        const cp = cpList[cpIdx % cpList.length];
-        UI.showCheckpoint(cp.nama);
+    // ---- Update chip kota & deteksi pergantian kota ----
+      const kotaState = CONFIG.getKotaState(distKm);
+      UI.updateCityChip(kotaState);
+      if (kotaState.index !== lastCityIndex) {
+        lastCityIndex = kotaState.index;
+        const cp = CONFIG.CHECKPOINTS[kotaState.index];
+        // Update tema dunia
+        World.setThemeByIndex(kotaState.index);
+        // Popup pergantian kota
+        UI.showCityPopup(cp.nama, cp.desc);
+        // Audio
         Audio3D.playSFX('checkpoint');
       }
 
@@ -733,9 +739,21 @@
   }
 
   function getDistKm() { return distKm; }
-  function getBestKm() { return bestKm; }
-  function getSpeed() { return speed; }
-  function isCrashed() { return crashed; }
+  function getBestKm()  { return bestKm; }
+  function getSpeed()   { return speed; }
+  function isCrashed()  { return crashed; }
+
+  function setStartKm(km) {
+    if (km <= 0) return;
+    distance = km * CONFIG.UNIT_PER_KM;
+    distKm   = km;
+    // Set lastCityIndex ke kota yang sesuai tanpa trigger popup
+    const kotaState = CONFIG.getKotaState(km);
+    lastCityIndex = kotaState.index;
+    // Update dunia dan HUD langsung
+    World.setThemeByIndex(kotaState.index);
+    UI.updateCityChip(kotaState);
+  }
 
   window.Game = {
     init,
@@ -751,6 +769,7 @@
     getSpeed,
     isCrashed,
     getLaneX,
+    setStartKm,
   };
 
 })();

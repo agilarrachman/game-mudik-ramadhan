@@ -86,6 +86,8 @@
   // =========================================================
   const urlParams = new URLSearchParams(location.search);
   const isPreview = urlParams.get('preview') === '1';
+  const kmParam = parseFloat(urlParams.get('km'));
+  const hasKmParam = !isNaN(kmParam) && kmParam >= 0;
 
   function initPreview() {
     // Sembunyikan UI game
@@ -321,10 +323,17 @@
   function doStart() {
     Audio3D.resume();
     Game.resetGame();
+    if (hasKmParam && kmParam > 0) {
+      Game.setStartKm(kmParam);
+    }
     Game.start();
     setState(STATE.PLAYING);
     UI.showPlaying();
-    UI.updateHUD(0, 0, Game.getBestKm());
+    const distKm = Game.getDistKm();
+    UI.updateHUD(0, distKm, Game.getBestKm());
+    if (hasKmParam) {
+      UI.updateCityChip(CONFIG.getKotaState(distKm));
+    }
   }
 
   function doPause() {

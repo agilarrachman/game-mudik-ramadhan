@@ -7,17 +7,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;600;700&display=swap');
 
 /* ---- Reset ---- */
-*,
-*::before,
-*::after {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
-html,
-body {
+html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -32,19 +29,15 @@ body {
 #game-canvas {
   display: block;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
 }
 
 /* ---- Lapisan UI ---- */
 #ui-layer {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   pointer-events: none;
   z-index: 10;
 }
@@ -52,8 +45,7 @@ body {
 /* ---- HUD ---- */
 #hud {
   position: absolute;
-  top: 0;
-  left: 50%;
+  top: 0; left: 50%;
   transform: translateX(-50%);
   width: 100%;
   max-width: 580px;
@@ -93,7 +85,9 @@ body {
   font-weight: 700;
   color: #1F2A44;
   line-height: 1.1;
-  display: block;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
 }
 
 .hud-unit {
@@ -102,17 +96,9 @@ body {
   color: #666;
 }
 
-#hud-speed .hud-value {
-  color: #FF9A3C;
-}
-
-#hud-dist .hud-value {
-  color: #2E9E6B;
-}
-
-#hud-best .hud-value {
-  color: #A98BF0;
-}
+#hud-speed .hud-value { color: #FF9A3C; }
+#hud-dist .hud-value  { color: #2E9E6B; }
+#hud-best .hud-value  { color: #A98BF0; }
 
 /* ---- Chip Kota Permanen di HUD ---- */
 #hud-city {
@@ -146,7 +132,7 @@ body {
 
 .hud-city-bar-track {
   width: 100%;
-  height: 5px;
+  height: 8px;
   background: #E8DEC8;
   border: 1.5px solid #1F2A44;
   border-radius: 4px;
@@ -156,9 +142,11 @@ body {
 
 .hud-city-bar-fill {
   height: 100%;
-  background: #2E9E6B;
+  background: linear-gradient(90deg, #2E9E6B, #4EBF8A);
+  border: 1.5px solid #1A6B44;
   border-radius: 2px;
-  transition: width 0.25s ease;
+  transform-origin: left center;
+  transition: transform 0.1s linear;
 }
 
 .hud-city-next {
@@ -174,17 +162,13 @@ body {
 /* ---- Tombol jeda (pojok kanan atas) ---- */
 #btn-pause {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 48px;
-  height: 48px;
+  top: 12px; right: 12px;
+  width: 48px; height: 48px;
   background: #FFF4DA;
   border: 3px solid #1F2A44;
   border-radius: 12px;
   box-shadow: 3px 3px 0 #1F2A44;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   pointer-events: all;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
@@ -198,17 +182,13 @@ body {
 /* ---- Tombol suara (pojok kiri atas) ---- */
 #btn-sound {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 48px;
-  height: 48px;
+  top: 12px; left: 12px;
+  width: 48px; height: 48px;
   background: #FFF4DA;
   border: 3px solid #1F2A44;
   border-radius: 12px;
   box-shadow: 3px 3px 0 #1F2A44;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   pointer-events: all;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
@@ -247,15 +227,8 @@ body {
 }
 
 @keyframes modal-pop {
-  from {
-    transform: scale(0.6);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
 }
 
 .modal-title {
@@ -321,7 +294,7 @@ body {
   min-width: 180px;
   min-height: 52px;
   transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.08s ease;
+              box-shadow 0.08s ease;
   pointer-events: all;
 }
 
@@ -348,7 +321,7 @@ body {
   cursor: pointer;
   min-height: 44px;
   transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.08s ease;
+              box-shadow 0.08s ease;
   pointer-events: all;
 }
 
@@ -360,11 +333,11 @@ body {
 /* ---- Popup Pergantian Kota ---- */
 #city-popup {
   position: absolute;
-  top: 78px;
+  top: 86px;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
-  z-index: 25;
+  z-index: 15;
 }
 
 .city-popup-hidden {
@@ -373,14 +346,13 @@ body {
 
 .city-popup-card {
   background: #FFF4DA;
-  border: 3.5px solid #1F2A44;
-  border-radius: 16px;
-  box-shadow: 4px 4px 0 #1F2A44;
-  padding: 8px 22px 10px;
+  border: 4px solid #1F2A44;
+  border-radius: 18px;
+  box-shadow: 5px 5px 0 #1F2A44;
+  padding: 10px 24px 12px;
   text-align: center;
-  min-width: 230px;
-  max-width: 86vw;
-  box-sizing: border-box;
+  min-width: 240px;
+  max-width: 85vw;
 }
 
 .city-popup-badge {
@@ -396,140 +368,85 @@ body {
   font-weight: 800;
   color: #1F2A44;
   letter-spacing: 0.5px;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .city-popup-title {
   font-family: 'Fredoka', sans-serif;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: #1F2A44;
   line-height: 1.1;
-  margin: 2px 0;
+  margin: 2px 0 3px;
 }
 
 .city-popup-desc {
   font-family: 'Nunito', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #4A5160;
   line-height: 1.2;
 }
 
-.city-popup-card.city-popup-enter {
-  animation: popup-spring-enter 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+.city-popup-enter {
+  animation: popup-spring-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.city-popup-card.city-popup-exit {
-  animation: popup-smooth-exit 0.35s ease forwards;
+.city-popup-exit {
+  animation: popup-smooth-exit 0.4s ease forwards;
 }
 
 @keyframes popup-spring-enter {
-  0%   { opacity: 0; transform: translateY(-20px) scale(0.8); }
+  0%   { opacity: 0; transform: translateY(-24px) scale(0.75); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes popup-smooth-exit {
   0%   { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-16px) scale(0.92); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.9); }
 }
 
-/* Responsif Mobile untuk HUD & Chip Kota (2 Baris Rapi) */
+/* Responsif Mobile untuk HUD & Chip Kota */
 @media (max-width: 480px) {
-  #btn-sound {
-    top: 10px;
-    left: 10px;
-    width: 42px;
-    height: 42px;
-  }
-
-  #btn-pause {
-    top: 10px;
-    right: 10px;
-    width: 42px;
-    height: 42px;
-  }
-
   #hud {
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 116px);
-    max-width: 320px;
-    padding: 0;
+    padding: 8px 52px 0 52px;
     gap: 4px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-areas:
-      "city city city"
-      "speed dist best";
-    align-items: stretch;
+    max-width: 100%;
   }
-
-  #hud-city {
-    grid-area: city;
-    width: 100%;
-    max-width: none;
-    min-width: 0;
-    padding: 4px 8px 3px;
+  .hud-block {
+    padding: 4px 6px 3px;
+    min-width: 52px;
   }
-
-  .hud-city-title {
-    font-size: 14px;
-  }
-
-  .hud-city-bar-track {
-    height: 8px;
-    margin: 2px 0;
-  }
-
-  .hud-city-next {
-    font-size: 9px;
-  }
-
-  #hud-speed {
-    grid-area: speed;
-    min-width: 0;
-    padding: 4px 4px 3px;
-  }
-
-  #hud-dist {
-    grid-area: dist;
-    min-width: 0;
-    padding: 4px 4px 3px;
-  }
-
-  #hud-best {
-    grid-area: best;
-    min-width: 0;
-    padding: 4px 4px 3px;
-  }
-
-  .hud-label {
-    font-size: 8px;
-    margin-bottom: 1px;
-  }
-
   .hud-value {
-    font-size: 16px;
+    font-size: 18px;
   }
-
-  .hud-num {
-    font-size: 16px;
+  .hud-label {
+    font-size: 8.5px;
   }
-
-  .hud-unit {
-    font-size: 9px;
+  #hud-city {
+    min-width: 100px;
+    max-width: 130px;
+    padding: 3px 6px 3px;
   }
-
+  .hud-city-title {
+    font-size: 13px;
+  }
+  .hud-city-next {
+    font-size: 8.5px;
+  }
+  #btn-pause, #btn-sound {
+    width: 40px;
+    height: 40px;
+    top: 8px;
+  }
+  #btn-pause { right: 8px; }
+  #btn-sound { left: 8px; }
   #city-popup {
-    top: 96px;
+    top: 72px;
   }
-
   .city-popup-title {
-    font-size: 20px;
+    font-size: 22px;
   }
-
   .city-popup-desc {
     font-size: 11px;
   }
@@ -554,34 +471,20 @@ body {
 }
 
 @media (pointer: coarse) and (orientation: landscape) {
-  #rotate-msg {
-    display: flex;
-  }
+  #rotate-msg { display: flex; }
 }
 
 /* ---- Safe area ---- */
 @supports (padding: env(safe-area-inset-top)) {
-  #hud {
-    padding-top: calc(12px + env(safe-area-inset-top));
-  }
-
-  #btn-pause {
-    top: calc(12px + env(safe-area-inset-top));
-    right: calc(12px + env(safe-area-inset-right));
-  }
-
-  #btn-sound {
-    top: calc(12px + env(safe-area-inset-top));
-    left: calc(12px + env(safe-area-inset-left));
-  }
+  #hud { padding-top: calc(12px + env(safe-area-inset-top)); }
+  #btn-pause { top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); }
+  #btn-sound { top: calc(12px + env(safe-area-inset-top)); left: calc(12px + env(safe-area-inset-left)); }
 }
 
 /* ---- Preview mode ---- */
 #preview-bar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: 0; left: 0; right: 0;
   background: #FFF4DA;
   border-top: 3px solid #1F2A44;
   padding: 12px 20px;
@@ -612,16 +515,9 @@ body {
 }
 
 @keyframes record-pulse {
-  from {
-    transform: scale(1);
-  }
-
-  to {
-    transform: scale(1.06);
-  }
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
 }
 
 /* ---- Hidden helper ---- */
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }

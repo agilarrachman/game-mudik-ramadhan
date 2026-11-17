@@ -1,87 +1,72 @@
 # Mudik Lebaran Dash
 
-Game web endless runner bertema mudik Lebaran. Dikembangkan sesuai PRD v2.0.
+Game endless runner bertema perjalanan mudik Lebaran. Hindari kendaraan di depan, kumpulkan jarak sejauh mungkin, dan lewati 7 kota dari Jakarta sampai Kampung Halaman!
 
-## Cara Menjalankan
+## Cara Bermain
 
-Buka dengan **Live Server** di VS Code (klik kanan `index.html` > _Open with Live Server_) atau server lokal mana pun yang melayani file statis.
+- **Panah Kiri/Kanan** atau **A / D** (keyboard) — pindah jalur
+- **Ketuk kiri/kanan** layar (mobile) — pindah jalur
+- **P** atau tombol ⏸ — jeda/lanjut
 
-**Tidak perlu koneksi internet** setelah setup awal — Three.js disimpan lokal di `js/lib/three.min.js`.
+## Parameter Debug (URL)
 
+### `?km=X` — Mulai dari Jarak Tertentu
+
+Tambahkan parameter `?km=X` ke URL untuk memulai permainan dari jarak X km.  
+Berguna untuk menguji tampilan kota, chip HUD, dan popup pergantian kota.
+
+**Contoh:**
 ```
-http://localhost:5500/
-```
-
-Mode pratinjau model mobil:
-```
-http://localhost:5500/?preview=1
-```
-
-## Kontrol
-
-| Perangkat | Kontrol |
-|---|---|
-| Keyboard | Panah Kiri/Kanan atau A/D untuk pindah jalur |
-| Keyboard | P atau Esc untuk jeda, Enter/Spasi untuk mulai/ulang |
-| Sentuh | Tap setengah layar kiri/kanan, atau swipe kiri/kanan |
-| Mouse | Klik setengah layar kiri/kanan |
-
-## Struktur Berkas
-
-```
-index.html          — Halaman utama
-css/style.css       — Gaya stiker mainan (blok solid, outline gelap)
-js/
-  lib/three.min.js  — Three.js r149 (lokal, 594 KB)
-  config.js         — Semua parameter game (kecepatan, warna, dsb.)
-  car.js            — Model mobil prosedural (SphereGeometry, bukan BoxGeometry)
-  world.js          — Jalan, dekorasi, checkpoint, tema lingkungan
-  game.js           — Loop game, spawn, tabrakan, skor, resetGame()
-  input.js          — Keyboard, sentuh, mouse
-  audio.js          — Audio prosedural (Web Audio API, tanpa file audio)
-  ui.js             — HUD, menu, jeda, game over
-  main.js           — Inisialisasi, state machine, loop utama
-referensi/
-  ref-mobil.jpg     — Referensi visual mobil (kei-car bulat)
-PRD.md              — Spesifikasi produk lengkap
+index.html?km=0      → Jakarta (awal)
+index.html?km=4.9    → Mendekati Cikampek (5 km)
+index.html?km=10.3   → Cirebon
+index.html?km=15.1   → Brebes
+index.html?km=20.4   → Semarang
+index.html?km=25.2   → Surabaya
+index.html?km=30.5   → Kampung Halaman
 ```
 
-## Hasil Pengujian
+Saat permainan dimulai dengan `?km=X`:
+- Chip kota langsung menampilkan kota yang sesuai
+- Bilah progres kota langsung terisi sesuai posisi
+- Tema dunia (langit, kabut, rumput) langsung sesuai kota
+- Popup kota **tidak** muncul untuk kota yang sudah dilewati
 
-### Simulasi Spawn 1.000 Baris
+### `?preview=1` — Mode Pratinjau Kendaraan
 
-| Kecepatan | Mustahil | Rata Gap | Min Gap | Zigzag | Status |
-|---|---|---|---|---|---|
-| 18 u/s | 0/1000 | 12.00 | 12.00 | ~38 | LULUS |
-| 25 u/s | 0/1000 | 19.17 | 19.18 | ~42 | LULUS |
-| 35 u/s | 0/1000 | 27.67 | 27.68 | ~43 | LULUS |
-| 45 u/s | 0/1000 | 34.12 | 34.12 | ~55 | LULUS |
-| 52 u/s | 0/1000 | 37.40 | 37.40 | ~62 | LULUS |
+Menampilkan pratinjau 3D semua kendaraan dalam studio.
 
-**Total: 0 situasi mustahil dari 5.000 baris** — selalu ada jalur penyelamat.
+```
+index.html?preview=1
+index.html?preview=1&angle=rear   → sudut belakang (tampilan in-game)
+index.html?preview=1&angle=2      → sudut samping
+```
 
-### Kriteria Penerimaan (PRD 12)
+## Kota & Checkpoint
 
-- Tidak ada emoji di UI, teks, maupun kode
-- Siluet mobil bulat mengilap (SphereGeometry, bukan BoxGeometry)
-- Warna rintangan pastel bertenaga (palet PRD 7.2)
-- Simulasi spawn 1.000 baris: tidak ada situasi mustahil
-- Restart 20x: stabil (kamera, FOV, dan state kembali normal)
-- Responsif di 1920x1080, 1366x768, 768x1024, 390x844
-- Rekor tersimpan di localStorage
+| Jarak (km) | Kota             | Deskripsi                              |
+|-----------|------------------|----------------------------------------|
+| 0         | Jakarta          | Titik awal perjalanan                  |
+| 5         | Cikampek         | Gerbang tol menuju timur               |
+| 10        | Cirebon          | Kota udang dan batik mega mendung      |
+| 15        | Brebes           | Sentra telur asin dan bawang merah     |
+| 20        | Semarang         | Kota Lawang Sewu                       |
+| 25        | Surabaya         | Kota Pahlawan                          |
+| 30        | Kampung Halaman  | Selamat datang, perjalanan mudik selesai |
 
-## Stack Teknis
+## Struktur File
 
-- HTML + CSS + JavaScript vanilla
-- Three.js r149 (lokal, tanpa CDN)
-- Web Audio API (tanpa file audio)
-- Tidak ada build tool, tidak ada dependensi npm
-
-## Pengembangan
-
-Semua parameter ada di `js/config.js` — ubah nilai di sana untuk menyetel gameplay, visual, dan audio.
-
-Untuk menguji sistem spawn di console browser:
-```js
-Game.simulateSpawn(1000, 52)  // 1000 baris di kecepatan maksimum
+```
+├── index.html
+├── css/
+│   └── style.css
+└── js/
+    ├── config.js    — Semua parameter & fungsi getKotaState()
+    ├── car.js       — Model 3D kendaraan (buatMobil)
+    ├── world.js     — Jalan, langit, dekorasi, tema kota
+    ├── audio.js     — Audio3D (mesin, SFX, musik)
+    ├── input.js     — Keyboard, sentuh, keyboard buffer
+    ├── ui.js        — HUD, menu, popup kota
+    ├── game.js      — Loop utama, spawn, tabrakan, skor
+    └── main.js      — Inisialisasi Three.js, state machine, loop
 ```

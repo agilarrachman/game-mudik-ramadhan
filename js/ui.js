@@ -1,39 +1,48 @@
-// ui.js — HUD, menu, jeda, game over, checkpoint banner
+// ui.js — HUD, menu, jeda, game over, chip kota, popup pergantian kota
 // Gaya stiker mainan: blok solid, outline gelap, bayangan offset keras.
 // Tanpa emoji. Ikon SVG inline.
 
-(function () {
+(function() {
   'use strict';
 
   // ---- Elemen DOM ----
-  const $ = id => document.getElementById(id);
+  const $  = id => document.getElementById(id);
   const el = {
-    hud: $('hud'),
-    hudSpeed: $('hud-speed'),
-    hudDist: $('hud-dist'),
-    hudBest: $('hud-best'),
-    btnPause: $('btn-pause'),
-    btnSound: $('btn-sound'),
-    iconOn: $('icon-sound-on'),
-    iconOff: $('icon-sound-off'),
-    banner: $('checkpoint-banner'),
-    panelMenu: $('panel-menu'),
+    hud:        $('hud'),
+    hudSpeed:   $('hud-speed'),
+    hudDist:    $('hud-dist'),
+    hudBest:    $('hud-best'),
+    hudCityTitle:   $('hud-city-title'),
+    hudCityBarFill: $('hud-city-bar-fill'),
+    hudCityNext:    $('hud-city-next'),
+    btnPause:   $('btn-pause'),
+    btnSound:   $('btn-sound'),
+    iconOn:     $('icon-sound-on'),
+    iconOff:    $('icon-sound-off'),
+    cityPopup:      $('city-popup'),
+    cityPopupTitle: $('city-popup-title'),
+    cityPopupDesc:  $('city-popup-desc'),
+    panelMenu:  $('panel-menu'),
     panelPause: $('panel-pause'),
-    panelGO: $('panel-gameover'),
-    btnStart: $('btn-start'),
-    btnResume: $('btn-resume'),
+    panelGO:    $('panel-gameover'),
+    btnStart:   $('btn-start'),
+    btnResume:  $('btn-resume'),
     btnRestartPause: $('btn-restart-pause'),
-    btnRestart: $('btn-restart'),
-    goDist: $('go-dist'),
-    goBest: $('go-best'),
-    goNewRec: $('go-new-record'),
+    btnRestart:      $('btn-restart'),
+    goDist:     $('go-dist'),
+    goBest:     $('go-best'),
+    goNewRec:   $('go-new-record'),
   };
 
-  let bannerTimer = null;
+  // ---- Antrean Popup ----
+  const popupQueue = [];
+  let popupActive = false;
+  let popupTimer = null;
+  let popupExitTimer = null;
 
   // ---- Tampilkan / sembunyikan ----
-  function show(el) { el && el.classList.remove('hidden'); }
-  function hide(el) { el && el.classList.add('hidden'); }
+  function show(e) { e && e.classList.remove('hidden'); }
+  function hide(e) { e && e.classList.add('hidden'); }
 
   // ---- State panel ----
   function showMenu() {
@@ -70,7 +79,6 @@
 
     // Animasi ulang panel
     el.panelGO.querySelector('.modal-box').style.animation = 'none';
-    // Trigger reflow
     void el.panelGO.querySelector('.modal-box').offsetHeight;
     el.panelGO.querySelector('.modal-box').style.animation = '';
   }
@@ -83,43 +91,110 @@
     show(el.btnPause);
   }
 
-  // ---- Update HUD ----
+  // ---- Update HUD nilai ----
   function updateHUD(speedKmh, distKm, bestKm) {
-    // Update nilai teks, pertahankan unit span
     _setHudValue(el.hudSpeed, Math.round(speedKmh), ' km/j');
-    _setHudValue(el.hudDist, distKm.toFixed(2), ' km');
-    _setHudValue(el.hudBest, bestKm.toFixed(2), ' km');
+    _setHudValue(el.hudDist,  distKm.toFixed(2), ' km');
+    _setHudValue(el.hudBest,  bestKm.toFixed(2), ' km');
   }
 
   function _setHudValue(block, val, unit) {
-    const valEl = block.querySelector('.hud-value');
+    const valEl  = block.querySelector('.hud-value');
     const unitEl = block.querySelector('.hud-unit');
     if (!valEl) return;
-    // Set text langsung tanpa innerHTML agar tidak ada XSS
     valEl.firstChild.nodeValue = String(val);
     if (unitEl) unitEl.textContent = unit;
   }
 
-  // ---- Banner checkpoint ----
-  function showCheckpoint(nama) {
-    el.banner.textContent = nama;
-    el.banner.classList.add('visible');
-    if (bannerTimer) clearTimeout(bannerTimer);
-    bannerTimer = setTimeout(() => {
-      el.banner.classList.remove('visible');
-    }, 2200);
+  // ---- Update Chip Kota ----
+  function updateCityChip(kotaState) {
+    if (!kotaState) return;
+    // Nama kota
+    if (el.hudCityTitle) {
+      el.hudCityTitle.textContent = kotaState.nama;
+    }
+    // Progress bar via transform scaleX
+    if (el.hudCityBarFill) {
+      el.hudCityBarFill.style.transform = 'scaleX(' + kotaState.progres.toFixed(4) + ')';
+    }
+    // Teks sisa jarak
+    if (el.hudCityNext) {
+      if (kotaState.isLast) {
+        el.hudCityNext.textContent = 'Sudah sampai di kampung halaman';
+      } else {
+        el.hudCityNext.textContent = kotaState.sisaKm.toFixed(1) + ' km lagi ke ' + kotaState.namaBerikutnya;
+      }
+    }
+  }
+
+  // ---- Popup Pergantian Kota ----
+  function showCityPopup(nama, desc) {
+    popupQueue.push({ nama, desc });
+    if (!popupActive) _processPopupQueue();
+  }
+
+  function _processPopupQueue() {
+    if (popupQueue.length === 0) {
+      popupActive = false;
+      return;
+    }
+    popupActive = true;
+    const item = popupQueue.shift();
+    _displayPopup(item.nama, item.desc);
+  }
+
+  function _displayPopup(nama, desc) {
+    const popup = el.cityPopup;
+    if (!popup) return;
+
+    // Set konten
+    if (el.cityPopupTitle) el.cityPopupTitle.textContent = nama;
+    if (el.cityPopupDesc)  el.cityPopupDesc.textContent  = desc || '';
+
+    // Reset kelas animasi
+    popup.classList.remove('city-popup-hidden', 'city-popup-enter', 'city-popup-exit');
+    // Trigger reflow
+    void popup.offsetHeight;
+    // Animasi masuk
+    popup.classList.add('city-popup-enter');
+
+    // Bersihkan timer lama
+    if (popupTimer) clearTimeout(popupTimer);
+    if (popupExitTimer) clearTimeout(popupExitTimer);
+
+    // Tampil 2.5 detik lalu keluar
+    popupTimer = setTimeout(() => {
+      popup.classList.remove('city-popup-enter');
+      popup.classList.add('city-popup-exit');
+      popupExitTimer = setTimeout(() => {
+        popup.classList.add('city-popup-hidden');
+        popup.classList.remove('city-popup-exit');
+        _processPopupQueue();
+      }, 400); // sesuai durasi animasi exit
+    }, 2500);
+  }
+
+  function resetPopupQueue() {
+    if (popupTimer) clearTimeout(popupTimer);
+    if (popupExitTimer) clearTimeout(popupExitTimer);
+    popupTimer = null;
+    popupExitTimer = null;
+    popupQueue.length = 0;
+    popupActive = false;
+    if (el.cityPopup) {
+      el.cityPopup.classList.add('city-popup-hidden');
+      el.cityPopup.classList.remove('city-popup-enter', 'city-popup-exit');
+    }
   }
 
   // ---- Tombol suara ----
   function setSoundIcon(isOn) {
     if (isOn) { show(el.iconOn); hide(el.iconOff); }
-    else { hide(el.iconOn); show(el.iconOff); }
+    else       { hide(el.iconOn); show(el.iconOff); }
   }
 
   // ---- Pasang event handler tombol ----
   function init(callbacks) {
-    // callbacks: { onStart, onResume, onRestart, onPause, onSound }
-
     el.btnStart.addEventListener('click', () => callbacks.onStart && callbacks.onStart());
     el.btnResume.addEventListener('click', () => callbacks.onResume && callbacks.onResume());
     el.btnRestart.addEventListener('click', () => callbacks.onRestart && callbacks.onRestart());
@@ -139,8 +214,12 @@
     showGameOver,
     showPlaying,
     updateHUD,
-    showCheckpoint,
+    updateCityChip,
+    showCityPopup,
+    resetPopupQueue,
     setSoundIcon,
+    // Kompatibilitas mundur
+    showCheckpoint: (nama) => showCityPopup(nama, ''),
   };
 
 })();
