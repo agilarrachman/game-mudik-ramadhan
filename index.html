@@ -1,15 +1,592 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Katalog Game Mudik Lebaran | Detikcom</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #0d131f;
+      --card-bg: #162032;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary-green: #2E9E6B;
+      --accent-gold: #FFD166;
+      --accent-orange: #FF9A3C;
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+      --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-heading: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(46, 158, 107, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 85% 70%, rgba(255, 154, 60, 0.12) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      padding: 24px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary-green), #1b6844);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(46, 158, 107, 0.35);
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-hub {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      max-width: 780px;
+      margin: 48px auto 36px;
+      padding: 0 20px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 154, 60, 0.12);
+      border: 1px solid rgba(255, 154, 60, 0.3);
+      color: var(--accent-orange);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+
+    .hero h2 {
+      font-family: var(--font-heading);
+      font-size: 2.6rem;
+      line-height: 1.2;
+      margin-bottom: 14px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Container & Grid */
+    main {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #E2E8F0;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+
+    /* Game Card */
+    .game-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
+    }
+
+    .game-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+      border-color: rgba(46, 158, 107, 0.45);
+    }
+
+    .card-banner {
+      height: 200px;
+      background: linear-gradient(135deg, #1b382b, #11263c);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .banner-graphic {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #275841 0%, #10212e 100%);
+    }
+
+    .banner-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(13, 19, 31, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--accent-gold);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 8px;
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: #2E9E6B;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(46, 158, 107, 0.4);
+    }
+
+    .status-badge.soon {
+      background: #475569;
+      box-shadow: none;
+    }
+
+    .card-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .game-meta {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      color: #94a3b8;
+    }
+
+    .game-title {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .game-desc {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn-play {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #2E9E6B, #237b53);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 13px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(46, 158, 107, 0.3);
+    }
+
+    .btn-play:hover {
+      background: linear-gradient(135deg, #37b77d, #2a9263);
+      box-shadow: 0 6px 20px rgba(46, 158, 107, 0.45);
+      transform: scale(1.01);
+    }
+
+    .quick-start {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .quick-start-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .city-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .city-pill {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .city-pill:hover {
+      background: rgba(46, 158, 107, 0.3);
+      color: #fff;
+      border-color: rgba(46, 158, 107, 0.5);
+    }
+
+    /* Modal / Info Drawer */
+    .card-footer-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    @media (max-width: 640px) {
+      .hero h2 {
+        font-size: 2rem;
+      }
+
+      .brand-text h1 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Halaman Beranda</h1>
-    <a href="Ramadan Merge Game.html">Ramadhan Merge Game</a>
-    <a href="Kue Tumpuk!.html">Kue Tumpuk</a>
-    <a href="game1.html">Game 1</a>
-    <a href="/game2">Game 2</a>
+
+  <!-- Header -->
+  <header>
+    <a href="./" class="brand">
+      <div class="brand-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2" />
+          <circle cx="6.5" cy="16.5" r="2.5" />
+          <circle cx="16.5" cy="16.5" r="2.5" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Katalog Game Mudik</h1>
+        <span>Detikcom Edutainment</span>
+      </div>
+    </a>
+    <div class="badge-hub">
+      Maganghub Project
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      🎉 Semarak Hari Raya & Mudik Seru
+    </div>
+    <h2>Jelajahi Game Bertema Mudik</h2>
+    <p>
+      Koleksi mini-game interaktif untuk menemani perjalanan mudikmu. Rasakan sensasi melintasi tol Trans Jawa,
+      menghindari macet, dan tiba dengan selamat di kampung halaman!
+    </p>
+  </section>
+
+  <!-- Main Content -->
+  <main>
+    <div class="section-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E9E6B" stroke-width="2.5"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      Daftar Game Tersedia
+    </div>
+
+    <div class="games-grid">
+
+      <!-- Card 1: Mudik Lebaran Dash (Active) -->
+      <div class="game-card">
+        <div class="card-banner">
+          <div class="banner-badge">🎮 3D WebGL / Three.js</div>
+          <span class="status-badge">Aktif & Siap Main</span>
+
+          <div class="banner-graphic">
+            <!-- Ilustrasi Mobil & Tol -->
+            <svg width="180" height="120" viewBox="0 0 200 120" fill="none">
+              <!-- Jalan Tol -->
+              <path d="M70 120 L90 40 L110 40 L130 120 Z" fill="#253549" opacity="0.6" />
+              <line x1="100" y1="40" x2="100" y2="120" stroke="#FFD166" stroke-width="3" stroke-dasharray="8 8" />
+              <!-- Mobil Pemudik -->
+              <g transform="translate(75, 48)">
+                <rect x="10" y="24" width="30" height="36" rx="6" fill="#2E9E6B" />
+                <!-- Atap & Kaca -->
+                <rect x="13" y="28" width="24" height="16" rx="4" fill="#8CE1B7" />
+                <rect x="15" y="32" width="20" height="9" rx="2" fill="#1F2A44" />
+                <!-- Muatan Mudik Kardus -->
+                <rect x="14" y="16" width="22" height="10" rx="2" fill="#E6A15C" stroke="#A76728" stroke-width="1.5" />
+                <!-- Roda -->
+                <rect x="6" y="32" width="5" height="12" rx="2" fill="#111" />
+                <rect x="39" y="32" width="5" height="12" rx="2" fill="#111" />
+                <!-- Lampu Belakang -->
+                <rect x="12" y="56" width="6" height="3" rx="1" fill="#FF4757" />
+                <rect x="32" y="56" width="6" height="3" rx="1" fill="#FF4757" />
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="game-meta">
+            <span class="tag">Endless Runner</span>
+            <span class="tag">7 Checkpoint Kota</span>
+            <span class="tag">Mobile & PC</span>
+          </div>
+
+          <h3 class="game-title">Mudik Lebaran Dash</h3>
+          <p class="game-desc">
+            Kendalikan mobil mudik bermuatan kardus melintasi jalur pantura & tol dari Jakarta hingga ke Kampung
+            Halaman. Hindari truk gandeng, bus antar-kota, dan mobil lain!
+          </p>
+
+          <div class="card-actions">
+            <a href="mudik-lebaran-dash/index.html" class="btn-play">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Mulai Petualangan (Mainkan)
+            </a>
+
+            <!-- Quick Start per Kota -->
+            <div class="quick-start">
+              <div class="quick-start-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                  <circle cx="12" cy="9" r="2.5" />
+                </svg>
+                Pilih Titik Awal / Checkpoint (Debug Mode):
+              </div>
+              <div class="city-pills">
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=0" title="Mulai dari awal">Jakarta (0
+                  km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=4.9" title="Cikampek">Cikampek (5 km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=10" title="Cirebon">Cirebon (10 km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=15" title="Brebes">Brebes (15 km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=20" title="Semarang">Semarang (20 km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=25" title="Surabaya">Surabaya (25 km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?km=30" title="Kampung Halaman">Kampung (30
+                  km)</a>
+                <a class="city-pill" href="mudik-lebaran-dash/index.html?preview=1" style="color:var(--accent-orange);"
+                  title="Lihat Model 3D">Showcase 3D</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer-info">
+            <span>Kontrol: A/D atau Panah / Sentuh Layar</span>
+            <span>Versi 1.0.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Rest Area Simulator (Upcoming) -->
+      <div class="game-card" style="opacity: 0.85;">
+        <div class="card-banner" style="background: linear-gradient(135deg, #1e283b, #131a27);">
+          <div class="banner-badge">☕ Casual Mini Game</div>
+          <span class="status-badge soon">Segera Hadir</span>
+
+          <div class="banner-graphic">
+            <svg width="120" height="90" viewBox="0 0 100 80" fill="none" opacity="0.6">
+              <rect x="20" y="25" width="60" height="40" rx="4" stroke="#94A3B8" stroke-width="3" />
+              <path d="M15 25 L50 8 L85 25 Z" stroke="#94A3B8" stroke-width="3" fill="none" />
+              <text x="50" y="50" text-anchor="middle" fill="#94A3B8" font-size="12" font-weight="700">REST AREA</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="game-meta">
+            <span class="tag">Manajemen</span>
+            <span class="tag">Relaxing</span>
+          </div>
+
+          <h3 class="game-title">Parkir Rest Area Kilat</h3>
+          <p class="game-desc">
+            Bantu pemudik menemukan spot parkir yang pas di rest area padat, beli kopi hangat, dan isi bahan bakar
+            sebelum melanjutkan perjalanan.
+          </p>
+
+          <div class="card-actions">
+            <button class="btn-play" style="background: #334155; cursor: not-allowed; box-shadow: none;" disabled>
+              Dalam Tahap Pengembangan
+            </button>
+          </div>
+
+          <div class="card-footer-info">
+            <span>Rencana Rilis: Mudik 2026</span>
+            <span>Konsep</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Tebak Rute & Kuis Mudik (Upcoming) -->
+      <div class="game-card" style="opacity: 0.85;">
+        <div class="card-banner" style="background: linear-gradient(135deg, #2b1f3d, #161226);">
+          <div class="banner-badge">🧠 Trivia & Kuis</div>
+          <span class="status-badge soon">Segera Hadir</span>
+
+          <div class="banner-graphic">
+            <svg width="120" height="90" viewBox="0 0 100 80" fill="none" opacity="0.6">
+              <circle cx="50" cy="40" r="30" stroke="#FFD166" stroke-width="3" />
+              <text x="50" y="48" text-anchor="middle" fill="#FFD166" font-size="28" font-weight="700">?</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="game-meta">
+            <span class="tag">Kuis Nusantara</span>
+            <span class="tag">Edukasi</span>
+          </div>
+
+          <h3 class="game-title">Kuis Jelajah Pantura</h3>
+          <p class="game-desc">
+            Uji pengetahuan seputar kuliner khas daerah jalur mudik: empal gentong, telur asin Brebes, lumpia Semarang,
+            hingga tips aman berkendara.
+          </p>
+
+          <div class="card-actions">
+            <button class="btn-play" style="background: #334155; cursor: not-allowed; box-shadow: none;" disabled>
+              Dalam Tahap Pengembangan
+            </button>
+          </div>
+
+          <div class="card-footer-info">
+            <span>Rencana Rilis: Mudik 2026</span>
+            <span>Konsep</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 Detikcom — Program Maganghub Detikcom. Dibuat dengan cinta untuk pemudik Indonesia.</p>
+  </footer>
+
 </body>
+
 </html>
