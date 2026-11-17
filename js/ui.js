@@ -2,31 +2,31 @@
 // Gaya stiker mainan: blok solid, outline gelap, bayangan offset keras.
 // Tanpa emoji. Ikon SVG inline.
 
-(function() {
+(function () {
   'use strict';
 
   // ---- Elemen DOM ----
-  const $  = id => document.getElementById(id);
+  const $ = id => document.getElementById(id);
   const el = {
-    hud:        $('hud'),
-    hudSpeed:   $('hud-speed'),
-    hudDist:    $('hud-dist'),
-    hudBest:    $('hud-best'),
-    btnPause:   $('btn-pause'),
-    btnSound:   $('btn-sound'),
-    iconOn:     $('icon-sound-on'),
-    iconOff:    $('icon-sound-off'),
-    banner:     $('checkpoint-banner'),
-    panelMenu:  $('panel-menu'),
+    hud: $('hud'),
+    hudSpeed: $('hud-speed'),
+    hudDist: $('hud-dist'),
+    hudBest: $('hud-best'),
+    btnPause: $('btn-pause'),
+    btnSound: $('btn-sound'),
+    iconOn: $('icon-sound-on'),
+    iconOff: $('icon-sound-off'),
+    banner: $('checkpoint-banner'),
+    panelMenu: $('panel-menu'),
     panelPause: $('panel-pause'),
-    panelGO:    $('panel-gameover'),
-    btnStart:   $('btn-start'),
-    btnResume:  $('btn-resume'),
+    panelGO: $('panel-gameover'),
+    btnStart: $('btn-start'),
+    btnResume: $('btn-resume'),
     btnRestartPause: $('btn-restart-pause'),
-    btnRestart:      $('btn-restart'),
-    goDist:     $('go-dist'),
-    goBest:     $('go-best'),
-    goNewRec:   $('go-new-record'),
+    btnRestart: $('btn-restart'),
+    goDist: $('go-dist'),
+    goBest: $('go-best'),
+    goNewRec: $('go-new-record'),
   };
 
   let bannerTimer = null;
@@ -87,12 +87,12 @@
   function updateHUD(speedKmh, distKm, bestKm) {
     // Update nilai teks, pertahankan unit span
     _setHudValue(el.hudSpeed, Math.round(speedKmh), ' km/j');
-    _setHudValue(el.hudDist,  distKm.toFixed(2), ' km');
-    _setHudValue(el.hudBest,  bestKm.toFixed(2), ' km');
+    _setHudValue(el.hudDist, distKm.toFixed(2), ' km');
+    _setHudValue(el.hudBest, bestKm.toFixed(2), ' km');
   }
 
   function _setHudValue(block, val, unit) {
-    const valEl  = block.querySelector('.hud-value');
+    const valEl = block.querySelector('.hud-value');
     const unitEl = block.querySelector('.hud-unit');
     if (!valEl) return;
     // Set text langsung tanpa innerHTML agar tidak ada XSS
@@ -113,7 +113,7 @@
   // ---- Tombol suara ----
   function setSoundIcon(isOn) {
     if (isOn) { show(el.iconOn); hide(el.iconOff); }
-    else       { hide(el.iconOn); show(el.iconOff); }
+    else { hide(el.iconOn); show(el.iconOff); }
   }
 
   // ---- Pasang event handler tombol ----
