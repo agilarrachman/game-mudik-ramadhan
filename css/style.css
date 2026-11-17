@@ -1,0 +1,523 @@
+/* style.css — Mudik Lebaran Dash
+   Gaya stiker mainan: blok solid, outline gelap, bayangan offset keras, sudut membulat.
+   Tanpa glassmorphism, tanpa gradient ungu-biru, tanpa emoji.
+*/
+
+/* ---- Font ---- */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@400;600;700&display=swap');
+
+/* ---- Reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1F2A44;
+  font-family: 'Nunito', system-ui, sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---- Canvas ---- */
+#game-canvas {
+  display: block;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+/* ---- Lapisan UI ---- */
+#ui-layer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ---- HUD ---- */
+#hud {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 580px;
+  padding: 12px 64px 0 64px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.hud-block {
+  background: #FFF4DA;
+  border: 3px solid #1F2A44;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 #1F2A44;
+  padding: 6px 14px 4px;
+  min-width: 75px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.hud-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1F2A44;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1;
+  display: block;
+}
+
+.hud-value {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1F2A44;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.hud-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+
+#hud-speed .hud-value { color: #FF9A3C; }
+#hud-dist .hud-value  { color: #2E9E6B; }
+#hud-best .hud-value  { color: #A98BF0; }
+
+/* ---- Chip Kota Permanen di HUD ---- */
+#hud-city {
+  min-width: 130px;
+  max-width: 175px;
+  padding: 5px 10px 4px;
+}
+
+.hud-city-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1;
+}
+
+.city-pin-icon {
+  flex-shrink: 0;
+}
+
+.hud-city-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1F2A44;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.hud-city-bar-track {
+  width: 100%;
+  height: 8px;
+  background: #E8DEC8;
+  border: 1.5px solid #1F2A44;
+  border-radius: 4px;
+  margin: 3px 0 2px;
+  overflow: hidden;
+}
+
+.hud-city-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2E9E6B, #4EBF8A);
+  border: 1.5px solid #1A6B44;
+  border-radius: 2px;
+  transform-origin: left center;
+  transition: transform 0.1s linear;
+}
+
+.hud-city-next {
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #555555;
+  white-space: nowrap;
+  display: block;
+  line-height: 1.1;
+}
+
+/* ---- Tombol jeda (pojok kanan atas) ---- */
+#btn-pause {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 48px; height: 48px;
+  background: #FFF4DA;
+  border: 3px solid #1F2A44;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 #1F2A44;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-pause:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1F2A44;
+}
+
+/* ---- Tombol suara (pojok kiri atas) ---- */
+#btn-sound {
+  position: absolute;
+  top: 12px; left: 12px;
+  width: 48px; height: 48px;
+  background: #FFF4DA;
+  border: 3px solid #1F2A44;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 #1F2A44;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+#btn-sound:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1F2A44;
+}
+
+/* ---- Panel modal (menu, jeda, game over) ---- */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 42, 68, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+
+.modal-box {
+  background: #FFF4DA;
+  border: 4px solid #1F2A44;
+  border-radius: 20px;
+  box-shadow: 6px 6px 0 #1F2A44;
+  padding: 32px 28px 28px;
+  max-width: 420px;
+  width: calc(100% - 48px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.modal-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: #1F2A44;
+  line-height: 1;
+}
+
+.modal-subtitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.modal-score-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.score-chip {
+  background: #FFF4DA;
+  border: 3px solid #1F2A44;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 #1F2A44;
+  padding: 8px 18px;
+  min-width: 110px;
+}
+
+.score-chip .label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.score-chip .value {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1F2A44;
+  display: block;
+}
+
+/* ---- Tombol utama ---- */
+.btn-primary {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #FFF4DA;
+  background: #2E9E6B;
+  border: 3px solid #1F2A44;
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 #1F2A44;
+  padding: 12px 36px;
+  cursor: pointer;
+  min-width: 180px;
+  min-height: 52px;
+  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.08s ease;
+  pointer-events: all;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 6px 0 #1F2A44;
+}
+
+.btn-primary:active {
+  transform: translate(2px, 2px) scale(0.96);
+  box-shadow: 2px 2px 0 #1F2A44;
+}
+
+.btn-secondary {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1F2A44;
+  background: #FFF4DA;
+  border: 3px solid #1F2A44;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 #1F2A44;
+  padding: 10px 24px;
+  cursor: pointer;
+  min-height: 44px;
+  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.08s ease;
+  pointer-events: all;
+}
+
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1F2A44;
+}
+
+/* ---- Popup Pergantian Kota ---- */
+#city-popup {
+  position: absolute;
+  top: 86px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 15;
+}
+
+.city-popup-hidden {
+  display: none !important;
+}
+
+.city-popup-card {
+  background: #FFF4DA;
+  border: 4px solid #1F2A44;
+  border-radius: 18px;
+  box-shadow: 5px 5px 0 #1F2A44;
+  padding: 10px 24px 12px;
+  text-align: center;
+  min-width: 240px;
+  max-width: 85vw;
+}
+
+.city-popup-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #FFE8B8;
+  border: 2px solid #1F2A44;
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  color: #1F2A44;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.city-popup-title {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1F2A44;
+  line-height: 1.1;
+  margin: 2px 0 3px;
+}
+
+.city-popup-desc {
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4A5160;
+  line-height: 1.2;
+}
+
+.city-popup-enter {
+  animation: popup-spring-enter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.city-popup-exit {
+  animation: popup-smooth-exit 0.4s ease forwards;
+}
+
+@keyframes popup-spring-enter {
+  0%   { opacity: 0; transform: translateY(-24px) scale(0.75); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes popup-smooth-exit {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-20px) scale(0.9); }
+}
+
+/* Responsif Mobile untuk HUD & Chip Kota */
+@media (max-width: 480px) {
+  #hud {
+    padding: 8px 52px 0 52px;
+    gap: 4px;
+    max-width: 100%;
+  }
+  .hud-block {
+    padding: 4px 6px 3px;
+    min-width: 52px;
+  }
+  .hud-value {
+    font-size: 18px;
+  }
+  .hud-label {
+    font-size: 8.5px;
+  }
+  #hud-city {
+    min-width: 100px;
+    max-width: 130px;
+    padding: 3px 6px 3px;
+  }
+  .hud-city-title {
+    font-size: 13px;
+  }
+  .hud-city-next {
+    font-size: 8.5px;
+  }
+  #btn-pause, #btn-sound {
+    width: 40px;
+    height: 40px;
+    top: 8px;
+  }
+  #btn-pause { right: 8px; }
+  #btn-sound { left: 8px; }
+  #city-popup {
+    top: 72px;
+  }
+  .city-popup-title {
+    font-size: 22px;
+  }
+  .city-popup-desc {
+    font-size: 11px;
+  }
+}
+
+/* ---- Pesan putar layar (mobile landscape) ---- */
+#rotate-msg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #1F2A44;
+  color: #FFF4DA;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 22px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 100;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  #rotate-msg { display: flex; }
+}
+
+/* ---- Safe area ---- */
+@supports (padding: env(safe-area-inset-top)) {
+  #hud { padding-top: calc(12px + env(safe-area-inset-top)); }
+  #btn-pause { top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); }
+  #btn-sound { top: calc(12px + env(safe-area-inset-top)); left: calc(12px + env(safe-area-inset-left)); }
+}
+
+/* ---- Preview mode ---- */
+#preview-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #FFF4DA;
+  border-top: 3px solid #1F2A44;
+  padding: 12px 20px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  color: #1F2A44;
+  font-weight: 700;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  pointer-events: all;
+  z-index: 20;
+}
+
+#preview-bar span {
+  padding: 4px 10px;
+  background: #1F2A44;
+  color: #FFF4DA;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+/* ---- Rekor baru highlight ---- */
+.new-record {
+  color: #FF9A3C !important;
+  animation: record-pulse 0.5s ease infinite alternate;
+}
+
+@keyframes record-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+
+/* ---- Hidden helper ---- */
+.hidden { display: none !important; }
