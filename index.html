@@ -1,13 +1,188 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beranda</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1F2A44">
+    <title>Mudik Lebaran Dash</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <h1>Halaman Beranda</h1>
-    <a href="/game1">Game 1</a>
-    <a href="/game2">Game 2</a>
+
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Lapisan UI -->
+    <div id="ui-layer">
+
+        <!-- HUD skor (saat bermain) -->
+        <div id="hud" class="hidden">
+            <div class="hud-block" id="hud-speed">
+                <span class="hud-label">Kecepatan</span>
+                <span class="hud-value">0<span class="hud-unit"> km/j</span></span>
+            </div>
+
+            <!-- Chip Kota Permanen -->
+            <div class="hud-block" id="hud-city">
+                <div class="hud-city-top">
+                    <svg class="city-pin-icon" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        aria-hidden="true">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#2E9E6B"
+                            stroke="#1F2A44" stroke-width="2.5" />
+                        <circle cx="12" cy="9" r="2.5" fill="#FFF4DA" stroke="#1F2A44" stroke-width="1.5" />
+                    </svg>
+                    <span class="hud-city-title" id="hud-city-title">Jakarta</span>
+                </div>
+                <div class="hud-city-bar-track">
+                    <div class="hud-city-bar-fill" id="hud-city-bar-fill" style="width: 0%;"></div>
+                </div>
+                <span class="hud-city-next" id="hud-city-next">5,0 km ke Cikampek</span>
+            </div>
+
+            <div class="hud-block" id="hud-dist">
+                <span class="hud-label">Jarak</span>
+                <span class="hud-value">0<span class="hud-unit"> km</span></span>
+            </div>
+            <div class="hud-block" id="hud-best">
+                <span class="hud-label">Rekor</span>
+                <span class="hud-value">0<span class="hud-unit"> km</span></span>
+            </div>
+        </div>
+
+        <!-- Tombol jeda -->
+        <button id="btn-pause" class="hidden" aria-label="Jeda">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect x="4" y="3" width="4" height="14" rx="2" fill="#1F2A44" />
+                <rect x="12" y="3" width="4" height="14" rx="2" fill="#1F2A44" />
+            </svg>
+        </button>
+
+        <!-- Tombol suara -->
+        <button id="btn-sound" aria-label="Suara">
+            <svg id="icon-sound-on" width="22" height="20" viewBox="0 0 22 20" fill="none" aria-hidden="true">
+                <path d="M2 7h4l5-5v18L6 13H2V7z" fill="#1F2A44" />
+                <path d="M15 4a8 8 0 010 12" stroke="#1F2A44" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                <path d="M18 1a13 13 0 010 18" stroke="#1F2A44" stroke-width="2" stroke-linecap="round" fill="none" />
+            </svg>
+            <svg id="icon-sound-off" width="22" height="20" viewBox="0 0 22 20" fill="none" aria-hidden="true"
+                class="hidden">
+                <path d="M2 7h4l5-5v18L6 13H2V7z" fill="#1F2A44" />
+                <line x1="15" y1="5" x2="21" y2="15" stroke="#1F2A44" stroke-width="2.5" stroke-linecap="round" />
+                <line x1="21" y1="5" x2="15" y2="15" stroke="#1F2A44" stroke-width="2.5" stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <!-- Popup Pergantian Kota -->
+        <div id="city-popup" class="city-popup-hidden" aria-live="polite">
+            <div class="city-popup-card">
+                <div class="city-popup-badge">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#FF9A3C"
+                            stroke="#1F2A44" stroke-width="2.5" />
+                        <circle cx="12" cy="9" r="2.5" fill="#FFF4DA" stroke="#1F2A44" stroke-width="1.5" />
+                    </svg>
+                    <span>CHECKPOINT KOTA</span>
+                </div>
+                <div class="city-popup-title" id="city-popup-title">Jakarta</div>
+                <div class="city-popup-desc" id="city-popup-desc">Titik awal perjalanan</div>
+            </div>
+        </div>
+
+        <!-- Panel Menu -->
+        <div id="panel-menu" class="modal-overlay">
+            <div class="modal-box">
+                <div class="modal-title" style="color:#FF9A3C;">Mudik<br>Lebaran Dash</div>
+                <p class="modal-subtitle">
+                    Kiri/Kanan untuk pindah jalur.<br>
+                    Hindari semua kendaraan di depan!
+                </p>
+                <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;">
+                    <svg width="80" height="40" viewBox="0 0 80 40" fill="none" aria-hidden="true">
+                        <rect x="2" y="12" width="34" height="18" rx="6" fill="#5BB8F5" stroke="#1F2A44"
+                            stroke-width="2.5" />
+                        <rect x="8" y="8" width="22" height="14" rx="5" fill="#a8d8f0" stroke="#1F2A44"
+                            stroke-width="2" />
+                        <circle cx="10" cy="30" r="4.5" fill="#1F2A44" />
+                        <circle cx="10" cy="30" r="2.5" fill="#888" />
+                        <circle cx="28" cy="30" r="4.5" fill="#1F2A44" />
+                        <circle cx="28" cy="30" r="2.5" fill="#888" />
+                        <text x="44" y="26" font-family="Fredoka" font-size="20" fill="#2E9E6B"
+                            font-weight="700">+</text>
+                        <text x="58" y="26" font-family="Fredoka" font-size="20" fill="#FF7A8A"
+                            font-weight="700">-</text>
+                    </svg>
+                </div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+                    <div
+                        style="background:#1F2A44;color:#FFF4DA;border-radius:8px;padding:6px 12px;font-size:12px;font-family:Nunito,sans-serif;font-weight:700;">
+                        Panah Kiri/Kanan</div>
+                    <div
+                        style="background:#1F2A44;color:#FFF4DA;border-radius:8px;padding:6px 12px;font-size:12px;font-family:Nunito,sans-serif;font-weight:700;">
+                        A / D</div>
+                    <div
+                        style="background:#1F2A44;color:#FFF4DA;border-radius:8px;padding:6px 12px;font-size:12px;font-family:Nunito,sans-serif;font-weight:700;">
+                        Ketuk Kiri/Kanan</div>
+                </div>
+                <button class="btn-primary" id="btn-start">Mulai!</button>
+            </div>
+        </div>
+
+        <!-- Panel Jeda -->
+        <div id="panel-pause" class="modal-overlay hidden">
+            <div class="modal-box">
+                <div class="modal-title">Jeda</div>
+                <button class="btn-primary" id="btn-resume">Lanjut</button>
+                <button class="btn-secondary" id="btn-restart-pause">Mulai Ulang</button>
+            </div>
+        </div>
+
+        <!-- Panel Game Over -->
+        <div id="panel-gameover" class="modal-overlay hidden">
+            <div class="modal-box">
+                <div class="modal-title" style="color:#F0525C;">Game Over</div>
+                <div class="modal-score-row">
+                    <div class="score-chip">
+                        <span class="label">Jarak</span>
+                        <span class="value" id="go-dist">0 km</span>
+                    </div>
+                    <div class="score-chip">
+                        <span class="label">Rekor</span>
+                        <span class="value" id="go-best">0 km</span>
+                    </div>
+                </div>
+                <div id="go-new-record" class="hidden"
+                    style="font-family:Fredoka,sans-serif;font-size:20px;font-weight:700;color:#FF9A3C;">
+                    Rekor Baru!
+                </div>
+                <button class="btn-primary" id="btn-restart">Main Lagi!</button>
+            </div>
+        </div>
+
+    </div><!-- /ui-layer -->
+
+    <!-- Pesan putar layar (mobile landscape) -->
+    <div id="rotate-msg">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <rect x="12" y="4" width="40" height="56" rx="8" stroke="#FFF4DA" stroke-width="4" />
+            <path d="M44 32 L20 32 M36 24 L44 32 L36 40" stroke="#FF9A3C" stroke-width="3.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+        <div>Putar layar ke mode potret<br>untuk bermain.</div>
+    </div>
+
+    <!-- Scripts — urutan penting -->
+    <script src="js/lib/three.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/car.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+
 </body>
+
 </html>
