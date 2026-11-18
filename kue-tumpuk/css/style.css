@@ -9,6 +9,10 @@
       }
       *{ box-sizing:border-box; }
       html,body{ margin:0; padding:0; }
+      html{
+        touch-action:manipulation;
+        -webkit-text-size-adjust:100%; text-size-adjust:100%;
+      }
       body{
         font-family:"Nunito",system-ui,sans-serif; color:var(--ink);
         background:
@@ -17,9 +21,12 @@
           linear-gradient(180deg,#cdeeda 0%, var(--mint) 55%, var(--mint-deep) 100%);
         min-height:100vh; overflow-x:hidden;
         -webkit-tap-highlight-color:transparent;
+        touch-action:manipulation; overscroll-behavior:none;
       }
-      button{ font-family:inherit; cursor:pointer; }
+      button{ font-family:inherit; cursor:pointer; touch-action:manipulation; }
       button, [role="button"]{ min-height:2.25rem; }
+      .card, .icon-btn, .evo, .mode-pill, .overlay, .modal-back{ touch-action:manipulation; }
+      canvas#game, .board-frame{ touch-action:none; }
 
       /* ---------- decorative sky ornaments ---------- */
       .sky{ position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
@@ -38,7 +45,7 @@
       @media (max-width:760px){
         .sky .lant1{ left:auto; right:2vw; width:30px; }
         .sky .lant2,.sky .ket1{ display:none; }
-        .sky .moon{ width:40px; top:auto; bottom:120px; right:2vw; }
+        .sky .moon{ display:none; }
         .sky .star1{ left:auto; right:14vw; top:120px; }
         .sky .star2{ display:none; }
       }
@@ -94,7 +101,7 @@
 
       /* ---------- game container ---------- */
       .board-shell{
-        position:relative; flex:0 1 auto;
+        position:relative; flex:0 1 auto; width:100%; max-width:400px;
         background:linear-gradient(180deg,#a4713d, #8a5a2b);
         border-radius:26px; padding:10px;
         box-shadow:0 10px 0 rgba(74,44,20,.25), 0 22px 34px rgba(74,44,20,.18);
@@ -217,17 +224,62 @@
 
       /* ---------- responsive ---------- */
       @media (max-width:760px){
-        .wrap{ padding:10px 8px 20px; }
-        .stage-row{ flex-wrap:wrap; }
-        .panel{
-          order:2; flex:1 1 0; width:auto; flex-direction:row; flex-wrap:wrap; align-items:stretch;
+        .wrap{ padding:8px 10px 20px; }
+        header{ margin:0 0 8px; }
+        header h1{ font-size:28px; }
+        header p{ font-size:12.5px; }
+        /* Stack vertically: board first, then compact HUD rows.
+           Nothing is stretched to fill leftover height — every card
+           keeps its natural, content-sized height. */
+        .stage-row{ flex-direction:column; flex-wrap:nowrap; align-items:stretch; gap:10px; }
+        /* Board noticeably smaller on phones so the whole game no
+           longer feels zoomed-in: width is capped well below the
+           full screen width and also limited by viewport height,
+           keeping its 420:600 ratio via the canvas aspect. */
+        .board-shell{
+          order:1; flex:0 0 auto; margin:0 auto; padding:8px; border-radius:22px;
+          width:min(330px, 92vw);
+          width:min(330px, 92vw, calc((100dvh - 330px) * 0.7 + 60px));
+          max-width:330px;
         }
-        .panel .card, .panel .icon-btn, .panel .mode-pill{ flex:1 1 100px; }
-        .panel-left{ order:2; } .panel-right{ order:3; }
-        .board-shell{ order:1; flex:1 1 100%; max-width:440px; margin:0 auto; }
+        .board-frame{ border-radius:15px; }
+        .panel{
+          width:auto; flex:0 0 auto; flex-direction:row; flex-wrap:wrap;
+          align-items:flex-start; gap:8px;
+        }
+        .panel-left{ order:2; }
+        .panel-right{ order:3; }
+        /* "Berikutnya" becomes one slim horizontal strip */
+        .panel-left .card{
+          flex:1 1 100%; display:flex; align-items:center; justify-content:center;
+          gap:12px; padding:7px 10px;
+        }
+        .panel-left .card .label{ margin-bottom:0; }
+        #nextCanvas{ width:46px; height:46px; }
+        .panel-left .icon-btn{ flex:1 1 0; padding:8px 4px; }
+        /* Score / Best / Combo share one tidy row, natural height */
+        .panel-right{ align-items:stretch; }
+        .panel-right .card{ flex:1 1 0; padding:8px 6px; }
+        .panel-right .mode-pill{ flex:1 1 100%; }
         .card .value{ font-size:22px; }
-        #nextCanvas{ width:52px; height:52px; }
+        .card .value.small{ font-size:18px; }
+        /* evolution bar: keep the cookie icons perfectly square */
+        .evo{ margin-top:12px; padding:8px 8px 10px; }
+        .evo-item canvas{ width:36px !important; height:36px !important; }
         .evo-item .evo-name{ font-size:9px; }
+        .evo-item .evo-lv{ transform:translateX(-13px); }
+        .evo-arrow{ font-size:11px; }
+        .foot-ornaments{ margin-top:10px; }
+        .foot-ornaments svg{ width:24px; margin:0 5px; }
+      }
+      @media (max-width:380px){
+        .board-shell{ max-width:300px; width:min(300px, 92vw); }
+        header h1{ font-size:25px; }
+      }
+      @media (max-width:760px) and (max-height:680px){
+        .board-shell{ max-width:272px; width:min(272px, 88vw); padding:7px; }
+        .evo{ margin-top:10px; }
+        .hint{ font-size:12px; }
       }
       @media (prefers-reduced-motion: reduce){
         .sky svg, .hand{ animation:none !important; }
