@@ -52,8 +52,9 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
   display: block;
   z-index: 1;
 }
@@ -63,8 +64,9 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
+  height: 100dvh;
   z-index: 10;
   pointer-events: none;
   display: flex;
@@ -146,7 +148,7 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  padding: 16px 20px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) calc(20px + env(safe-area-inset-left, 0px));
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -287,7 +289,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 32px 20px;
+  padding: calc(32px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) calc(20px + env(safe-area-inset-left, 0px));
   pointer-events: none;
 }
 
@@ -324,7 +326,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
+  width: 100%;
 }
 
 .menu-btn-play {
@@ -474,6 +477,32 @@ body {
 
 /* Responsif Mobile */
 @media (max-width: 600px) {
+  #screen-menu {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .menu-card-top {
+    padding: 14px 24px;
+    margin-top: 4px;
+  }
+
+  .menu-card-bottom {
+    gap: 10px;
+  }
+
+  .menu-hint {
+    font-size: 0.85rem;
+    padding: 6px 16px;
+    max-width: 340px;
+  }
+
+  .menu-card-bottom .sticker-btn:not(#btn-play) {
+    font-size: 1rem;
+    padding: 9px 28px;
+    margin-top: 0 !important;
+  }
+
   .menu-title {
     font-size: 2.1rem;
   }
@@ -508,5 +537,35 @@ body {
 
   .game-over-card {
     padding: 22px 24px;
+  }
+}
+
+/* Layar pendek: padatkan menu agar tidak menutupi kue */
+@media (max-height: 700px) {
+  .menu-title {
+    font-size: 1.8rem;
+  }
+
+  .menu-subtitle {
+    font-size: 0.85rem;
+    margin-top: 2px;
+  }
+
+  .menu-card-top {
+    padding: 10px 20px;
+  }
+
+  .menu-btn-play {
+    padding: 10px 36px;
+    font-size: 1.15rem;
+  }
+
+  .menu-hint {
+    font-size: 0.8rem;
+    padding: 5px 14px;
+  }
+
+  .menu-card-bottom {
+    gap: 8px;
   }
 }
