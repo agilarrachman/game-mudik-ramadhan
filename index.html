@@ -157,7 +157,7 @@
 
     .games-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 28px;
     }
 
@@ -387,9 +387,6 @@
         <span>Detikcom Edutainment</span>
       </div>
     </a>
-    <div class="badge-hub">
-      Maganghub Project
-    </div>
   </header>
 
   <!-- Hero Section -->
@@ -500,7 +497,88 @@
         </div>
       </div>
 
-      <!-- Card 2: Kue Tumpuk! (Active) -->
+      <!-- Card 2: Menara Kue (Active) -->
+      <div class="game-card">
+        <div class="card-banner" style="background: linear-gradient(135deg, #1b382b, #0d2118);">
+          <div class="banner-badge" style="color: #FFD166;">🎮 3D WebGL / Three.js</div>
+          <span class="status-badge" style="background: #2E9E6B;">Aktif & Siap Main</span>
+
+          <div class="banner-graphic" style="background: radial-gradient(circle at center, #1f4736 0%, #091711 100%);">
+            <!-- Ilustrasi Menara Kue 3D & Nampan Lebaran -->
+            <svg width="180" height="120" viewBox="0 0 200 120" fill="none">
+              <!-- Bulan Sabit Emas -->
+              <path d="M165 20 A 18 18 0 1 0 178 48 A 14 14 0 1 1 165 20 Z" fill="#FFE082" opacity="0.85" />
+              <!-- Bintang -->
+              <polygon points="142,24 144,28 148,29 145,32 146,36 142,33 138,36 139,32 136,29 140,28" fill="#FFF4DA"
+                opacity="0.9" />
+              <!-- Nampan Hijau Emas -->
+              <ellipse cx="100" cy="100" rx="60" ry="12" fill="#1F6B52" stroke="#4A2B17" stroke-width="2.5" />
+              <ellipse cx="100" cy="98" rx="55" ry="9" stroke="#FFD166" stroke-width="2" fill="none" />
+              <!-- Tumpukan Kue 3D -->
+              <ellipse cx="100" cy="88" rx="42" ry="10" fill="#F8C471" stroke="#4A2B17" stroke-width="2.5" />
+              <ellipse cx="100" cy="76" rx="36" ry="9" fill="#FAD7A0" stroke="#4A2B17" stroke-width="2.5" />
+              <ellipse cx="100" cy="64" rx="30" ry="8" fill="#F9E79F" stroke="#4A2B17" stroke-width="2.5" />
+              <ellipse cx="100" cy="52" rx="24" ry="7" fill="#FADBD8" stroke="#4A2B17" stroke-width="2.5" />
+              <circle cx="100" cy="48" r="4" fill="#E53935" stroke="#4A2B17" stroke-width="1.5" />
+              <!-- Kue Aktif Melayang -->
+              <g transform="translate(100, 24)">
+                <ellipse cx="0" cy="0" rx="24" ry="7" fill="#FFA81F" stroke="#4A2B17" stroke-width="2.5" />
+                <ellipse cx="-4" cy="-2" rx="3" ry="1.5" fill="#3B8B52" />
+                <line x1="0" y1="9" x2="0" y2="16" stroke="#FFD166" stroke-width="2" stroke-dasharray="2 2" />
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="game-meta">
+            <span class="tag">Precision Stacker</span>
+            <span class="tag">3D Procedural</span>
+            <span class="tag">15 Kue Lebaran</span>
+          </div>
+
+          <h3 class="game-title">Menara Kue</h3>
+          <p class="game-desc">
+            Susun kue-kue Lebaran 3D mengilap setinggi mungkin! Ketuk saat posisi tepat, nikmati potongan 3D presisi
+            dengan cap mesh adonan, raih kombo "Sempurna!", dan cetak rekor baru.
+          </p>
+
+          <div class="card-actions">
+            <a href="menara-kue/index.html" class="btn-play"
+              style="background: linear-gradient(135deg, #2E9E6B, #1B5E46);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Mainkan Menara Kue!
+            </a>
+
+            <!-- Info Fitur 3D -->
+            <div class="quick-start">
+              <div class="quick-start-title" style="color: #FFD166;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                Fitur Unggulan 3D:
+              </div>
+              <div class="city-pills">
+                <a class="city-pill" href="menara-kue/index.html?preview=1"
+                  style="color:var(--accent-gold);font-weight:700;">Pratinjau 15 Kue 3D (?preview=1)</a>
+                <span class="city-pill">Local Clipping + Cap Mesh</span>
+                <span class="city-pill">Bulan & Lampion 3D</span>
+                <span class="city-pill">Kombo Sempurna!</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer-info">
+            <span>Kontrol: Tap / Klik / Spasi</span>
+            <span>Versi 2.0.0 (3D Engine)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Kue Tumpuk! (Active) -->
       <div class="game-card">
         <div class="card-banner" style="background: linear-gradient(135deg, #3d2b1f, #1b2e24);">
           <div class="banner-badge" style="color: #FFD166;">🍪 Physics Puzzle / Matter.js</div>
@@ -510,36 +588,40 @@
             <!-- Ilustrasi Toples & Kue Kering Lebaran -->
             <svg width="180" height="120" viewBox="0 0 200 120" fill="none">
               <!-- Toples Kaca Transparan -->
-              <rect x="55" y="28" width="90" height="78" rx="14" fill="rgba(255, 255, 255, 0.08)" stroke="#FFD166" stroke-width="2.5" />
+              <rect x="55" y="28" width="90" height="78" rx="14" fill="rgba(255, 255, 255, 0.08)" stroke="#FFD166"
+                stroke-width="2.5" />
               <!-- Tutup Toples Emas -->
               <rect x="50" y="20" width="100" height="12" rx="4" fill="#E5A83B" stroke="#B87B18" stroke-width="2" />
               <circle cx="100" cy="15" r="4" fill="#FFD166" />
               <!-- Pita Lebaran -->
-              <path d="M70 26 C85 36, 115 36, 130 26" stroke="#2E9E6B" stroke-width="4" stroke-linecap="round" fill="none"/>
+              <path d="M70 26 C85 36, 115 36, 130 26" stroke="#2E9E6B" stroke-width="4" stroke-linecap="round"
+                fill="none" />
 
               <!-- Kue Nastar 1 (Kiri) -->
-              <circle cx="80" cy="84" r="14" fill="#FFC043" stroke="#D98A06" stroke-width="2"/>
-              <circle cx="80" cy="80" r="3" fill="#693B11"/> <!-- Cengkih -->
+              <circle cx="80" cy="84" r="14" fill="#FFC043" stroke="#D98A06" stroke-width="2" />
+              <circle cx="80" cy="80" r="3" fill="#693B11" /> <!-- Cengkih -->
 
               <!-- Kue Kastengel (Tengah) -->
-              <rect x="88" y="72" width="28" height="15" rx="4" fill="#E6A15C" stroke="#A76728" stroke-width="2"/>
-              <line x1="92" y1="75" x2="112" y2="75" stroke="#FFF3BF" stroke-width="2" stroke-linecap="round"/>
-              <line x1="94" y1="80" x2="110" y2="80" stroke="#FFF3BF" stroke-width="2" stroke-linecap="round"/>
+              <rect x="88" y="72" width="28" height="15" rx="4" fill="#E6A15C" stroke="#A76728" stroke-width="2" />
+              <line x1="92" y1="75" x2="112" y2="75" stroke="#FFF3BF" stroke-width="2" stroke-linecap="round" />
+              <line x1="94" y1="80" x2="110" y2="80" stroke="#FFF3BF" stroke-width="2" stroke-linecap="round" />
 
               <!-- Kue Putri Salju (Kanan) -->
-              <path d="M115 78 A10 10 0 0 1 133 86 L115 86 Z" fill="#FFF9E6" stroke="#D4C29A" stroke-width="2"/>
-              
+              <path d="M115 78 A10 10 0 0 1 133 86 L115 86 Z" fill="#FFF9E6" stroke="#D4C29A" stroke-width="2" />
+
               <!-- Kue Nastar Jumbo Melayang/Jatuh (Efek Drop Suika) -->
               <g transform="translate(90, 36)">
-                <circle cx="10" cy="10" r="11" fill="#FFB03A" stroke="#C27300" stroke-width="2"/>
-                <circle cx="10" cy="7" r="2.5" fill="#5A2F08"/>
+                <circle cx="10" cy="10" r="11" fill="#FFB03A" stroke="#C27300" stroke-width="2" />
+                <circle cx="10" cy="7" r="2.5" fill="#5A2F08" />
                 <!-- Efek gerak jatuh -->
-                <line x1="10" y1="-8" x2="10" y2="-2" stroke="#FFD166" stroke-width="2" stroke-dasharray="2 2"/>
+                <line x1="10" y1="-8" x2="10" y2="-2" stroke="#FFD166" stroke-width="2" stroke-dasharray="2 2" />
               </g>
 
               <!-- Remah Bintang / Sparkle -->
-              <polygon points="152,38 154,44 160,45 155,49 157,55 152,51 147,55 149,49 144,45 150,44" fill="#FFD166" opacity="0.8"/>
-              <polygon points="45,68 46,72 50,73 47,76 48,80 45,77 42,80 43,76 40,73 44,72" fill="#FFD166" opacity="0.8"/>
+              <polygon points="152,38 154,44 160,45 155,49 157,55 152,51 147,55 149,49 144,45 150,44" fill="#FFD166"
+                opacity="0.8" />
+              <polygon points="45,68 46,72 50,73 47,76 48,80 45,77 42,80 43,76 40,73 44,72" fill="#FFD166"
+                opacity="0.8" />
             </svg>
           </div>
         </div>
@@ -553,11 +635,13 @@
 
           <h3 class="game-title">Kue Tumpuk!</h3>
           <p class="game-desc">
-            Arahkan dan jatuhkan kue kering Lebaran ke dalam toples! Satukan 2 kue sejenis agar berubah jadi kue yang lebih besar hingga menjadi Hampers Lebaran spesial.
+            Arahkan dan jatuhkan kue kering Lebaran ke dalam toples! Satukan 2 kue sejenis agar berubah jadi kue yang
+            lebih besar hingga menjadi Hampers Lebaran spesial.
           </p>
 
           <div class="card-actions">
-            <a href="kue-tumpuk/index.html" class="btn-play" style="background: linear-gradient(135deg, #d98a06, #b06500);">
+            <a href="kue-tumpuk/index.html" class="btn-play"
+              style="background: linear-gradient(135deg, #d98a06, #b06500);">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z" />
               </svg>
@@ -568,8 +652,8 @@
             <div class="quick-start">
               <div class="quick-start-title" style="color: #FFD166;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 6v6l4 2"/>
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
                 </svg>
                 8 Evolusi Kue Lebaran:
               </div>
@@ -593,91 +677,129 @@
         </div>
       </div>
 
-      <!-- Card 3: Rest Area Simulator (Upcoming) -->
-      <div class="game-card" style="opacity: 0.85;">
-        <div class="card-banner" style="background: linear-gradient(135deg, #1e283b, #131a27);">
-          <div class="banner-badge">☕ Casual Mini Game</div>
-          <span class="status-badge soon">Segera Hadir</span>
+      <!-- Card 4: Steal the Lebaran (Active) -->
+      <div class="game-card">
+        <div class="card-banner" style="background: linear-gradient(135deg, #3d2b1f, #1b2e24);">
+          <div class="banner-badge" style="color: #FFD166;">🎮 3D Adventure / Three.js</div>
+          <span class="status-badge" style="background: #2E9E6B;">Aktif & Siap Main</span>
 
-          <div class="banner-graphic">
-            <svg width="120" height="90" viewBox="0 0 100 80" fill="none" opacity="0.6">
-              <rect x="20" y="25" width="60" height="40" rx="4" stroke="#94A3B8" stroke-width="3" />
-              <path d="M15 25 L50 8 L85 25 Z" stroke="#94A3B8" stroke-width="3" fill="none" />
-              <text x="50" y="50" text-anchor="middle" fill="#94A3B8" font-size="12" font-weight="700">REST AREA</text>
+          <div class="banner-graphic" style="background: radial-gradient(circle at center, #42301c 0%, #151d18 100%);">
+            <!-- Ilustrasi Steal the Lebaran -->
+            <svg width="200" height="120" viewBox="0 0 200 120" fill="none">
+              <!-- Bulan Sabit -->
+              <path d="M158 10 A16 16 0 1 0 175 36 A13 13 0 1 1 158 10Z" fill="#FFE082" opacity="0.9" />
+
+              <!-- Bintang -->
+              <path d="M137 18 L140 25 L147 27 L140 30 L137 37 L134 30 L127 27 L134 25Z" fill="#FFF4DA" />
+
+              <path d="M180 47 L182 51 L187 53 L182 55 L180 60 L178 55 L173 53 L178 51Z" fill="#FFD166" />
+
+              <!-- Pohon Taman -->
+              <rect x="20" y="58" width="7" height="38" rx="2" fill="#80502D" />
+              <circle cx="23" cy="49" r="16" fill="#28744B" />
+              <circle cx="12" cy="55" r="10" fill="#398C55" />
+              <circle cx="34" cy="57" r="10" fill="#1F613D" />
+
+              <!-- Safe Zone -->
+              <ellipse cx="100" cy="99" rx="66" ry="12" fill="#123C2B" />
+              <ellipse cx="100" cy="95" rx="60" ry="10" fill="#2E9E6B" stroke="#FFD166" stroke-width="2" />
+              <ellipse cx="100" cy="94" rx="45" ry="6" fill="#174F36" />
+
+              <!-- Keranjang Hasil Curian -->
+              <path d="M68 68 L132 68 L125 92 Q100 102 75 92Z" fill="#B87936" stroke="#FFD166" stroke-width="2" />
+              <path d="M68 68 Q100 35 132 68" stroke="#E9B96E" stroke-width="4" fill="none" />
+              <path d="M76 78 H125 M73 86 H128" stroke="#704522" stroke-width="2" />
+
+              <!-- Ketupat -->
+              <g transform="translate(88 53)">
+                <path d="M0 -13 L12 0 L0 13 L-12 0Z" fill="#A4CE68" stroke="#315E32" stroke-width="2" />
+                <path d="M0 -13 V13 M-12 0 H12" stroke="#E5F2B5" stroke-width="1.5" />
+              </g>
+
+              <!-- Amplop THR -->
+              <g transform="translate(113 53) rotate(8)">
+                <rect x="-10" y="-8" width="20" height="16" rx="2" fill="#D94D42" stroke="#FFD166" stroke-width="1.5" />
+                <path d="M-10 -7 L0 1 L10 -7" stroke="#FFE6A6" stroke-width="1.5" fill="none" />
+                <circle cx="0" cy="1" r="2" fill="#FFD166" />
+              </g>
+
+              <!-- Koin -->
+              <circle cx="143" cy="81" r="8" fill="#FFD166" stroke="#B77920" stroke-width="2" />
+              <text x="143" y="84" font-size="8" text-anchor="middle" fill="#80521B" font-weight="bold">R</text>
+
+              <!-- Guardian Alert -->
+              <g transform="translate(157 72)">
+                <rect x="-7" y="-17" width="14" height="29" rx="5" fill="#8D3B32" />
+                <circle cx="-3" cy="-8" r="2" fill="#FFE5B4" />
+                <circle cx="3" cy="-8" r="2" fill="#FFE5B4" />
+                <path d="M-3 0 Q0 -3 3 0" stroke="#FFE5B4" stroke-width="1.5" fill="none" />
+                <path d="M-12 -22 L-7 -28 L-2 -22 L3 -28 L8 -22" stroke="#FF6B5C" stroke-width="2" fill="none" />
+              </g>
+
+              <!-- Motion / Alert -->
+              <path d="M43 35 L38 29 M48 30 L47 22" stroke="#FFD166" stroke-width="2" stroke-linecap="round" />
             </svg>
           </div>
         </div>
 
         <div class="card-body">
           <div class="game-meta">
-            <span class="tag">Manajemen</span>
-            <span class="tag">Relaxing</span>
+            <span class="tag">3D Stealth Adventure</span>
+            <span class="tag">Survival Game</span>
+            <span class="tag">Lebaran Collection</span>
           </div>
 
-          <h3 class="game-title">Parkir Rest Area Kilat</h3>
+          <h3 class="game-title">Steal the Lebaran</h3>
+
           <p class="game-desc">
-            Bantu pemudik menemukan spot parkir yang pas di rest area padat, beli kopi hangat, dan isi bahan bakar
-            sebelum melanjutkan perjalanan.
+            Berani mencuri item Lebaran di taman yang dijaga ketat?
+            Kumpulkan barang-barang langka, hindari kejaran Tung Tung
+            Tung Sahur, dan segera kabur menuju Safe Zone sebelum tertangkap!
+            Buka hadiah, kumpulkan koin, dan tingkatkan kecepatanmu
+            untuk menaklukkan setiap ruangan.
           </p>
 
           <div class="card-actions">
-            <button class="btn-play" style="background: #334155; cursor: not-allowed; box-shadow: none;" disabled>
-              Dalam Tahap Pengembangan
-            </button>
+            <a href="steal-the-lebaran/index.html" class="btn-play"
+              style="background: linear-gradient(135deg, #d98a06, #b06500);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Mainkan Steal the Lebaran!
+            </a>
+
+            <!-- Info Fitur Game -->
+            <div class="quick-start">
+              <div class="quick-start-title" style="color: #FFD166;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                Fitur Unggulan:
+              </div>
+
+              <div class="city-pills">
+                <span class="city-pill">3D Interactive World</span>
+                <span class="city-pill">Guardian AI Chase</span>
+                <span class="city-pill">Rare Item Collection</span>
+                <span class="city-pill">Safe Zone & Rewards</span>
+                <span class="city-pill">Speed Upgrade System</span>
+              </div>
+            </div>
           </div>
 
           <div class="card-footer-info">
-            <span>Rencana Rilis: Mudik 2026</span>
-            <span>Konsep</span>
+            <span>Kontrol: WASD / Arrow Keys / Mouse</span>
+            <span>Three.js 0.152.2</span>
           </div>
         </div>
       </div>
-
-      <!-- Card 3: Tebak Rute & Kuis Mudik (Upcoming) -->
-      <div class="game-card" style="opacity: 0.85;">
-        <div class="card-banner" style="background: linear-gradient(135deg, #2b1f3d, #161226);">
-          <div class="banner-badge">🧠 Trivia & Kuis</div>
-          <span class="status-badge soon">Segera Hadir</span>
-
-          <div class="banner-graphic">
-            <svg width="120" height="90" viewBox="0 0 100 80" fill="none" opacity="0.6">
-              <circle cx="50" cy="40" r="30" stroke="#FFD166" stroke-width="3" />
-              <text x="50" y="48" text-anchor="middle" fill="#FFD166" font-size="28" font-weight="700">?</text>
-            </svg>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <div class="game-meta">
-            <span class="tag">Kuis Nusantara</span>
-            <span class="tag">Edukasi</span>
-          </div>
-
-          <h3 class="game-title">Kuis Jelajah Pantura</h3>
-          <p class="game-desc">
-            Uji pengetahuan seputar kuliner khas daerah jalur mudik: empal gentong, telur asin Brebes, lumpia Semarang,
-            hingga tips aman berkendara.
-          </p>
-
-          <div class="card-actions">
-            <button class="btn-play" style="background: #334155; cursor: not-allowed; box-shadow: none;" disabled>
-              Dalam Tahap Pengembangan
-            </button>
-          </div>
-
-          <div class="card-footer-info">
-            <span>Rencana Rilis: Mudik 2026</span>
-            <span>Konsep</span>
-          </div>
-        </div>
-      </div>
-
     </div>
   </main>
 
   <!-- Footer -->
   <footer>
-    <p>© 2026 Detikcom — Program Maganghub Detikcom. Dibuat dengan cinta untuk pemudik Indonesia.</p>
+    <p>© 2026 Detikcom — Dibuat dengan cinta untuk pemudik Indonesia.</p>
   </footer>
 
 </body>

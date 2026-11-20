@@ -1,7 +1,7 @@
 // main.js — Inisialisasi Three.js, state machine, loop, mode pratinjau
 // State machine: MENU -> PLAYING <-> PAUSED -> GAME_OVER -> PLAYING
 
-(function() {
+(function () {
   'use strict';
 
   // =========================================================
@@ -17,7 +17,7 @@
   // =========================================================
   // THREE.JS SETUP
   // =========================================================
-  const canvas   = document.getElementById('game-canvas');
+  const canvas = document.getElementById('game-canvas');
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -26,14 +26,14 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.PIXEL_RATIO_MAX));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
-  renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.1;
-  renderer.outputEncoding    = THREE.sRGBEncoding;
+  renderer.outputEncoding = THREE.sRGBEncoding;
 
   // Scene
   const scene = new THREE.Scene();
-  scene.fog   = new THREE.Fog(0xc8daf5, CONFIG.FOG_NEAR, CONFIG.FOG_FAR);
+  scene.fog = new THREE.Fog(0xc8daf5, CONFIG.FOG_NEAR, CONFIG.FOG_FAR);
   scene.background = new THREE.Color('#7CC8FF');
 
   // Kamera
@@ -53,10 +53,10 @@
   const dirLight = new THREE.DirectionalLight(0xFFFDF0, 1.0);
   dirLight.position.set(5, 12, 8);
   dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width  = 1024;
+  dirLight.shadow.mapSize.width = 1024;
   dirLight.shadow.mapSize.height = 1024;
   dirLight.shadow.camera.near = 0.5;
-  dirLight.shadow.camera.far  = 50;
+  dirLight.shadow.camera.far = 50;
   dirLight.shadow.camera.left = -15;
   dirLight.shadow.camera.right = 15;
   dirLight.shadow.camera.top = 15;
@@ -283,7 +283,7 @@
     });
 
     Input.setConfirmCallback(() => {
-      if (currentState === STATE.MENU)      doStart();
+      if (currentState === STATE.MENU) doStart();
       else if (currentState === STATE.GAME_OVER) doRestart();
     });
 
@@ -291,17 +291,17 @@
     window._onCrashComplete = (distKm, bestKm) => {
       const isNewRecord = distKm >= bestKm - 0.001;
       UI.showGameOver(distKm, bestKm, isNewRecord);
-      if (isNewRecord && distKm > 0) Audio3D.playSFX('record');
+      Audio3D.gameOver(isNewRecord && distKm > 0);
       setState(STATE.GAME_OVER);
     };
 
     // UI callbacks
     UI.init({
-      onStart:   doStart,
-      onResume:  doResume,
+      onStart: doStart,
+      onResume: doResume,
       onRestart: doRestart,
-      onPause:   doPause,
-      onSound:   toggleSound,
+      onPause: doPause,
+      onSound: toggleSound,
     });
 
     // Load preferensi suara
@@ -311,7 +311,13 @@
         Audio3D.setEnabled(false);
         UI.setSoundIcon(false);
       }
-    } catch (e) {}
+    } catch (e) { }
+
+    // Bunyi klik pada tombol (kecuali tombol suara)
+    document.addEventListener('click', e => {
+      const b = e.target.closest && e.target.closest('button');
+      if (b && b.id !== 'btn-sound') Audio3D.playSFX('click');
+    });
 
     UI.showMenu();
     UI.updateHUD(0, 0, Game.getBestKm());
@@ -321,7 +327,7 @@
   // STATE TRANSITIONS
   // =========================================================
   function doStart() {
-    Audio3D.resume();
+    Audio3D.startGame();
     Game.resetGame();
     if (hasKmParam && kmParam > 0) {
       Game.setStartKm(kmParam);
@@ -339,6 +345,7 @@
   function doPause() {
     if (currentState !== STATE.PLAYING) return;
     Game.pause();
+    Audio3D.pauseGame();
     setState(STATE.PAUSED);
     UI.showPause();
   }
@@ -346,12 +353,13 @@
   function doResume() {
     if (currentState !== STATE.PAUSED) return;
     Game.resume();
+    Audio3D.resumeGame();
     setState(STATE.PLAYING);
     UI.showPlaying();
   }
 
   function doRestart() {
-    Audio3D.resume();
+    Audio3D.startGame();
     Game.resetGame();
     Game.start();
     setState(STATE.PLAYING);
@@ -365,7 +373,7 @@
     UI.setSoundIcon(!wasEnabled);
     try {
       localStorage.setItem('mudik_sound', !wasEnabled ? 'on' : 'off');
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // =========================================================

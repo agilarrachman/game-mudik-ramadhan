@@ -1,229 +1,396 @@
-// audio.js — Audio prosedural via Web Audio API
-// Tanpa berkas audio. Aktif setelah interaksi pertama.
+// audio.js — Audio prosedural via Web Audio API (tanpa berkas audio)
+// Berisi: backsound (musik latar), dengung mesin, dan efek suara (SFX).
+// Audio baru aktif setelah interaksi pertama pengguna (aturan autoplay browser).
 
-(function() {
+(function () {
   'use strict';
 
-  let ctx = null;
-  let masterGain = null;
-  let engineOsc  = null;
-  let engineGain = null;
-  let musicNodes = [];
-  let enabled    = true;
-  let initialized = false;
+  // ---- Volume (bisa diubah di config.js) ----
+  const MUSIC_VOL = (typeof CONFIG !== 'undefined' && CONFIG.MUSIC_VOLUME != null) ? CONFIG.MUSIC_VOLUME : 0.5;
+  const SFX_VOL = (typeof CONFIG !== 'undefined' && CONFIG.SFX_VOLUME != null) ? CONFIG.SFX_VOLUME : 0.8;
+  const ENGINE_VOL = (typeof CONFIG !== 'undefined' && CONFIG.ENGINE_VOLUME != null) ? CONFIG.ENGINE_VOLUME : 0.5;
+  const F_MIN = (typeof CONFIG !== 'undefined' && CONFIG.ENGINE_FREQ_MIN) || 110;
+  const F_MAX = (typeof CONFIG !== 'undefined' && CONFIG.ENGINE_FREQ_MAX) || 420;
 
-  // ---- Inisialisasi konteks audio ----
+  let ctx = null;
+  let masterGain = null, musicBus = null, musicDuck = null, sfxBus = null, engineBus = null;
+  let noiseBuf = null;
+
+  let enabled = true;          // preferensi suara (tombol speaker)
+  let mode = 'idle';           // idle | playing | paused | over
+
+  // Mesin
+  let engineOsc1 = null, engineOsc2 = null, engineFilter = null, engineLfo = null;
+  let engineSpeedT = 0;
+
+  // =========================================================
+  // KONTEKS AUDIO
+  // =========================================================
   function ensureCtx() {
     if (ctx) return true;
     try {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ctx = new AC();
+
+      // Rantai: bus -> master -> kompresor -> speaker
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -14;
+      comp.ratio.value = 4;
+      comp.connect(ctx.destination);
+
       masterGain = ctx.createGain();
-      masterGain.gain.value = 1.0;
-      masterGain.connect(ctx.destination);
+      masterGain.gain.value = enabled ? 1.0 : 0.0;
+      masterGain.connect(comp);
+
+      musicDuck = ctx.createGain();
+      musicDuck.gain.value = 1.0;
+      musicDuck.connect(masterGain);
+
+      musicBus = ctx.createGain();
+      musicBus.gain.value = MUSIC_VOL;
+      musicBus.connect(musicDuck);
+
+      sfxBus = ctx.createGain();
+      sfxBus.gain.value = SFX_VOL;
+      sfxBus.connect(masterGain);
+
+      engineBus = ctx.createGain();
+      engineBus.gain.value = 0.0;           // dinyalakan saat bermain
+      engineBus.connect(masterGain);
+
+      // Buffer noise (dipakai ulang)
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+
+      buildEngine();
       return true;
     } catch (e) {
+      ctx = null;
       return false;
     }
   }
 
-  // ---- Resume setelah user gesture ----
-  function resume() {
+  // Dipanggil dari gesture pengguna. Aman dipanggil berulang.
+  function unlock() {
     if (!ensureCtx()) return;
     if (ctx.state === 'suspended') ctx.resume();
-    if (!initialized) {
-      initialized = true;
-      startEngine();
-      startMusic();
-    }
+    // Trik iOS: putar buffer kosong agar audio terbuka
+    try {
+      const b = ctx.createBuffer(1, 1, 22050);
+      const s = ctx.createBufferSource();
+      s.buffer = b; s.connect(ctx.destination); s.start(0);
+    } catch (e) { }
+    if (mode === 'playing' || mode === 'paused') startMusicScheduler();
   }
 
-  // =========================================================
-  // DENGUNG MESIN
-  // =========================================================
-  function startEngine() {
+  // Buka audio pada interaksi pertama apa pun
+  ['pointerdown', 'touchend', 'keydown', 'click'].forEach(ev =>
+    window.addEventListener(ev, unlock, { passive: true })
+  );
+
+  document.addEventListener('visibilitychange', () => {
     if (!ctx) return;
-    engineOsc  = ctx.createOscillator();
-    engineGain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
-
-    engineOsc.type = 'sawtooth';
-    engineOsc.frequency.value = CONFIG.ENGINE_FREQ_MIN;
-    filter.type      = 'lowpass';
-    filter.frequency.value = 600;
-    filter.Q.value   = 2.0;
-    engineGain.gain.value = 0.06 * CONFIG.SFX_VOLUME;
-
-    engineOsc.connect(filter);
-    filter.connect(engineGain);
-    engineGain.connect(masterGain);
-    engineOsc.start();
-  }
-
-  // Update frekuensi mesin sesuai kecepatan (panggil tiap frame)
-  function updateEngine(speed) {
-    if (!ctx || !engineOsc || !enabled) return;
-    const t   = (speed - CONFIG.SPEED_START) / (CONFIG.SPEED_MAX - CONFIG.SPEED_START);
-    const freq = CONFIG.ENGINE_FREQ_MIN + t * (CONFIG.ENGINE_FREQ_MAX - CONFIG.ENGINE_FREQ_MIN);
-    engineOsc.frequency.setTargetAtTime(freq, ctx.currentTime, 0.1);
-  }
+    if (document.hidden) { if (ctx.state === 'running') ctx.suspend(); }
+    else if (ctx.state === 'suspended') ctx.resume();
+  });
 
   // =========================================================
-  // MUSIK LATAR (pentatonik ceria, sederhana)
+  // HELPER SUARA
   // =========================================================
-  const PENTATONIC = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]; // C D E G A C5
-  const MELODY = [0, 2, 4, 2, 1, 0, 3, 4, 2, 0, 1, 3, 4, 2, 0, 2];
-
-  let melodyIdx  = 0;
-  let melodyTimer = null;
-
-  function playNote(freqIdx, duration, volume) {
-    if (!ctx || !enabled) return;
-    const freq = PENTATONIC[freqIdx % PENTATONIC.length];
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'triangle';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(volume * CONFIG.MUSIC_VOLUME, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-
-    osc.connect(gain);
-    gain.connect(masterGain);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + duration + 0.05);
-  }
-
-  function startMusic() {
-    if (!ctx || !enabled) return;
-    // Mainkan not satu per satu dengan interval 0.4 detik
-    function tick() {
-      if (!enabled) return;
-      playNote(MELODY[melodyIdx % MELODY.length], 0.35, 0.4);
-      melodyIdx++;
-      melodyTimer = setTimeout(tick, 400);
+  function tone(freq, t, dur, type, vol, dest, o) {
+    o = o || {};
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (o.slideTo) osc.frequency.exponentialRampToValueAtTime(o.slideTo, t + dur);
+    const atk = o.attack || 0.005;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + atk);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let node = osc;
+    if (o.lp) {
+      const f = ctx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = o.lp;
+      osc.connect(f); node = f;
     }
-    tick();
+    node.connect(g);
+    g.connect(dest);
+    osc.start(t);
+    osc.stop(t + dur + 0.05);
   }
 
-  function stopMusic() {
-    if (melodyTimer) { clearTimeout(melodyTimer); melodyTimer = null; }
-  }
-
-  function restartMusic() {
-    stopMusic();
-    if (enabled && ctx) startMusic();
+  function noise(t, dur, vol, filterType, f0, f1, dest, q) {
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuf;
+    src.loop = true;
+    const f = ctx.createBiquadFilter();
+    f.type = filterType;
+    f.frequency.setValueAtTime(f0, t);
+    if (f1) f.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    f.Q.value = q || 0.8;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(dest);
+    src.start(t);
+    src.stop(t + dur + 0.05);
   }
 
   // =========================================================
-  // SFX
+  // MESIN
+  // =========================================================
+  function buildEngine() {
+    engineOsc1 = ctx.createOscillator();
+    engineOsc2 = ctx.createOscillator();
+    engineFilter = ctx.createBiquadFilter();
+    const eg = ctx.createGain();
+    const g2 = ctx.createGain();
+    engineLfo = ctx.createOscillator();
+    const lfoDepth = ctx.createGain();
+
+    engineOsc1.type = 'sawtooth';
+    engineOsc2.type = 'square';
+    engineOsc1.frequency.value = F_MIN;
+    engineOsc2.frequency.value = F_MIN * 2;
+    g2.gain.value = 0.35;
+
+    engineFilter.type = 'lowpass';
+    engineFilter.frequency.value = 800;
+    engineFilter.Q.value = 3;
+
+    eg.gain.value = 0.14;                 // dasar
+    engineLfo.type = 'sine';
+    engineLfo.frequency.value = 14;       // getaran "putt-putt"
+    lfoDepth.gain.value = 0.05;
+    engineLfo.connect(lfoDepth);
+    lfoDepth.connect(eg.gain);
+
+    engineOsc1.connect(engineFilter);
+    engineOsc2.connect(g2); g2.connect(engineFilter);
+    engineFilter.connect(eg);
+    eg.connect(engineBus);
+
+    engineOsc1.start(); engineOsc2.start(); engineLfo.start();
+  }
+
+  function setEngine(on) {
+    if (!ctx) return;
+    engineBus.gain.setTargetAtTime(on ? ENGINE_VOL : 0.0, ctx.currentTime, on ? 0.15 : 0.08);
+  }
+
+  // Dipanggil tiap frame dari game.js
+  function updateEngine(speed) {
+    if (!ctx || !engineOsc1) return;
+    const span = (CONFIG.SPEED_MAX - CONFIG.SPEED_START) || 1;
+    const t = Math.max(0, Math.min(1, (speed - CONFIG.SPEED_START) / span));
+    engineSpeedT = t;
+    const f = F_MIN + t * (F_MAX - F_MIN);
+    const now = ctx.currentTime;
+    engineOsc1.frequency.setTargetAtTime(f, now, 0.1);
+    engineOsc2.frequency.setTargetAtTime(f * 2, now, 0.1);
+    engineFilter.frequency.setTargetAtTime(700 + t * 1400, now, 0.1);
+    engineLfo.frequency.setTargetAtTime(12 + t * 22, now, 0.1);
+  }
+
+  // =========================================================
+  // BACKSOUND (musik latar: ceria ala mudik, C - Am - F - G)
+  // =========================================================
+  const BPM = 132;
+  const STEP = 60 / BPM / 2;             // not seperdelapan
+  const SCALE = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50]; // C D E G A C6
+
+  const CHORDS = [
+    { root: 130.81, notes: [261.63, 329.63, 392.00] },   // C
+    { root: 110.00, notes: [220.00, 261.63, 329.63] },   // Am
+    { root: 87.31, notes: [174.61, 220.00, 261.63] },   // F
+    { root: 98.00, notes: [196.00, 246.94, 293.66] },   // G
+  ];
+  // Melodi: 4 bar x 8 langkah, -1 = jeda
+  const MELODY = [
+    [2, -1, 4, 2, 3, -1, 2, 0],
+    [1, -1, 2, 0, 1, -1, 2, 4],
+    [0, -1, 2, 3, 2, -1, 0, -1],
+    [3, -1, 4, 5, 4, -1, 3, 2],
+  ];
+  const BASS = [1, 0, 1, 0, 1.5, 0, 1, 0]; // pengali nada dasar, 0 = jeda
+
+  let schedTimer = null;
+  let nextTime = 0;
+  let stepIdx = 0;
+
+  function scheduleStep(idx, t) {
+    const bar = Math.floor(idx / 8) % 4;
+    const s = idx % 8;
+    const chord = CHORDS[bar];
+
+    // Kick
+    if (s === 0 || s === 4 || s === 6) {
+      tone(150, t, 0.22, 'sine', 0.9, musicBus, { slideTo: 45 });
+    }
+    // Snare/tepuk
+    if (s === 2 || s === 6) {
+      noise(t, 0.14, 0.35, 'highpass', 1500, null, musicBus, 0.7);
+    }
+    // Hi-hat di ketukan ganjil
+    if (s % 2 === 1) {
+      noise(t, 0.05, 0.16, 'highpass', 7000, null, musicBus, 0.7);
+    }
+    // Bass
+    if (BASS[s] > 0) {
+      tone(chord.root * BASS[s] * 2, t, STEP * 1.6, 'sawtooth', 0.32, musicBus, { lp: 900 });
+    }
+    // Chord stab di off-beat
+    if (s % 2 === 1) {
+      chord.notes.forEach(f => tone(f, t, STEP * 0.8, 'square', 0.06, musicBus, { lp: 2200 }));
+    }
+    // Melodi
+    const m = MELODY[bar][s];
+    if (m >= 0) {
+      tone(SCALE[m], t, STEP * 1.5, 'triangle', 0.30, musicBus, { attack: 0.008 });
+      tone(SCALE[m] * 2, t, STEP * 0.8, 'sine', 0.06, musicBus);
+    }
+  }
+
+  function schedulerTick() {
+    if (!ctx || (mode !== 'playing' && mode !== 'paused')) return;
+    if (ctx.state !== 'running') { nextTime = ctx.currentTime + 0.05; return; }
+    while (nextTime < ctx.currentTime + 0.25) {
+      scheduleStep(stepIdx, nextTime);
+      nextTime += STEP;
+      stepIdx++;
+    }
+  }
+
+  function startMusicScheduler() {
+    if (!ctx || schedTimer) return;
+    nextTime = ctx.currentTime + 0.08;
+    schedTimer = setInterval(schedulerTick, 50);
+  }
+
+  function stopMusicScheduler() {
+    if (schedTimer) { clearInterval(schedTimer); schedTimer = null; }
+  }
+
+  function setMusicLevel(level, tc) {
+    if (!ctx) return;
+    musicDuck.gain.setTargetAtTime(level, ctx.currentTime, tc || 0.1);
+  }
+
+  // =========================================================
+  // EFEK SUARA (SFX)
   // =========================================================
   function playSFX(type) {
     if (!ctx || !enabled) return;
+    const t = ctx.currentTime;
+    const out = sfxBus;
 
     switch (type) {
       case 'shift': {
-        // Efek geser jalur — klik singkat
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type   = 'sine';
-        osc.frequency.setValueAtTime(400, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.3 * CONFIG.SFX_VOLUME, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-        osc.connect(gain); gain.connect(masterGain);
-        osc.start(); osc.stop(ctx.currentTime + 0.14);
+        noise(t, 0.16, 0.45, 'bandpass', 600, 2200, out, 1.2);
+        tone(420, t, 0.10, 'sine', 0.25, out, { slideTo: 700 });
         break;
       }
-
       case 'crash': {
-        // Tabrakan — noise burst
-        const bufSize = ctx.sampleRate * 0.4;
-        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-        const data = buf.getChannelData(0);
-        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
-        const src  = ctx.createBufferSource();
-        const gain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
-        filter.type = 'bandpass'; filter.frequency.value = 300; filter.Q.value = 0.8;
-        src.buffer = buf;
-        gain.gain.setValueAtTime(0.6 * CONFIG.SFX_VOLUME, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
-        src.connect(filter); filter.connect(gain); gain.connect(masterGain);
-        src.start(); src.stop(ctx.currentTime + 0.42);
+        // Mesin & musik berhenti, lalu bunyi tabrakan
+        setEngine(false);
+        setMusicLevel(0.0, 0.15);
+        noise(t, 0.7, 1.0, 'lowpass', 2500, 150, out, 0.7);
+        tone(130, t, 0.45, 'sine', 0.9, out, { slideTo: 40 });
+        tone(220, t, 0.25, 'square', 0.25, out, { slideTo: 90, lp: 1200 });
+        tone(1800, t + 0.02, 0.18, 'square', 0.08, out, { slideTo: 700 }); // dentang logam
         break;
       }
-
       case 'horn': {
-        // Klakson — saat nyaris tabrakan
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type   = 'sawtooth';
-        osc.frequency.value = 480;
-        gain.gain.setValueAtTime(0.25 * CONFIG.SFX_VOLUME, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
-        osc.connect(gain); gain.connect(masterGain);
-        osc.start(); osc.stop(ctx.currentTime + 0.28);
-        break;
-      }
-
-      case 'record': {
-        // Rekor baru — arpeggio ceria
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.3 * CONFIG.SFX_VOLUME, ctx.currentTime + i * 0.09);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.09 + 0.15);
-          osc.connect(gain); gain.connect(masterGain);
-          osc.start(ctx.currentTime + i * 0.09);
-          osc.stop(ctx.currentTime + i * 0.09 + 0.17);
+        // Klakson "tin-tin"
+        [0, 0.17].forEach(d => {
+          tone(440, t + d, 0.13, 'square', 0.18, out, { lp: 2400 });
+          tone(554, t + d, 0.13, 'square', 0.14, out, { lp: 2400 });
         });
         break;
       }
-
       case 'checkpoint': {
-        // Checkpoint — dua nada naik
-        [523.25, 783.99].forEach((freq, i) => {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.value = freq;
-          gain.gain.setValueAtTime(0.25 * CONFIG.SFX_VOLUME, ctx.currentTime + i * 0.14);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.14 + 0.20);
-          osc.connect(gain); gain.connect(masterGain);
-          osc.start(ctx.currentTime + i * 0.14);
-          osc.stop(ctx.currentTime + i * 0.14 + 0.22);
+        [523.25, 659.25, 783.99].forEach((f, i) => {
+          tone(f, t + i * 0.11, 0.30, 'triangle', 0.35, out);
+          tone(f * 2, t + i * 0.11, 0.20, 'sine', 0.10, out);
         });
+        break;
+      }
+      case 'record': {
+        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
+          tone(f, t + i * 0.09, 0.28, 'triangle', 0.35, out);
+          tone(f * 2, t + i * 0.09, 0.15, 'sine', 0.08, out);
+        });
+        break;
+      }
+      case 'gameover': {
+        [392.00, 349.23, 311.13, 261.63].forEach((f, i) => {
+          tone(f, t + i * 0.2, 0.45, 'sawtooth', 0.22, out, { lp: 1200 });
+        });
+        break;
+      }
+      case 'click': {
+        tone(900, t, 0.06, 'square', 0.12, out, { lp: 3000 });
         break;
       }
     }
   }
 
   // =========================================================
-  // Toggle suara
+  // ALUR GAME (dipanggil dari main.js)
+  // =========================================================
+  function startGame() {
+    unlock();
+    if (!ctx) return;
+    mode = 'playing';
+    stepIdx = 0;
+    stopMusicScheduler();
+    setMusicLevel(1.0, 0.05);
+    startMusicScheduler();
+    setEngine(true);
+  }
+
+  function pauseGame() {
+    if (mode !== 'playing') return;
+    mode = 'paused';
+    setEngine(false);
+    setMusicLevel(0.25, 0.1);       // musik pelan saat jeda
+  }
+
+  function resumeGame() {
+    if (mode !== 'paused') return;
+    mode = 'playing';
+    setEngine(true);
+    setMusicLevel(1.0, 0.1);
+  }
+
+  function gameOver(isNewRecord) {
+    mode = 'over';
+    stopMusicScheduler();
+    setEngine(false);
+    setMusicLevel(1.0, 0.05);       // siap untuk main lagi
+    playSFX(isNewRecord ? 'record' : 'gameover');
+  }
+
+  // =========================================================
+  // TOGGLE SUARA
   // =========================================================
   function setEnabled(val) {
-    enabled = val;
-    if (!ctx) return;
-    if (!enabled) {
-      masterGain.gain.setTargetAtTime(0, ctx.currentTime, 0.05);
-      stopMusic();
-    } else {
-      masterGain.gain.setTargetAtTime(1.0, ctx.currentTime, 0.05);
-      restartMusic();
-    }
+    enabled = !!val;
+    if (ctx) masterGain.gain.setTargetAtTime(enabled ? 1.0 : 0.0, ctx.currentTime, 0.05);
   }
-
   function isEnabled() { return enabled; }
 
   // Ekspor global
   window.Audio3D = {
-    resume,
+    resume: unlock,          // kompatibel dengan kode lama
+    unlock,
+    startGame, pauseGame, resumeGame, gameOver,
     updateEngine,
     playSFX,
-    setEnabled,
-    isEnabled,
+    setEnabled, isEnabled,
   };
 
 })();

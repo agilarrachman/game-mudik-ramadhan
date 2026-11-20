@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Versi** | 2.0 (pembangunan ulang dari awal) |
+| **Versi** | 1.0 |
 | **Tanggal** | 17 November 2026 |
 | **Platform** | Web (desktop fullscreen dan mobile portrait) |
 | **Tech stack** | HTML, CSS, JavaScript vanilla + Three.js (disimpan lokal, tanpa build tool) |
