@@ -28,6 +28,7 @@
   const btnRestart = document.getElementById('btn-restart');
   const btnToMenu = document.getElementById('btn-to-menu');
   const btnResume = document.getElementById('btn-resume');
+  const btnRestartPause = document.getElementById('btn-restart-pause');
 
   const btnSound = document.getElementById('btn-sound');
   const iconSoundOn = document.getElementById('icon-sound-on');
@@ -170,6 +171,7 @@
     btnSound.addEventListener('click', (e) => {
       e.stopPropagation();
       isSoundOn = !isSoundOn;
+      if (window.GameAudio) GameAudio.setEnabled(isSoundOn);
       if (iconSoundOn && iconSoundOff) {
         if (isSoundOn) {
           iconSoundOn.classList.remove('hidden');
@@ -234,6 +236,20 @@
         e.preventDefault();
         if (global.GameEngine && global.GameEngine.togglePause) {
           global.GameEngine.togglePause();
+        }
+      });
+    }
+
+    if (btnRestartPause) {
+      btnRestartPause.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+      });
+      btnRestartPause.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        setPauseVisible(false);
+        if (global.GameEngine && global.GameEngine.restartGame) {
+          global.GameEngine.restartGame();
         }
       });
     }

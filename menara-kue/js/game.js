@@ -192,13 +192,18 @@
     });
   }
 
+  let startSpawnTimer = null;
+
   function startGame() {
+    if (startSpawnTimer) { clearTimeout(startSpawnTimer); startSpawnTimer = null; }
     initGame();
+    if (global.GameAudio) GameAudio.startGame();
     UIManager.showGameplay();
     currentState = STATE.READY;
     lockState(CONFIG.STATE_LOCK_MS);
 
-    setTimeout(() => {
+    startSpawnTimer = setTimeout(() => {
+      startSpawnTimer = null;
       if (currentState === STATE.READY) {
         spawnNextMovingCake();
       }
@@ -210,6 +215,7 @@
   }
 
   function toMainMenu() {
+    if (global.GameAudio) GameAudio.stopMusic();
     initGame();
   }
 
@@ -217,11 +223,13 @@
     if (currentState === STATE.PAUSED) {
       currentState = previousStateBeforePause;
       UIManager.setPauseVisible(false);
+      if (global.GameAudio) GameAudio.resumeGame();
       lockState(200);
     } else if (currentState === STATE.MOVING || currentState === STATE.DROPPING || currentState === STATE.READY) {
       previousStateBeforePause = currentState;
       currentState = STATE.PAUSED;
       UIManager.setPauseVisible(true);
+      if (global.GameAudio) GameAudio.pauseGame();
     }
   }
 
@@ -284,6 +292,7 @@
       isClawExiting = false;
     }
 
+    if (global.GameAudio) GameAudio.playSFX('spawn');
     currentState = STATE.MOVING;
   }
 
@@ -310,6 +319,7 @@
     // Lengan capit membuka cepat (<= 80 ms) lalu capit naik (<= 150 ms)
     clawOpenElapsed = 0;
     isClawExiting = true;
+    if (global.GameAudio) GameAudio.playSFX('release');
   }
 
   // =========================================================
@@ -397,6 +407,7 @@
     triggerLandingSquash(newMesh);
     spawnSprinkleParticles(newMesh.position.x, topLayer.topY + cakeData.height);
     UIManager.triggerPerfectPopup();
+    if (global.GameAudio) GameAudio.playSFX('perfect', combo);
 
     const points = 1 + Math.min(combo, 5);
     score += points;
@@ -435,6 +446,7 @@
     scene.add(remainingMesh);
 
     triggerLandingSquash(remainingMesh);
+    if (global.GameAudio) GameAudio.playSFX('slice');
 
     // 2. Potongan yang jatuh (tidak dipegang tangan)
     const fallenPieces = Cookies3D.buatPotonganJatuh(cake.id, cakeWidthWorld, localOverlapL, localOverlapR, cakeIndex + 1);
@@ -473,6 +485,7 @@
 
   function finalizeTurn() {
     currentState = STATE.STACKED;
+    if (global.GameAudio) GameAudio.setIntensity(score);
 
     const newTop = stackLayers[stackLayers.length - 1];
     SceneManager.recalculateCamera(window.innerWidth, window.innerHeight, newTop.topY, false);
@@ -508,6 +521,7 @@
   function triggerTotalMiss() {
     currentState = STATE.FALLING;
     fallingCakeElapsed = 0;
+    if (global.GameAudio) GameAudio.playSFX('miss');
     if (global.Claw3D) Claw3D.setVisible(false);
   }
 
@@ -516,6 +530,7 @@
       currentState = STATE.GAME_OVER;
       lockState(CONFIG.STATE_LOCK_MS);
       const isNew = UIManager.saveHighScore(score);
+      if (global.GameAudio) GameAudio.gameOver(isNew);
       UIManager.showGameOver(score, isNew, 'Kue meleset dari tumpukan');
     }, 700);
   }

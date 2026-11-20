@@ -115,8 +115,10 @@
         </div>
 
         <div class="game-over-actions">
-          <button id="btn-restart" class="sticker-btn btn-green">Main Lagi</button>
-          <button id="btn-to-menu" class="sticker-btn btn-secondary">Menu Utama</button>
+          <button id="btn-restart" class="sticker-btn btn-green">Main Lagi</button>          
+          <a href="../index.html" class="sticker-btn btn-secondary">
+            Kembali ke Menu Utama
+          </a>
         </div>
       </div>
     </section>
@@ -128,7 +130,10 @@
         <p style="margin: 16px 0; font-weight: 700; color: var(--color-text-light);">
           Ambil napas sejenak sebelum melanjutkan susunan kue Lebaranmu!
         </p>
-        <button id="btn-resume" class="sticker-btn btn-green" style="width: 100%;">Lanjutkan</button>
+        <div class="game-over-actions">
+          <button id="btn-resume" class="sticker-btn btn-green">Lanjutkan</button>
+          <button id="btn-restart-pause" class="sticker-btn btn-secondary">Mulai Ulang</button>
+        </div>
       </div>
     </section>
   </div>
@@ -136,6 +141,7 @@
   <!-- Scripts -->
   <script src="js/lib/three.min.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/geometry.js"></script>
   <script src="js/cookies3d.js"></script>
   <script src="js/scene.js"></script>
