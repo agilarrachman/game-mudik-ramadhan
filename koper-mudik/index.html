@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<link rel="icon" href="data:," />
+<title>Ramadan Merge — Koper Mudik Lebaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="sky" id="sky" aria-hidden="true">
+  <svg class="moon" viewBox="0 0 64 64"><path d="M46 6a26 26 0 1 0 12 40A30 30 0 0 1 46 6z" fill="#ffd66e" stroke="#d98a06" stroke-width="3" stroke-linejoin="round"/><path d="M50 10l2.2 4.6 4.6 2.2-4.6 2.2L50 23.6l-2.2-4.6-4.6-2.2 4.6-2.2z" fill="#fff3bf" stroke="#d98a06" stroke-width="2" stroke-linejoin="round"/></svg>
+  <svg class="lant1" viewBox="0 0 48 84"><line x1="24" y1="0" x2="24" y2="14" stroke="#6b4226" stroke-width="3"/><path d="M14 22h20l4 10-4 22H14l-4-22z" fill="#ffb03a" stroke="#6b4226" stroke-width="3" stroke-linejoin="round"/><path d="M10 32h28M14 54h20" stroke="#d98a06" stroke-width="2.4"/><circle cx="24" cy="42" r="5" fill="#ffe9a8"/><path d="M18 58l-2 10M24 58v11M30 58l2 10" stroke="#6b4226" stroke-width="2.6" stroke-linecap="round"/></svg>
+  <svg class="lant2" viewBox="0 0 48 84"><line x1="24" y1="0" x2="24" y2="14" stroke="#6b4226" stroke-width="3"/><path d="M14 22h20l4 10-4 22H14l-4-22z" fill="#7ed491" stroke="#6b4226" stroke-width="3" stroke-linejoin="round"/><path d="M10 32h28M14 54h20" stroke="#3d8b4f" stroke-width="2.4"/><circle cx="24" cy="42" r="5" fill="#eaffea"/><path d="M18 58l-2 10M24 58v11M30 58l2 10" stroke="#6b4226" stroke-width="2.6" stroke-linecap="round"/></svg>
+  <svg class="ket1" viewBox="0 0 48 48"><path d="M24 3l17 21-17 21L7 24z" fill="#8fd07a" stroke="#4a7a35" stroke-width="3" stroke-linejoin="round"/><path d="M7 24h34M24 3v42M13 13l22 22M35 13L13 35" stroke="#4a7a35" stroke-width="2" fill="none"/></svg>
+  <svg class="ket2" viewBox="0 0 48 48"><path d="M24 3l17 21-17 21L7 24z" fill="#a8dc97" stroke="#4a7a35" stroke-width="3" stroke-linejoin="round"/><path d="M7 24h34M24 3v42M13 13l22 22M35 13L13 35" stroke="#4a7a35" stroke-width="2" fill="none"/></svg>
+</div>
+
+
+<div class="wrap">
+  <header>
+    <h1>Ramadan <span class="accent">Merge!</span></h1>
+    <p>Gabungkan itemnya, panen koin Lebarannya!</p>
+  </header>
+
+  <div class="hud">
+    <div class="chip"><span class="ic coin-ic">🪙</span><span style="text-align:left"><small>Koin</small><span class="val" id="coinVal">0</span></span></div>
+    <div class="chip"><span class="ic score-ic">⭐</span><span style="text-align:left"><small>Skor</small><span class="val" id="scoreVal">0</span></span></div>
+    <div class="icon-btns">
+      <button class="icon-btn" id="btnSound" aria-label="Suara nyala/mati">🔊</button>
+      <button class="icon-btn" id="btnRestart" aria-label="Mulai ulang">↻</button>
+    </div>
+  </div>
+
+  <p class="hint">Seret dua gambar yang <b>sama persis</b> untuk menggabungkannya. Item tingkat terakhir berkilau emas — <b>ketuk 5×</b> untuk memanen koin!</p>
+
+  <div class="board-shell">
+    <div class="board-frame">
+      <div class="board-top"><h2>Papan Merge</h2><span class="slots-label"><span id="filledVal">0</span> / 12 terisi</span></div>
+      <div id="board" aria-label="Papan permainan merge 3 kali 4"></div>
+    </div>
+  </div>
+
+  <div class="suitcase-card">
+    <button id="suitcaseBtn" aria-label="Koper Mudik — ketuk untuk mengeluarkan bahan"></button>
+    <h3>Koper Mudik Lebaran</h3>
+    <p id="suitDesc">Ketuk kopernya — satu bahan acak melompat ke papan!</p>
+    <button id="openBtn">✨ Buka Koper</button>
+    <button class="guide-btn" id="btnGuide">Lihat panduan gabungan 5 koleksi</button>
+  </div>
+</div>
+
+<div id="dragGhost"></div>
+<div id="toast" role="status"></div>
+
+<!-- GUIDE -->
+<div class="overlay" id="ovGuide"><div class="sheet">
+  <div class="sheet-head"><h2>🧺 Panduan Gabungan</h2><button class="x-btn" data-close="ovGuide">✕</button></div>
+  <p style="margin:0 0 10px;font-weight:700;color:#57534e;font-size:13.5px;line-height:1.5">Setiap koleksi punya 4 tingkat. Gabungkan dua gambar yang sama untuk naik tingkat — tanpa tulisan di gambarnya, kenali dari bentuknya ya! Item tingkat terakhir bisa diketuk 5× untuk panen koin, lalu hilang.</p>
+  <div id="guideBody"></div>
+  <div class="tut-step"><span class="te">🧳</span><div><b>1. Buka Koper Mudik</b><p>Ketuk koper untuk mengeluarkan 1 bahan dasar acak ke slot kosong.</p></div></div>
+  <div class="tut-step"><span class="te">👆</span><div><b>2. Seret &amp; Gabungkan</b><p>Seret item ke gambar yang sama persis untuk menggabungkannya. Seret ke slot kosong untuk memindahkan.</p></div></div>
+  <div class="tut-step"><span class="te">🪙</span><div><b>3. Panen 5× Ketuk</b><p>Item lengkap berkilau emas. Setiap ketukan memuntahkan koin; titik emas di bawahnya menunjukkan sisa ketukan. Setelah ketukan ke-5, item hilang dan slotnya kosong lagi.</p></div></div>
+  <div class="tut-step"><span class="te">🏁</span><div><b>4. Jaga Papan Tetap Lega</b><p>Kalau 12 slot penuh dan tidak ada lagi pasangan yang bisa digabung, permainan berakhir. Gabung terus supaya papan tidak buntu!</p></div></div>
+  <button class="big-btn green" data-close="ovGuide">Mulai Bermain! 🎉</button>
+</div></div>
+
+<!-- GAME OVER -->
+<div class="overlay" id="ovOver"><div class="sheet gameover">
+  <div class="go-art" id="goArt"></div>
+  <h2>Papan Penuh! 🌙</h2>
+  <p>Tidak ada lagi pasangan yang bisa digabungkan.<br>Perjalanan merge kali ini selesai — coba lagi dan kejar skor lebih tinggi!</p>
+  <div class="go-stats">
+    <div class="go-stat"><small>Skor Akhir</small><b id="goScore">0</b></div>
+    <div class="go-stat"><small>Koin Terkumpul</small><b>🪙 <span id="goCoins">0</span></b></div>
+  </div>
+  <button class="big-btn green" id="btnPlayAgain">▶ Main Lagi</button>
+</div></div>
+
+<!-- RESTART CONFIRM -->
+<div class="overlay" id="ovRestart"><div class="sheet gameover">
+  <h2 style="margin-top:2px">Mulai Ulang? ↻</h2>
+  <p>Papan, koin, dan skor akan direset dari awal.</p>
+  <button class="big-btn" id="btnRestartYes">Ya, Mulai Ulang</button>
+  <button class="big-btn" data-close="ovRestart" style="background:#fff;color:var(--brown-dark);border:3px solid var(--brown);box-shadow:0 4px 0 rgba(107,66,38,.25);margin-top:9px">Batal</button>
+</div></div>
+
+<script src="js/game.js"></script>
+</body>
+</html>
