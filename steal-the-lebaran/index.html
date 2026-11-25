@@ -7,11 +7,13 @@
 <link rel="icon" href="data:,"/>
 <title>Steal the Lebaran — Curi, Kabur, Buka Hadiah!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<script>/* Fonts load via JS injection so a slow/blocked font CDN can never stall page parsing or first paint; font-display=swap in the URL handles the swap. */
+(function(){var fl=document.createElement('link');fl.rel='stylesheet';fl.href='https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap';document.head.appendChild(fl);})();</script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div id="game" aria-label="Arena 3D Steal the Lebaran"></div>
+<div id="vignette" aria-hidden="true"></div>
 <div id="err" role="alert"></div>
 <div id="flashFx" aria-hidden="true">⚡⚡⚡</div>
 
@@ -30,14 +32,14 @@
 </div>
 
 <div class="hud" id="alert">
-  <div id="chaseBanner"><img src="assets/hd-tungtung.png" alt="Tung Tung Tung Sahur"><span id="chaseText">TUNG TUNG TUNG MENGEJARMU! Lari ke zona aman!</span></div>
+  <div id="chaseBanner"><img src="assets/hd-tung.png" alt="Tung Tung Tung Sahur"><span id="chaseText">TUNG TUNG TUNG MENGEJARMU! Lari ke zona aman!</span></div>
   <div id="toast" role="status"></div>
 </div>
 
 <div class="hud" id="speedAlert" role="alert">
   <div class="inner">
-    <img class="hd-ic" src="assets/hd-petir.png" alt="Ikon petir kecepatan">
-    <p><b>BELI SPEED biar gampang mencuri!</b><br>Penjaga makin cepat di ruangan jauh. Naikkan speed mulai 100 koin — tombolnya ada di tengah bawah 👇</p>
+    <img class="hd-ic" src="assets/hd-speed.png" alt="Ikon petir kecepatan">
+    <p><b>BELI SPEED biar gampang mencuri!</b><br>Penjaga makin cepat di ruangan jauh. Naikkan speed mulai 100 koin — tombolnya ada di sisi kanan 👉</p>
     <button id="btnSpeedAlert">⚡ BELI</button>
   </div>
   <button id="speedAlertClose" aria-label="Tutup pengingat speed">✕</button>
@@ -49,19 +51,18 @@
 <div id="controls">
   <div id="joy" aria-label="Joystick gerak"><div id="joyKnob">🕹️</div></div>
   <div id="actions">
-    <button id="btnSprint">💨 LARI</button>
     <button id="btnAction">MASUK<br>TAMAN!</button>
   </div>
 </div>
 
 <div id="dock" aria-label="Menu utama game">
   <button class="dockbtn" id="btnCatalog" aria-label="Buka katalog koleksi — hadiah Basic sampai Secret">
-    <img class="hd-ic" src="assets/hd-peti.png" alt="">
+    <img class="hd-ic" src="assets/hd-chest.png" alt="">
     <span class="txt"><b>📖 KATALOG</b><small id="dockColSub">112 item • Basic–Secret</small></span>
   </button>
-  <button class="dockbtn speed attention" id="btnSpeed" aria-label="Beli upgrade speed di tengah — biar gampang kabur saat mencuri">
+  <button class="dockbtn speed attention" id="btnSpeed" aria-label="Beli upgrade speed — biar gampang kabur saat mencuri">
     <span class="badge">BUAT KABUR!</span>
-    <img class="hd-ic" src="assets/hd-petir.png" alt="">
+    <img class="hd-ic" src="assets/hd-speed.png" alt="">
     <span class="txt"><b>⚡ BELI SPEED</b><small id="dockSpeedSub">Lv 1 • mulai 100 🪙</small></span>
   </button>
   <button class="dockbtn hadiah" id="btnRooms" aria-label="Peta 6 ruangan Basic sampai Secret">
@@ -69,26 +70,23 @@
     <span class="txt"><b>🚪 RUANGAN</b><small>6 room • Basic–Secret</small></span>
   </button>
   <button class="dockbtn" id="btnUpg" aria-label="Buka upgrade markas">
-    <img class="hd-ic" src="assets/hd-mahkota.png" alt="">
+    <img class="hd-ic" src="assets/hd-crown.png" alt="">
     <span class="txt"><b>👑 MARKAS</b><small>Luck &amp; etalase</small></span>
+  </button>
+  <button class="dockbtn outfit" id="btnOutfit" aria-label="Ganti outfit pemain bergaya Bondee">
+    <img class="hd-ic" src="assets/hd-baju.png" alt="">
+    <span class="txt"><b>👗 OUTFIT</b><small id="dockOutfitSub">Koko Biru</small></span>
   </button>
 </div>
 
 <div id="start">
   <div id="startCard">
-    <div class="heroRow" aria-hidden="true">
-      <img class="hd-hero" src="assets/hd-lentera.png" alt="">
-      <img class="hd-hero" src="assets/hd-ketupat.png" alt="">
-      <img class="hd-hero" src="assets/hd-tungtung.png" alt="">
-      <img class="hd-hero" src="assets/hd-giftbox.png" alt="">
-      <img class="hd-hero" src="assets/hd-nastar.png" alt="">
-    </div>
     <h1>STEAL THE <span>LEBARAN</span></h1>
     <p>Jelajahi <b>6 ruangan</b> dari Basic sampai Secret — makin jauh dari zona aman, makin langka barangnya dan makin cepat <b>Tung Tung Tung Sahur</b> penjaganya. Curi, kabur, buka hadiah, lalu naikkan kecepatan larimu!</p>
     <div class="featRow">
-      <div class="feat"><img src="assets/hd-peti.png" alt="Peti katalog koleksi"><b>📖 KATALOG</b><small>112 hadiah<br>Basic – Secret</small></div>
-      <div class="feat"><img src="assets/hd-petir.png" alt="Petir beli speed"><b>⚡ BELI SPEED</b><small>Biar gampang kabur<br>mulai 100 🪙</small></div>
-      <div class="feat"><img src="assets/hd-giftbox.png" alt="Kotak hadiah Lebaran"><b>🎁 BUKA HADIAH</b><small>Cuma bisa dibuka<br>di Zona Aman</small></div>
+      <div class="feat"><img src="assets/hd-chest.png" alt="Peti katalog koleksi"><b>📖 KATALOG</b><small>112 hadiah<br>Basic – Secret</small></div>
+      <div class="feat"><img src="assets/hd-speed.png" alt="Petir beli speed"><b>⚡ BELI SPEED</b><small>Biar gampang kabur<br>mulai 100 🪙</small></div>
+      <div class="feat"><img src="assets/hd-gift.png" alt="Kotak hadiah Lebaran"><b>🎁 BUKA HADIAH</b><small>Cuma bisa dibuka<br>di Zona Aman</small></div>
     </div>
     <div class="steps">
       <span class="step"><i>1</i>Masuk ruangan</span><span class="step"><i>2</i>Ambil barang</span><span class="step"><i>3</i>Penjaga ngejar terus — kabur ke zona aman!</span><span class="step"><i>4</i>Buka hadiah &amp; upgrade speed</span>
@@ -104,7 +102,7 @@
   <div class="sheet" id="openSheet" style="max-width:440px">
     <header><h2>Buka Barang Curian</h2></header>
     <div class="body">
-      <div id="openStage"><img class="asset-img" src="assets/hd-giftbox.png" alt="Kotak hadiah"></div>
+      <div id="openStage"><img class="asset-img" src="assets/hd-gift.png" alt="Kotak hadiah"></div>
       <div id="rarityBig"></div>
       <div id="rewardName">Siap dibuka…</div>
       <div id="rewardMeta">Goyang-goyang dulu biar seru!</div>
@@ -119,7 +117,7 @@
   <div class="sheet">
     <header><h2>📖 Katalog — Basic s/d Secret</h2><button class="xbtn" data-close="catModal" aria-label="Tutup">✕</button></header>
     <div class="body">
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><img class="hd-ic" src="assets/hd-ketupat.png" alt="Ketupat Basic"><img class="hd-ic" src="assets/hd-nastar.png" alt="Nastar"><img class="hd-ic" src="assets/hd-giftbox.png" alt="Kotak hadiah"><img class="hd-ic" src="assets/hd-lentera.png" alt="Lentera"><img class="hd-ic" src="assets/hd-bulansabit.png" alt="Bulan sabit Secret"><img class="hd-ic" src="assets/hd-baju.png" alt="Baju Lebaran"><span style="font-weight:900;font-size:12.5px">Semua hadiah: Basic • Common • Uncommon • Rare • Epic • Legendary • Mythic • Secret</span></div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><img class="hd-ic" src="assets/hd-ketupat.png" alt="Ketupat Basic"><img class="hd-ic" src="assets/hd-nastar.png" alt="Nastar"><img class="hd-ic" src="assets/hd-gift.png" alt="Kotak hadiah"><img class="hd-ic" src="assets/hd-lantern.png" alt="Lentera"><img class="hd-ic" src="assets/hd-crescent.png" alt="Bulan sabit Secret"><img class="hd-ic" src="assets/hd-baju.png" alt="Baju Lebaran"><img class="hd-ic" src="assets/hd-kastengel.png" alt="Kastengel"><img class="hd-ic" src="assets/hd-thr.png" alt="Amplop THR"><img class="hd-ic" src="assets/hd-sarung.png" alt="Sarung"><span style="font-weight:900;font-size:12.5px">Semua hadiah: Basic • Common • Uncommon • Rare • Epic • Legendary • Mythic • Secret</span></div>
       <div style="font-weight:900" id="catProgText">0 / 112 ditemukan</div>
       <div class="progbar"><i id="catProgBar"></i></div>
       <div class="tabs" id="catTabs"></div>
@@ -167,7 +165,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="js/three.min.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>
