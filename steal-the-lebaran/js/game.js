@@ -27,17 +27,17 @@ var BASES=[
  {id:'crescent',name:'Bulan Sabit',emo:'🌙',cat:'ramadan',color:0xffc93c,img:'assets/hd-bulansabit.png',desc:'Sabit emas penanda datangnya bulan suci.'},
  {id:'mosque',name:'Ornamen Masjid',emo:'🕌',cat:'ramadan',color:0x2f9e8f,img:'assets/hd-masjid.png',desc:'Miniatur masjid dengan kubah hijau yang megah.'},
  {id:'bedug',name:'Bedug',emo:'🥁',cat:'ramadan',color:0xa06a35,img:'assets/hd-bedug.png',desc:'Bedug besar penanda waktu berbuka dan takbiran.'},
- {id:'sahurdrum',name:'Kentongan Sahur',emo:'🪘',cat:'ramadan',color:0x8a5a2b,desc:'Alat pukul legendaris pembangun sahur: tung… tung… tung!'},
+ {id:'sahurdrum',name:'Kentongan Sahur',emo:'🪘',cat:'ramadan',color:0x8a5a2b,img:'assets/hd-sahurdrum.png',desc:'Alat pukul legendaris pembangun sahur: tung… tung… tung!'},
  {id:'nastar',name:'Nastar',emo:'🍍',cat:'food',color:0xf08c1e,img:'assets/hd-nastar.png',desc:'Kue nanas lumer di mulut, primadona toples Lebaran.'},
- {id:'kastengel',name:'Kastengel',emo:'🧀',cat:'food',color:0xf5a623,desc:'Kue keju gurih renyah yang selalu habis duluan.'},
- {id:'putrisalju',name:'Putri Salju',emo:'❄️',cat:'food',color:0xf4f6f8,desc:'Kue lembut bersalut gula halus seputih salju.'},
- {id:'lidahkucing',name:'Lidah Kucing',emo:'🍪',cat:'food',color:0xd9a05b,desc:'Kue tipis panjang yang renyah dan manis.'},
+ {id:'kastengel',name:'Kastengel',emo:'🧀',cat:'food',color:0xf5a623,img:'assets/hd-kastengel.png',desc:'Kue keju gurih renyah yang selalu habis duluan.'},
+ {id:'putrisalju',name:'Putri Salju',emo:'❄️',cat:'food',color:0xf4f6f8,img:'assets/hd-putrisalju.png',desc:'Kue lembut bersalut gula halus seputih salju.'},
+ {id:'lidahkucing',name:'Lidah Kucing',emo:'🍪',cat:'food',color:0xd9a05b,img:'assets/hd-lidahkucing.png',desc:'Kue tipis panjang yang renyah dan manis.'},
  {id:'giftbox',name:'Kotak Hadiah Idul Fitri',emo:'🎁',cat:'special',color:0x2fae4e,img:'assets/hd-giftbox.png',desc:'Parsel misterius untuk sanak saudara.'},
- {id:'thr',name:'Amplop THR',emo:'🧧',cat:'special',color:0x2fbf71,desc:'Amplop hijau berisi THR yang paling ditunggu anak-anak.'},
+ {id:'thr',name:'Amplop THR',emo:'🧧',cat:'special',color:0x2fbf71,img:'assets/hd-thr.png',desc:'Amplop hijau berisi THR yang paling ditunggu anak-anak.'},
  {id:'baju',name:'Baju Lebaran',emo:'👕',cat:'outfit',color:0x1d2c5e,img:'assets/hd-baju.png',desc:'Baju koko baru untuk salat Id dan silaturahmi.'},
- {id:'sarong',name:'Sarung',emo:'🧣',cat:'outfit',color:0x7a4de0,desc:'Sarung motif klasik, nyaman untuk tarawih.'},
- {id:'prayer',name:'Set Mukena & Sajadah',emo:'🙏',cat:'outfit',color:0xf2f2f2,desc:'Perlengkapan salat yang bersih dan wangi.'},
- {id:'decor',name:'Dekorasi Idul Fitri',emo:'✨',cat:'special',color:0xff7ab6,desc:'Hiasan bintang dan lampu warna-warni khas Lebaran.'}
+ {id:'sarong',name:'Sarung',emo:'🧣',cat:'outfit',color:0x7a4de0,img:'assets/hd-sarong.png',desc:'Sarung motif klasik, nyaman untuk tarawih.'},
+ {id:'prayer',name:'Set Mukena & Sajadah',emo:'🙏',cat:'outfit',color:0xf2f2f2,img:'assets/hd-prayer.png',desc:'Perlengkapan salat yang bersih dan wangi.'},
+ {id:'decor',name:'Dekorasi Idul Fitri',emo:'✨',cat:'special',color:0xff7ab6,img:'assets/hd-decor.png',desc:'Hiasan bintang dan lampu warna-warni khas Lebaran.'}
 ];
 function baseById(id){for(var i=0;i<BASES.length;i++)if(BASES[i].id===id)return BASES[i];return BASES[0];}
 var CATS=[{id:'all',name:'Semua'},{id:'ramadan',name:'Ramadan'},{id:'ketupat',name:'Ketupat'},{id:'food',name:'Jajanan Lebaran'},{id:'outfit',name:'Outfit Lebaran'},{id:'special',name:'Spesial'},{id:'secret',name:'Secret'}];
@@ -66,12 +66,20 @@ var BOUNDARIES=[{z:12,gap:6.8,north:1,always:true},{z:-18,gap:5,north:2},{z:-48,
 function roomAt(z){if(z>12)return 0;for(var i=0;i<ROOMS.length;i++){if(z<=ROOMS[i].zMax&&z>ROOMS[i].zMin)return ROOMS[i].id;}return 6;}
 function isUnlocked(room){return S.escapes>=room.unlock;}
 /* ============ REWARD ROLLS ============ */
-function visualHTML(base,big){
-  if(base.img)return '<img class="asset-img'+(base.cover?' cover':'')+'" src="'+base.img+'" alt="'+base.name+'">';
+/* Gambar katalog: assets/catalog/<base>_<mutation>.png (112 file, 16 barang x 7 mutasi).
+   Mutasi dibuat programatik dari gambar dasar (lihat README > Aset Katalog). */
+function catImg(base,mut){
+  var mid=(typeof mut==='string')?mut:(mut&&mut.id)||'basic';
+  return 'assets/catalog/'+base.id+'_'+mid+'.png';
+}
+function visualHTML(base,big,mut){
+  var src=mut?catImg(base,mut):base.img;
+  if(src)return '<img class="asset-img'+(base.cover?' cover':'')+'" src="'+src+'" alt="'+base.name+'">';
   return '<span class="'+(big?'emo-big':'emo')+'">'+base.emo+'</span>';
 }
-function thumbHTML(base){
-  if(base.img)return '<img class="thumb" src="'+base.img+'" alt="">';
+function thumbHTML(base,mut){
+  var src=mut?catImg(base,mut):base.img;
+  if(src)return '<img class="thumb" src="'+src+'" alt="">';
   return '<span style="font-size:22px;line-height:1">'+base.emo+'</span>';
 }
 function pickFromWeights(pairs){
@@ -470,7 +478,7 @@ function onCaught(){
 var openingBusy=false;
 function openOpening(){
   if(!S.extracted||openingBusy)return;
-  $('openStage').innerHTML=visualHTML(S.extracted.base,true);$('openStage').className='';
+  $('openStage').innerHTML=visualHTML(S.extracted.base,true,'basic');$('openStage').className='';
   $('rarityBig').textContent='';$('rewardName').textContent=S.extracted.base.name;
   $('rewardMeta').textContent='Dari '+ROOMS[(S.extracted.room||1)-1].name+' — mutasi apa yang akan kamu dapat? 👀';
   $('btnOpen').style.display='block';$('btnCollect').style.display='none';
@@ -484,7 +492,7 @@ $('btnOpen').addEventListener('click',function(){
   setTimeout(function(){
     st.classList.remove('shake');st.classList.add('pop');
     var rw=rollReward(S.extracted.base,S.extracted.room);S.lastReward=rw;
-    st.innerHTML=visualHTML(rw.base,true);
+    st.innerHTML=visualHTML(rw.base,true,rw.mut);
     var rb=$('rarityBig');rb.textContent='★ '+rw.rarity.name.toUpperCase()+' ★';rb.style.color=rw.rarity.color;
     $('rewardName').textContent=(rw.mut.id==='basic'?'':rw.mut.name+' ')+rw.base.name;
     $('rewardMeta').textContent='Rarity '+rw.rarity.name+' • Mutasi '+rw.mut.name+' • Nilai '+rw.value+' 🪙'+(S.collection[rw.key]?' • (sudah punya — tetap dapat koin!)':' • ✨ BARU di katalog!');
@@ -517,7 +525,7 @@ function renderCatalog(){
     var ownedInst=S.collection[e.key];var owned=!!ownedInst;
     var dispRarity=owned?ownedInst.rarity:e.rarity;
     var card=document.createElement('div');card.className='card'+(owned?'':' locked');
-    card.innerHTML='<div class="tile">'+visualHTML(e.base)+'</div><div class="nm">'+(owned?(e.mut.id==='basic'?'':e.mut.name+' ')+e.base.name:'???')+'</div><span class="tag" style="background:'+(owned?dispRarity.color:'#7a828e')+'">'+(owned?dispRarity.name:'Undiscovered')+'</span>'+(owned&&S.counts[e.key]>1?'<div style="font-size:11px;font-weight:900">× '+S.counts[e.key]+'</div>':'');
+    card.innerHTML='<div class="tile">'+visualHTML(e.base,false,e.mut)+'</div><div class="nm">'+(owned?(e.mut.id==='basic'?'':e.mut.name+' ')+e.base.name:'???')+'</div><span class="tag" style="background:'+(owned?dispRarity.color:'#7a828e')+'">'+(owned?dispRarity.name:'Undiscovered')+'</span>'+(owned&&S.counts[e.key]>1?'<div style="font-size:11px;font-weight:900">× '+S.counts[e.key]+'</div>':'');
     card.addEventListener('click',function(){showDetail(e,owned);});
     grid.appendChild(card);
   });
@@ -525,7 +533,7 @@ function renderCatalog(){
 function showDetail(e,owned){
   var inst=S.collection[e.key];
   $('detTitle').textContent=owned?((e.mut.id==='basic'?'':e.mut.name+' ')+e.base.name):'??? Belum Ditemukan';
-  $('detEmo').innerHTML=owned?visualHTML(e.base,true):'<span class="emo-big">❓</span>';
+  $('detEmo').innerHTML=owned?visualHTML(e.base,true,e.mut):'<span class="emo-big">❓</span>';
   $('detRarity').textContent=owned?inst.rarity.name:'—';
   $('detMut').textContent=owned?e.mut.name:'—';
   $('detStatus').textContent=owned?('✅ Dimiliki × '+(S.counts[e.key]||1)):'🔒 Belum ditemukan';
@@ -584,7 +592,7 @@ var UPGS=[
  {id:'stand',emo:'🏆',name:'Etalase Markas Mewah',desc:'Pajang sampai 5 koleksi terbaikmu di zona aman.',cost:function(){return 250;},lv:function(){return S.standLv;},max:1}
 ];
 function renderUpgrades(){
-  var list=$('upgList');list.innerHTML='<p style="font-weight:900;margin-top:0">Saldo: '+fmt(S.coins)+' 🪙 • Untuk kecepatan lari, ketuk tombol ⚡ BELI SPEED di dock tengah bawah.</p>';
+  var list=$('upgList');list.innerHTML='<p style="font-weight:900;margin-top:0">Saldo: '+fmt(S.coins)+' 🪙 • Untuk kecepatan lari, ketuk tombol ⚡ BELI SPEED di sisi kanan layar.</p>';
   UPGS.forEach(function(u){
     var lv=u.lv(),maxed=lv>=u.max,cost=maxed?0:u.cost();
     var row=document.createElement('div');row.className='upg';
@@ -602,7 +610,6 @@ $('btnUpg').addEventListener('click',function(){ac();renderUpgrades();$('upgModa
 $('btnSound').addEventListener('click',function(){S.muted=!S.muted;var w=document.querySelector('#btnSound .snd-waves');if(w)w.style.display=S.muted?'none':'';$('btnSound').style.opacity=S.muted?.55:1;if(!S.muted)sfx('coin');});
 document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',function(){$(b.getAttribute('data-close')).classList.remove('open');});});
 $('btnAction').addEventListener('click',doAction);
-$('btnSprint').addEventListener('click',function(){sprinting=!sprinting;$('btnSprint').classList.toggle('on',sprinting);});
 var speedAlertTimer=null,speedAlertSeen=false;
 function showSpeedAlert(ms){var a=$('speedAlert');if(!a)return;a.classList.add('on');speedAlertSeen=true;clearTimeout(speedAlertTimer);speedAlertTimer=setTimeout(function(){a.classList.remove('on');},ms||9000);}
 function hideSpeedAlert(){$('speedAlert').classList.remove('on');clearTimeout(speedAlertTimer);}

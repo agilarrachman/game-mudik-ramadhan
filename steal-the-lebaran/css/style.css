@@ -1,3 +1,4 @@
+
 :root{--ink:#2b2118;--brown:#6b4226;--gold:#ffb627;--gold-soft:#ffd76a;--green:#1da851;--green-d:#0f7a3d;--green-soft:#d9f5df;--leaf:#7ed957;--blue:#0e7ac3;--teal:#12b5a5;--red:#ef3b3b;--sky:#8fd0f7;--cream:#fff8e7;--panel:#fffdf4;--muted:#6d5b43;--shadow:0 4px 0 rgba(43,33,24,.88)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--sky);font-family:'Nunito',system-ui,sans-serif;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
@@ -46,8 +47,6 @@ img{user-select:none;-webkit-user-drag:none}
 #btnAction{width:92px;height:92px;border-radius:50%;border:4px solid var(--ink);background:var(--gold);color:var(--ink);font-family:'Fredoka';font-weight:700;font-size:17px;line-height:1.05;box-shadow:0 6px 0 rgba(43,26,14,.9);padding:6px}
 #btnAction:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(43,26,14,.9)}
 #btnAction.open{background:var(--green);color:#fff;animation:pulse .45s infinite alternate}
-#btnSprint{border:3px solid var(--ink);background:var(--panel);border-radius:999px;padding:8px 18px;font-family:'Fredoka';font-weight:700;font-size:14px;box-shadow:0 4px 0 rgba(43,26,14,.85)}
-#btnSprint.on{background:#ffe08a}
 #hint{position:fixed;bottom:calc(128px + env(safe-area-inset-bottom));left:14px;z-index:15;font-size:12px;font-weight:800;background:rgba(43,26,14,.65);color:#fff;border-radius:10px;padding:6px 10px;display:none}
 @media(min-width:760px){#hint{display:block}}
 #start{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center;padding:14px;background:linear-gradient(180deg,rgba(16,52,32,0) 42%,rgba(16,52,32,.42))}
@@ -127,11 +126,11 @@ img{user-select:none;-webkit-user-drag:none}
 @media(max-width:400px){#roomDots{display:none}}
 /* ===== v5: HD sheet icons + center dock + speed alert + mobile/landscape compact ===== */
 .hd-ic{width:38px;height:38px;border-radius:11px;object-fit:cover;border:2.5px solid var(--ink);flex:none;background:#ffe9b8}
-#dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(142px + env(safe-area-inset-bottom));z-index:24;display:flex;gap:8px;align-items:stretch;max-width:96vw}
-.dockbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:86px;padding:7px 10px 6px;border:3px solid var(--ink);border-radius:16px;background:var(--panel);box-shadow:0 4px 0 rgba(43,33,24,.88);color:var(--ink)}
+#dock{position:fixed;right:12px;bottom:calc(152px + env(safe-area-inset-bottom));z-index:24;display:flex;flex-direction:column;gap:7px;align-items:stretch;max-width:46vw}
+.dockbtn{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:7px;min-width:0;padding:6px 11px 6px 6px;border:3px solid var(--ink);border-radius:15px;background:var(--panel);box-shadow:0 4px 0 rgba(43,33,24,.88);color:var(--ink);text-align:left}
 .dockbtn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(43,33,24,.88)}
 .dockbtn .hd-ic{width:34px;height:34px}
-.dockbtn .txt{display:flex;flex-direction:column;align-items:center;gap:1px}
+.dockbtn .txt{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
 .dockbtn b{font-family:'Fredoka';font-weight:700;font-size:13.5px;line-height:1.05;white-space:nowrap}
 .dockbtn small{font-size:10px;font-weight:900;color:var(--muted);line-height:1.1;white-space:nowrap}
 .dockbtn.speed{background:linear-gradient(180deg,#ffe98a,var(--gold));position:relative}
@@ -153,8 +152,8 @@ img{user-select:none;-webkit-user-drag:none}
 .feat b{display:block;font-family:'Fredoka';font-size:12.5px;line-height:1.1}
 .feat small{font-size:10.5px;font-weight:900;color:var(--muted);line-height:1.15;display:block}
 #btnStartSpeed{width:100%;margin-top:8px;border:3px solid var(--ink);border-radius:14px;background:linear-gradient(180deg,#ffe98a,var(--gold));font-family:'Fredoka';font-weight:700;font-size:16px;padding:10px;box-shadow:0 4px 0 rgba(43,33,24,.9)}
-#carryBar{bottom:calc(226px + env(safe-area-inset-bottom))}
-@media(max-width:560px){#dock{bottom:calc(136px + env(safe-area-inset-bottom));gap:6px}.dockbtn{min-width:76px;padding:6px 7px 5px}.dockbtn .hd-ic{width:30px;height:30px}.dockbtn b{font-size:12px}.dockbtn small{font-size:9px}#carryBar{bottom:calc(214px + env(safe-area-inset-bottom))}}
+#carryBar{bottom:calc(120px + env(safe-area-inset-bottom))}
+@media(max-width:560px){#dock{right:8px;bottom:calc(112px + env(safe-area-inset-bottom));gap:6px}.dockbtn{padding:5px 9px 5px 5px;border-radius:13px;gap:6px}.dockbtn .hd-ic{width:29px;height:29px;border-radius:9px}.dockbtn b{font-size:11.5px}.dockbtn small{font-size:8.5px}#carryBar{bottom:calc(108px + env(safe-area-inset-bottom))}}
 @media(orientation:landscape) and (max-height:540px){
  #topbar{padding:6px 8px 0;gap:5px}.pill{font-size:11.5px;padding:3px 9px 3px 4px}.pill .ic{width:21px;height:21px}.iconbtn{width:34px;height:34px;border-radius:10px}.iconbtn svg{width:16px;height:16px}
  #roombar{top:44px;padding:0 8px;gap:5px}#roomDots{padding:4px 7px}.dot{width:10px;height:10px}
@@ -162,12 +161,11 @@ img{user-select:none;-webkit-user-drag:none}
  #controls{padding:0 10px calc(8px + env(safe-area-inset-bottom))}
  #joy{width:84px;height:84px}#joyKnob{width:40px;height:40px;font-size:15px}
  #btnAction{width:76px;height:76px;font-size:14px;border-width:3px}
- #btnSprint{padding:6px 13px;font-size:12px}
  #actions{gap:6px}
- #dock{bottom:calc(8px + env(safe-area-inset-bottom));gap:6px}
- .dockbtn{flex-direction:row;min-width:0;padding:5px 10px 5px 5px;border-radius:13px;gap:6px}
- .dockbtn .hd-ic{width:28px;height:28px;border-radius:8px}
- .dockbtn .txt{display:flex;flex-direction:column;align-items:flex-start}
+ #dock{right:8px;bottom:calc(92px + env(safe-area-inset-bottom));gap:5px}
+ .dockbtn{padding:4px 9px 4px 4px;border-radius:12px;gap:5px}
+ .dockbtn .hd-ic{width:26px;height:26px;border-radius:8px}
+ .dockbtn b{font-size:11px}.dockbtn small{font-size:8.5px}
  #carryBar{bottom:calc(64px + env(safe-area-inset-bottom));font-size:12.5px;padding:4px 12px 4px 6px}
  #startCard{width:min(94vw,600px);padding:10px 14px 12px;max-height:96dvh}
  .heroRow .asset-img,.heroRow .hd-hero{height:46px}
@@ -176,3 +174,55 @@ img{user-select:none;-webkit-user-drag:none}
  #hint{display:none}
 }
 .hd-hero{width:64px;height:64px;border-radius:16px;object-fit:cover;border:3px solid var(--ink);flex:none;background:#fff}
+/* ===== v6: mobile typography scale-down (HP) ===== */
+@media(max-width:560px){
+ #startCard{padding:12px 13px 14px;border-radius:20px}
+ #startCard h1{font-size:25px}
+ #startCard p{font-size:12px;line-height:1.4}
+ .heroRow .hd-hero{width:50px;height:50px;border-radius:13px}
+ .step{font-size:11px;padding:5px 7px;gap:6px}
+ .step i{width:19px;height:19px;font-size:11px}
+ .feat{padding:6px 4px 5px}
+ .feat img{width:42px;height:42px}
+ .feat b{font-size:11px}
+ .feat small{font-size:9.5px}
+ .bigbtn{font-size:17px;padding:11px;border-radius:14px}
+ #btnStartSpeed{font-size:13px;padding:9px}
+ .fineprint{font-size:11px}
+ .sheet{border-radius:17px}
+ .sheet header{padding:10px 12px}
+ .sheet header h2{font-size:16.5px}
+ .sheet .body{padding:11px 12px}
+ .xbtn{width:34px;height:34px;min-height:34px;font-size:15px}
+ .tab{font-size:11px;padding:6px 10px;min-height:34px}
+ .grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+ .card .nm{font-size:11px;min-height:26px}
+ .card .tag{font-size:9.5px}
+ .kv{font-size:12.5px;padding:7px 10px}
+ .upg{padding:9px 10px}
+ .upg .emo{font-size:26px}
+ .upg .info b{font-size:13px}
+ .upg .info div{font-size:11.5px}
+ .buybtn{font-size:12.5px;padding:8px 10px}
+ .roomrow{padding:9px 10px}
+ .roomrow .info b{font-size:13px}
+ .roomrow .info div{font-size:11.5px}
+ .roomrow .st{font-size:11px;padding:3px 8px}
+ #rarityBig{font-size:20px}
+ #rewardName{font-size:15px}
+ #rewardMeta{font-size:12px}
+ #openStage{min-height:118px}
+ #openStage .asset-img{height:112px}
+ #openStage .emo-big{font-size:64px}
+ .detailEmo .asset-img{height:104px}
+ .detailEmo .emo-big{font-size:58px}
+ #toast{font-size:12.5px;padding:7px 11px}
+ #chaseBanner{font-size:12.5px;padding:6px 10px 6px 7px}
+ #chaseBanner img{width:34px;height:34px}
+ #carryBar{font-size:12px;padding:5px 13px 5px 7px}
+ #speedAlert p{font-size:11.5px}
+ #speedAlert p b{font-size:12.5px}
+ #btnSpeedAlert{font-size:12px;padding:7px 9px}
+ #btnAction{font-size:14.5px}
+ #detDesc{font-size:13px}
+}
