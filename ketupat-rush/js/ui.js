@@ -336,6 +336,23 @@ export class UI {
     document.getElementById('btn-tap-start')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onTapStart?.(); });
     document.getElementById('btn-play')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onPlay?.(); });
     document.getElementById('btn-settings-menu')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.showOverlay('settings'); });
+    document.getElementById('btn-howto')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.showOverlay('howto'); });
+    document.getElementById('btn-howto-close')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.hideOverlay('howto'); });
+    document.getElementById('btn-menu-mute')?.addEventListener('click', async () => {
+      if (this.audio && !this.audio.started) {
+        await this.audio.init();
+        this.audio.resume();
+        this.audio.startMusic();
+      }
+      const musicMuted = this.audio?.toggleMuteMusic();
+      const sfxMuted = this.audio?.toggleMuteSfx();
+      const isMuted = Boolean(musicMuted && sfxMuted);
+      const btn = document.getElementById('btn-menu-mute');
+      btn?.querySelector('.icon-sound-on')?.classList.toggle('hidden', isMuted);
+      btn?.querySelector('.icon-sound-off')?.classList.toggle('hidden', !isMuted);
+      btn?.setAttribute('aria-label', isMuted ? 'Nyalakan suara' : 'Bisukan suara');
+      if (!isMuted) this.audio?.playSfx('button');
+    });
     document.getElementById('btn-pause')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onPause?.(); this.showOverlay('pause'); });
     document.getElementById('btn-serve')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onServe?.(); });
     document.getElementById('btn-clear')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onClearPlate?.(); });

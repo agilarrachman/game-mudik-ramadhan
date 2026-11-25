@@ -1204,6 +1204,52 @@ export class MenuScene {
     this.objects = [];
     this.time = 0;
     this._destroyed = false;
+    this._reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
+    this._onResize = () => this._handleResize();
+  }
+
+  _computeShowcaseLayout() {
+    const aspect = this.camera?.aspect || (window.innerWidth / Math.max(1, window.innerHeight));
+    const isNarrow = aspect < 0.85;
+    const isCompactH = (this.canvas?.clientHeight || window.innerHeight) < 620;
+    // Spread 6 dishes in a balanced lower arc so they never overlap the title or buttons
+    const spreadX = isNarrow ? 1.32 : Math.min(3.15, 2.1 * aspect);
+    const baseY = isNarrow ? -1.45 : isCompactH ? -1.25 : -1.32;
+    const stepX = (spreadX * 2) / 5;
+    const scale = isNarrow ? 0.72 : 0.92;
+
+    return Array.from({ length: 6 }, (_, i) => {
+      const norm = (i / 2.5) - 1; // -1 .. +1
+      const x = -spreadX + i * stepX;
+      const y = baseY + (1 - norm * norm) * (isNarrow ? 0.14 : 0.22);
+      const z = (1 - Math.abs(norm)) * 0.25;
+      return { x, y, z, scale };
+    });
+  }
+
+  _handleResize() {
+    if (this._destroyed || !this.renderer || !this.camera || !this.canvas) return;
+    const W = this.canvas.clientWidth || window.innerWidth;
+    const H = this.canvas.clientHeight || window.innerHeight;
+    this.camera.aspect = W / Math.max(1, H);
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(W, H);
+
+    const layout = this._computeShowcaseLayout();
+    this.objects.forEach((o, i) => {
+      const slot = layout[i];
+      if (!slot) return;
+      o.baseX = slot.x;
+      o.baseY = slot.y;
+      o.baseZ = slot.z;
+      o.targetScale = slot.scale;
+      o.mesh.position.x = slot.x;
+      o.mesh.position.z = slot.z;
+      if (o.shadow) {
+        o.shadow.position.set(slot.x, slot.y - 0.34 * slot.scale, slot.z);
+        o.shadow.scale.setScalar(slot.scale);
+      }
+    });
   }
 
   async init() {
@@ -1217,16 +1263,16 @@ export class MenuScene {
     this.renderer.setClearColor(0, 0);
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(48, W / H, 0.1, 40);
-    this.camera.position.set(0, 0.65, 5.5);
+    this.camera = new THREE.PerspectiveCamera(45, W / Math.max(1, H), 0.1, 40);
+    this.camera.position.set(0, 0.55, 5.8);
 
     this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
     this.envRT = this.pmremGenerator.fromScene(new RoomEnvironment(), 0.04);
     this.scene.environment = this.envRT.texture;
     this.scene.environmentIntensity = 0.65;
 
-    this.scene.add(new THREE.HemisphereLight(0xFFF3E0, 0x6D4C41, 0.9));
-    const key = new THREE.DirectionalLight(0xFFD9A0, 1.45);
+    this.scene.add(new THREE.HemisphereLight(0xFFF3E0, 0x6D4C41, 0.95));
+    const key = new THREE.DirectionalLight(0xFFD9A0, 1.5);
     key.position.set(3, 5, 4);
     this.scene.add(key);
 
@@ -1234,15 +1280,42 @@ export class MenuScene {
     if (this._destroyed) return;
 
     const showcaseIds = ['ketupat', 'opor_ayam', 'rendang', 'telur_balado', 'kerupuk', 'ayam_goreng'];
-    const positions = [[-2.0, 1.0, 0], [2.0, 1.0, 0], [-2.2, -0.8, 0.3], [2.2, -0.8, 0.3], [-0.95, 1.5, -0.4], [0.95, 1.5, -0.4]];
-    showcaseIds.forEach((id, i) => {
-      const m = createFood3D(id, { variant: 'vessel', width: 0.95, seed: i + 1, shadow: false });
-      m.position.set(...positions[i]);
-      m.rotation.x = 0.38;
-      this.scene.add(m);
-      this.objects.push({ mesh: m, baseY: positions[i][1], phase: i * 1.1 });
+    const layout = this._computeShowcaseLayout();
+    const shadowGeo = new THREE.CircleGeometry(0.46, 24);
+    const shadowMat = new THREE.MeshBasicMaterial({
+      color: 0x1A0F07,
+      transparent: true,
+      opacity: 0.28,
+      depthWrite: false,
     });
 
+    showcaseIds.forEach((id, i) => {
+      const slot = layout[i];
+      const m = createFood3D(id, { variant: 'vessel', width: 0.88, seed: i + 1, shadow: false });
+      m.position.set(slot.x, slot.y, slot.z);
+      m.rotation.x = 0.34;
+      m.scale.setScalar(this._reducedMotion ? slot.scale : 0.001);
+      this.scene.add(m);
+
+      const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+      shadow.rotation.x = -Math.PI / 2;
+      shadow.position.set(slot.x, slot.y - 0.34 * slot.scale, slot.z);
+      shadow.scale.setScalar(slot.scale);
+      this.scene.add(shadow);
+
+      this.objects.push({
+        mesh: m,
+        shadow,
+        baseX: slot.x,
+        baseY: slot.y,
+        baseZ: slot.z,
+        targetScale: slot.scale,
+        delay: i * 0.09,
+        phase: i * 1.05,
+      });
+    });
+
+    window.addEventListener('resize', this._onResize);
     this._animate();
   }
 
@@ -1251,14 +1324,25 @@ export class MenuScene {
     this.frameId = requestAnimationFrame(() => this._animate());
     this.time += 0.016;
     for (const o of this.objects) {
-      o.mesh.position.y = o.baseY + Math.sin(this.time * 1.4 + o.phase) * 0.12;
-      o.mesh.rotation.y = this.time * 0.45 + o.phase;
+      if (this._reducedMotion) {
+        o.mesh.scale.setScalar(o.targetScale);
+        o.mesh.position.y = o.baseY;
+        o.mesh.rotation.y = o.phase * 0.4;
+      } else {
+        const tPop = Math.max(0, Math.min(1, (this.time - o.delay) / 0.42));
+        // Soft overshoot pop-in curve
+        const ease = tPop === 1 ? 1 : 1 - Math.pow(1 - tPop, 3) * Math.cos(tPop * Math.PI * 1.4);
+        o.mesh.scale.setScalar(Math.max(0.001, ease * o.targetScale));
+        o.mesh.position.y = o.baseY + Math.sin(this.time * 1.35 + o.phase) * 0.065;
+        o.mesh.rotation.y = this.time * 0.42 + o.phase;
+      }
     }
     this.renderer?.render(this.scene, this.camera);
   }
 
   destroy() {
     this._destroyed = true;
+    window.removeEventListener('resize', this._onResize);
     cancelAnimationFrame(this.frameId);
     if (this.envRT) this.envRT.dispose();
     if (this.pmremGenerator) this.pmremGenerator.dispose();
