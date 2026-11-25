@@ -77,6 +77,7 @@ class CDPClient {
     return res.result?.value;
   }
   async screenshot(outPath) {
+    fs.mkdirSync(path.dirname(outPath), { recursive: true });
     const res = await this.send('Page.captureScreenshot', { format: 'png' });
     fs.writeFileSync(outPath, Buffer.from(res.data, 'base64'));
   }
