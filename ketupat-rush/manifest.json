@@ -1,0 +1,10 @@
+{
+  "name": "Ketupat Rush",
+  "short_name": "Ketupat Rush",
+  "description": "Warung Lebaran Terlezat! Game memasak bertema Hari Raya.",
+  "start_url": "/ketupat-rush/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B5E20",
+  "theme_color": "#2E7D32"
+}

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Galeri Turntable 14 Hidangan 3D — Ketupat Rush</title>
+  <link rel="icon" href="data:," />
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #2D1B10; font-family: system-ui, sans-serif; color: #FFF3E0; }
+    header {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 12px 20px; background: #3E2415; border-bottom: 1px solid #6D4C41;
+    }
+    header h2 { margin: 0; font-size: 18px; }
+    .controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    button {
+      background: #8D5A36; color: #FFF8E1; border: 1px solid #C89B6E; border-radius: 8px;
+      padding: 6px 12px; font-weight: 600; cursor: pointer;
+    }
+    button.active { background: #E69524; color: #2D1B10; }
+    .layout {
+      display: grid; grid-template-columns: 1fr 420px; gap: 14px; padding: 14px 20px;
+      max-width: 1700px; margin: 0 auto;
+    }
+    #grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+    }
+    .card {
+      background: #4A2D1B; border: 2px solid #7D5236; border-radius: 12px;
+      display: flex; flex-direction: column; align-items: center; padding: 8px; cursor: pointer;
+    }
+    .card.selected { border-color: #FFD54F; box-shadow: 0 0 10px rgba(255,213,79,0.4); }
+    .card canvas { width: 100%; height: 145px; display: block; border-radius: 8px; background: #7D4B2A; }
+    .card .label { font-weight: 700; font-size: 13px; margin-top: 6px; text-align: center; }
+    .card .meta { font-size: 11px; opacity: 0.75; }
+    .inspector {
+      background: #3E2415; border: 2px solid #7D5236; border-radius: 12px; padding: 12px;
+      display: flex; flex-direction: column; gap: 10px; position: sticky; top: 14px; height: fit-content;
+    }
+    #turntable { width: 100%; height: 280px; border-radius: 10px; background: #5C351E; cursor: grab; }
+    .ref-img { width: 100%; border-radius: 8px; border: 1px solid #7D5236; }
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 1fr; }
+      #grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Galeri 14 Hidangan 3D Prosedural (Turntable + Pembanding Referensi)</h2>
+    <div class="controls">
+      <button id="btn-vessel" class="active">Varian: Vessel (Meja)</button>
+      <button id="btn-portion">Varian: Portion (Piring)</button>
+      <button id="btn-plate-mode">Mode Piring (Preset)</button>
+      <button id="btn-spin" class="active">Putar Otomatis</button>
+      <span id="perf-stats" style="font-size:12px;opacity:0.85;"></span>
+    </div>
+  </header>
+
+  <div id="plate-presets" style="display:none;gap:8px;padding:10px 20px;background:#351F12;border-bottom:1px solid #6D4C41;flex-wrap:wrap;">
+    <button class="preset-btn active" data-preset="opor">Opor Saja</button>
+    <button class="preset-btn" data-preset="ayam">Ayam Goreng Saja</button>
+    <button class="preset-btn" data-preset="opor_ketupat">Opor + Ketupat</button>
+    <button class="preset-btn" data-preset="combo5">Kombinasi 5 Item</button>
+    <button class="preset-btn" data-preset="combo7">Kombinasi 7 Item</button>
+  </div>
+
+  <div class="layout">
+    <div id="grid"></div>
+    <aside class="inspector">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <strong id="insp-title">Ketupat</strong>
+        <span id="insp-info" style="font-size:12px;opacity:0.8;">Seret untuk putar, scroll untuk zoom</span>
+      </div>
+      <canvas id="turntable" width="396" height="280"></canvas>
+      <div style="font-size:12px;opacity:0.85;">Gambar Referensi Target:</div>
+      <img class="ref-img" src="./referensi/Hidangan%20Nusantara%20di%20Meja%20Kayu.png" alt="Referensi Hidangan Nusantara" />
+    </aside>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./js/lib/three.module.min.js"
+    }
+  }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { RoomEnvironment } from './js/lib/RoomEnvironment.js';
+    import { INGREDIENTS, INGREDIENT_MAP } from './js/data.js';
+    import { createFood3D, createPlate3D, composePlate } from './js/foods3d.js';
+
+    const grid = document.getElementById('grid');
+    const ttCanvas = document.getElementById('turntable');
+    const renderer = new THREE.WebGLRenderer({ canvas: ttCanvas, antialias: true, alpha: true });
+    renderer.setSize(396, 280);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    // Shared offscreen renderer for grid thumbnails
+    const gridRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    gridRenderer.setSize(220, 165);
+    gridRenderer.shadowMap.enabled = true;
+    gridRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    gridRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    gridRenderer.toneMappingExposure = 1.05;
+    gridRenderer.outputColorSpace = THREE.SRGBColorSpace;
+    const gridPmrem = new THREE.PMREMGenerator(gridRenderer);
+    const gridEnvTex = gridPmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+    let currentVariant = 'vessel';
+    let selectedId = 'ketupat';
+    let autoSpin = true;
+    let yaw = 0.4;
+    let pitch = 0.55;
+    let zoom = 0.92;
+
+    function setupScene(env) {
+      const sc = new THREE.Scene();
+      sc.background = new THREE.Color('#8B5634');
+      sc.environment = env;
+      sc.environmentIntensity = 0.65;
+      sc.add(new THREE.HemisphereLight(0xFFF3E0, 0x6D4C41, 0.85));
+      const key = new THREE.DirectionalLight(0xFFE0B2, 1.55);
+      key.position.set(2.5, 4.5, 3.0);
+      key.castShadow = true;
+      key.shadow.mapSize.set(512, 512);
+      sc.add(key);
+      const rim = new THREE.DirectionalLight(0xFFD599, 0.55);
+      rim.position.set(-2.5, 2.5, -2.5);
+      sc.add(rim);
+      // No floor circle in grid offscreen — it caused brown arch artifact at card tops
+      return sc;
+    }
+
+    // Auto-fit camera to bounding sphere of food object
+    function autoFitCamera(cam, food, camFovDeg) {
+      food.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(food);
+      if (box.isEmpty()) return;
+      const center = box.getCenter(new THREE.Vector3());
+      const sphere = box.getBoundingSphere(new THREE.Sphere());
+      const fovV = (camFovDeg * Math.PI) / 180;
+      const fovH = 2 * Math.atan(Math.tan(fovV / 2) * cam.aspect);
+      const minFov = Math.min(fovV, fovH);
+      const dist = (sphere.radius / Math.sin(minFov / 2)) * 1.35;
+      cam.position.set(center.x + dist * 0.18, center.y + dist * 0.52, center.z + dist * 0.86);
+      cam.lookAt(center.x, center.y - sphere.radius * 0.1, center.z);
+      cam.near = dist * 0.05;
+      cam.far = dist * 8;
+      cam.updateProjectionMatrix();
+    }
+
+    function renderGrid() {
+      grid.innerHTML = '';
+      const cam = new THREE.PerspectiveCamera(34, 220 / 165, 0.05, 20);
+
+      for (const ing of INGREDIENTS) {
+        const card = document.createElement('div');
+        card.className = 'card' + (ing.id === selectedId ? ' selected' : '');
+        card.onclick = () => {
+          selectedId = ing.id;
+          document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          loadTurntable(ing.id);
+        };
+
+        const c2d = document.createElement('canvas');
+        c2d.width = 220; c2d.height = 165;
+        const ctx = c2d.getContext('2d');
+
+        const sc = setupScene(gridEnvTex);
+        const w = currentVariant === 'vessel' ? 0.66 : 0.34;
+        const food = createFood3D(ing.id, { variant: currentVariant, width: w, seed: 1, shadow: false });
+        sc.add(food);
+        autoFitCamera(cam, food, 34);
+        gridRenderer.render(sc, cam);
+        ctx.drawImage(gridRenderer.domElement, 0, 0);
+
+        card.appendChild(c2d);
+        const lbl = document.createElement('div');
+        lbl.className = 'label';
+        lbl.textContent = ing.name;
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = `tris: ${gridRenderer.info.render.triangles} | calls: ${gridRenderer.info.render.calls}`;
+        card.appendChild(lbl);
+        card.appendChild(meta);
+        grid.appendChild(card);
+      }
+      window.__TEST_FOODS_READY__ = true;
+    }
+
+    const ttScene = setupScene(envTex);
+    const ttCam = new THREE.PerspectiveCamera(35, 396 / 280, 0.1, 20);
+    let currentFood = null;
+
+    const PRESETS = {
+      opor: ['opor_ayam'],
+      ayam: ['ayam_goreng'],
+      opor_ketupat: ['ketupat', 'opor_ayam'],
+      combo5: ['ketupat', 'opor_ayam', 'telur_balado', 'kerupuk', 'sambal'],
+      combo7: ['ketupat', 'rendang', 'sambal_goreng_kentang', 'sayur_labu_siam', 'bawang_goreng', 'sambal', 'kerupuk'],
+    };
+
+    function loadTurntable(id) {
+      if (currentFood) ttScene.remove(currentFood);
+      const w = currentVariant === 'vessel' ? 0.66 : 0.42;
+      currentFood = createFood3D(id, { variant: currentVariant, width: w, seed: 1, shadow: true });
+      ttScene.add(currentFood);
+      const ing = INGREDIENTS.find(i => i.id === id);
+      document.getElementById('insp-title').textContent = `${ing?.name || id} (${currentVariant})`;
+    }
+
+    function loadPlatePreset(key) {
+      if (currentFood) ttScene.remove(currentFood);
+      const plate = createPlate3D(0.56);
+      const ids = PRESETS[key] || PRESETS.opor;
+      const entries = ids.map(id => {
+        const mesh = createFood3D(id, { variant: 'portion', width: 0.42, seed: 1, shadow: true });
+        plate.add(mesh);
+        return { id, category: INGREDIENT_MAP[id]?.category || 'main', mesh };
+      });
+      const layout = composePlate(entries, 0.56);
+      for (const e of entries) {
+        const t = layout.get(e.id);
+        if (t) {
+          e.mesh.position.set(t.x, t.y, t.z);
+          e.mesh.rotation.y = t.rotY;
+        }
+      }
+      currentFood = plate;
+      ttScene.add(plate);
+      document.getElementById('insp-title').textContent = `Piring: ${ids.join(' + ')}`;
+    }
+
+    // Turntable mouse/wheel controls
+    let dragging = false, lx = 0, ly = 0;
+    ttCanvas.addEventListener('pointerdown', (e) => { dragging = true; lx = e.clientX; ly = e.clientY; });
+    window.addEventListener('pointerup', () => { dragging = false; });
+    window.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      yaw += (e.clientX - lx) * 0.012;
+      pitch = Math.max(0.15, Math.min(1.35, pitch + (e.clientY - ly) * 0.01));
+      lx = e.clientX; ly = e.clientY;
+    });
+    ttCanvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      zoom = Math.max(0.45, Math.min(1.6, zoom + e.deltaY * 0.001));
+    }, { passive: false });
+
+    document.getElementById('btn-vessel').onclick = (e) => {
+      currentVariant = 'vessel';
+      document.getElementById('plate-presets').style.display = 'none';
+      e.target.classList.add('active');
+      document.getElementById('btn-portion').classList.remove('active');
+      document.getElementById('btn-plate-mode').classList.remove('active');
+      renderGrid(); loadTurntable(selectedId);
+    };
+    document.getElementById('btn-portion').onclick = (e) => {
+      currentVariant = 'portion';
+      document.getElementById('plate-presets').style.display = 'none';
+      e.target.classList.add('active');
+      document.getElementById('btn-vessel').classList.remove('active');
+      document.getElementById('btn-plate-mode').classList.remove('active');
+      renderGrid(); loadTurntable(selectedId);
+    };
+    document.getElementById('btn-plate-mode').onclick = (e) => {
+      document.getElementById('plate-presets').style.display = 'flex';
+      e.target.classList.add('active');
+      document.getElementById('btn-vessel').classList.remove('active');
+      document.getElementById('btn-portion').classList.remove('active');
+      zoom = 1.28;
+      loadPlatePreset('opor');
+    };
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        loadPlatePreset(btn.dataset.preset);
+      };
+    });
+    document.getElementById('btn-spin').onclick = (e) => {
+      autoSpin = !autoSpin;
+      e.target.classList.toggle('active', autoSpin);
+    };
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (autoSpin && !dragging) yaw += 0.008;
+      ttCam.position.set(
+        Math.sin(yaw) * Math.cos(pitch) * zoom,
+        Math.sin(pitch) * zoom + 0.08,
+        Math.cos(yaw) * Math.cos(pitch) * zoom
+      );
+      ttCam.lookAt(0, 0.08, 0);
+      renderer.render(ttScene, ttCam);
+      document.getElementById('perf-stats').textContent =
+        `Inspector: ${renderer.info.render.triangles} tris, ${renderer.info.render.calls} calls`;
+    }
+
+    renderGrid();
+    loadTurntable(selectedId);
+    animate();
+  </script>
+</body>
+</html>

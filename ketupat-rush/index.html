@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Ketupat Rush</title>
+  <link rel="icon" href="data:," />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+
+<body>
+
+  <!-- ===== MAIN MENU (langsung tampil saat dibuka) ===== -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-bg">
+      <!-- Layer 1: Motif batik/ketupat halus -->
+      <div class="menu-pattern" aria-hidden="true"></div>
+
+      <!-- Layer 2: Bulan sabit & bintang kelip -->
+      <div class="menu-sky-decor" aria-hidden="true">
+        <svg class="sky-moon" viewBox="0 0 80 80" width="68" height="68">
+          <defs>
+            <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFE082" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#FFE082" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="40" cy="40" r="38" fill="url(#moonGlow)" />
+          <path d="M46 14a22 22 0 1 0 18 35.5A18 18 0 0 1 46 14z" fill="#FFD54F" />
+        </svg>
+        <span class="sky-star s1"></span>
+        <span class="sky-star s2"></span>
+        <span class="sky-star s3"></span>
+        <span class="sky-star s4"></span>
+        <span class="sky-star s5"></span>
+      </div>
+
+      <!-- Layer 3: Siluet horizon masjid & pohon kelapa -->
+      <svg class="menu-horizon" viewBox="0 0 1440 260" preserveAspectRatio="none" aria-hidden="true">
+        <!-- Pohon kelapa kiri -->
+        <path d="M90 260 Q110 190 128 135 L136 138 Q120 195 106 260 Z" fill="#132A19" />
+        <path d="M132 136 Q95 112 68 128 Q100 124 132 136 Z" fill="#183620" />
+        <path d="M132 136 Q108 98 85 102 Q112 114 132 136 Z" fill="#183620" />
+        <path d="M132 136 Q142 96 172 104 Q152 116 132 136 Z" fill="#183620" />
+        <path d="M132 136 Q172 118 192 136 Q160 130 132 136 Z" fill="#183620" />
+        <!-- Siluet masjid tengah-kanan -->
+        <path d="M0 260 L0 218 L180 218 L210 205 L260 205 L260 218 L860 218 L860 182 L880 182 L880 120 L887 95 L894 120 L894 182 L925 182 Q960 112 1005 182 L1035 182 Q1075 88 1120 182 L1150 182 Q1190 112 1225 182 L1255 182 L1255 120 L1262 95 L1269 120 L1269 182 L1290 182 L1290 218 L1440 218 L1440 260 Z" fill="#142C1A" opacity="0.82" />
+        <!-- Bukit lembut foreground -->
+        <path d="M0 260 L0 232 Q360 208 720 230 T1440 222 L1440 260 Z" fill="#1B3A22" />
+      </svg>
+
+      <!-- Layer 4: Kain bunting sudut, janur, & lentera gantung -->
+      <div class="menu-top-ornaments" aria-hidden="true">
+        <svg class="bunting bunting-left" viewBox="0 0 220 58" width="220" height="58">
+          <path d="M-6 -2 Q110 26 226 -2" fill="none" stroke="#FFD54F" stroke-width="2.5" />
+          <polygon points="14,3 44,9 26,34" fill="#2E7D32" />
+          <polygon points="52,10 84,13 66,40" fill="#F9A825" />
+          <polygon points="92,13 128,13 110,41" fill="#FFF8E1" />
+          <polygon points="136,13 168,10 154,40" fill="#2E7D32" />
+          <polygon points="176,9 206,3 194,34" fill="#EF6C00" />
+        </svg>
+        <svg class="bunting bunting-right" viewBox="0 0 220 58" width="220" height="58">
+          <path d="M-6 -2 Q110 26 226 -2" fill="none" stroke="#FFD54F" stroke-width="2.5" />
+          <polygon points="14,3 44,9 26,34" fill="#EF6C00" />
+          <polygon points="52,10 84,13 66,40" fill="#2E7D32" />
+          <polygon points="92,13 128,13 110,41" fill="#FFF8E1" />
+          <polygon points="136,13 168,10 154,40" fill="#F9A825" />
+          <polygon points="176,9 206,3 194,34" fill="#2E7D32" />
+        </svg>
+
+        <!-- Lentera kiri & kanan (simetris) -->
+        <div class="lantern-wrap lantern-left">
+          <svg viewBox="0 0 48 104" width="44" height="96">
+            <line x1="24" y1="0" x2="24" y2="20" stroke="#FFD54F" stroke-width="2" />
+            <path d="M16 20 h16 l4 10 H12 z" fill="#8D5800" />
+            <rect x="13" y="30" width="22" height="34" rx="8" fill="#FFB300" stroke="#5D3A1A" stroke-width="2" />
+            <rect x="18" y="34" width="12" height="26" rx="5" fill="#FFF3B0" opacity="0.85" />
+            <path d="M14 64 h20 l-6 10 h-8 z" fill="#8D5800" />
+            <line x1="24" y1="74" x2="24" y2="90" stroke="#FFD54F" stroke-width="2" />
+          </svg>
+        </div>
+        <div class="lantern-wrap lantern-right">
+          <svg viewBox="0 0 48 104" width="44" height="96">
+            <line x1="24" y1="0" x2="24" y2="20" stroke="#FFD54F" stroke-width="2" />
+            <path d="M16 20 h16 l4 10 H12 z" fill="#8D5800" />
+            <rect x="13" y="30" width="22" height="34" rx="8" fill="#FFB300" stroke="#5D3A1A" stroke-width="2" />
+            <rect x="18" y="34" width="12" height="26" rx="5" fill="#FFF3B0" opacity="0.85" />
+            <path d="M14 64 h20 l-6 10 h-8 z" fill="#8D5800" />
+            <line x1="24" y1="74" x2="24" y2="90" stroke="#FFD54F" stroke-width="2" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Layer 5: Partikel kelip kunang-kunang hangat -->
+      <div class="menu-particles" aria-hidden="true">
+        <span class="spark sp1"></span>
+        <span class="spark sp2"></span>
+        <span class="spark sp3"></span>
+        <span class="spark sp4"></span>
+        <span class="spark sp5"></span>
+        <span class="spark sp6"></span>
+      </div>
+
+      <!-- Layer 6: Meja kayu warung di bagian bawah -->
+      <div class="menu-table" aria-hidden="true"></div>
+
+      <!-- Layer 7: Three.js 3D food showcase canvas -->
+      <canvas id="menu-canvas" class="menu-canvas"></canvas>
+
+      <!-- Tombol Mute cepat di pojok kanan atas -->
+      <button class="menu-mute-btn" id="btn-menu-mute" aria-label="Bisukan suara" title="Suara On/Off">
+        <svg class="icon-sound-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+        </svg>
+        <svg class="icon-sound-off hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+          <line x1="23" y1="9" x2="17" y2="15" />
+          <line x1="17" y1="9" x2="23" y2="15" />
+        </svg>
+      </button>
+
+      <!-- Konten utama menu -->
+      <div class="menu-content">
+        <div class="menu-logo">
+          <p class="menu-greeting">Selamat Hari Raya Idulfitri</p>
+          <span class="menu-badge">Edisi Hari Raya</span>
+          <div class="title-lockup">
+            <svg class="title-ketupat" viewBox="0 0 44 52" width="38" height="44" aria-hidden="true">
+              <polygon points="22,6 39,23 22,40 5,23" fill="#66BB6A" stroke="#1B5E20" stroke-width="2.5" />
+              <path d="M13 15 L31 33 M31 15 L13 33 M22 6 L22 40 M5 23 L39 23" stroke="#FFF8E1" stroke-width="1.6" opacity="0.7" />
+              <path d="M19 40 L15 50 M25 40 L29 50" stroke="#A5D6A7" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+            <h1 class="game-title">Ketupat Rush</h1>
+            <svg class="title-ketupat" viewBox="0 0 44 52" width="38" height="44" aria-hidden="true">
+              <polygon points="22,6 39,23 22,40 5,23" fill="#66BB6A" stroke="#1B5E20" stroke-width="2.5" />
+              <path d="M13 15 L31 33 M31 15 L13 33 M22 6 L22 40 M5 23 L39 23" stroke="#FFF8E1" stroke-width="1.6" opacity="0.7" />
+              <path d="M19 40 L15 50 M25 40 L29 50" stroke="#A5D6A7" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+          </div>
+          <p class="game-sub">Sajikan hidangan Lebaran secepat mungkin!</p>
+        </div>
+
+        <div class="menu-buttons">
+          <button class="btn btn-primary btn-xlarge btn-play-hero" id="btn-play">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="6,4 20,12 6,20" />
+            </svg>
+            <span>Main</span>
+          </button>
+          <div class="menu-buttons-secondary">
+            <button class="btn btn-outline btn-compact" id="btn-settings-menu">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.77 1 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              <span>Pengaturan</span>
+            </button>
+            <button class="btn btn-outline btn-compact" id="btn-howto">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span>Cara Bermain</span>
+            </button>
+          </div>
+          <a href="../index.html" class="btn btn-outline btn-back-link" id="btn-menu-catalog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>Kembali ke Menu Utama</span>
+          </a>
+        </div>
+
+        <div class="menu-stats">
+          <div class="stat-pill">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#FFD54F" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+            </svg>
+            <span>Rekor: Rp <span id="best-money">0</span></span>
+          </div>
+          <div class="stat-pill">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFD54F" stroke-width="2.2"
+              aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <polyline points="12 7 12 12 15 14" />
+            </svg>
+            <span>Terlama: <span id="best-time">0:00</span></span>
+          </div>
+        </div>
+      </div>
+
+      <span class="menu-version">v1.0 • Edisi Lebaran</span>
+    </div>
+  </div>
+
+  <!-- ===== GAMEPLAY ===== -->
+  <div id="screen-game" class="screen">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD Top -->
+    <div class="hud-top">
+      <div class="hud-money" title="Pendapatan">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#FFD54F" stroke="#B8820E" stroke-width="1.5"
+          aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+        </svg>
+        <span id="hud-money-val">Rp 0</span>
+      </div>
+
+      <div class="hud-phase" id="hud-phase">Hari ke-1</div>
+
+      <div class="hud-lives" id="hud-lives" title="Kesempatan pelanggan"></div>
+
+      <div class="hud-timer" id="hud-timer">0:00</div>
+
+      <button class="hud-pause-btn" id="btn-pause" aria-label="Jeda">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <rect x="6" y="4" width="4" height="16" rx="1" />
+          <rect x="14" y="4" width="4" height="16" rx="1" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Combo badge -->
+    <div class="combo-badge hidden" id="combo-badge">
+      <span>Kombo</span>
+      <span id="combo-num">x2</span>
+      <div class="combo-decay" id="combo-decay"></div>
+    </div>
+
+    <!-- Floating 3D-projected Container Labels -->
+    <div class="container-labels-layer" id="container-labels-layer"></div>
+
+    <!-- Single compact unlock status pill (replaces 10 locked pills) -->
+    <div class="unlock-strip hidden" id="unlock-strip"></div>
+
+    <!-- Fixed horizontal Order Rail below HUD -->
+    <div class="customer-bubbles-layer" id="customer-bubbles-layer"></div>
+
+    <!-- Bottom Action Bar (compact, doesn't cover 3D table) -->
+    <div class="action-bar" id="action-bar">
+      <div class="plate-tabs hidden" id="plate-tabs">
+        <button class="plate-tab active" data-plate="a">Piring A</button>
+        <button class="plate-tab" data-plate="b">Piring B</button>
+      </div>
+      <button class="btn btn-outline btn-clear" id="btn-clear" aria-label="Kosongkan piring">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          aria-hidden="true">
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+        </svg>
+        <span>Kosongkan</span>
+      </button>
+      <button class="btn btn-primary btn-serve" id="btn-serve">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"
+          aria-hidden="true">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <span>SAJIKAN</span>
+      </button>
+    </div>
+
+    <!-- Drag hint / status -->
+    <div class="drag-hint" id="drag-hint">Seret bahan ke piring, lalu seret piring ke pelanggan atau ketuk Sajikan</div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Rotate hint (mobile landscape fallback) -->
+    <div class="rotate-hint hidden" id="rotate-hint">
+      Putar ponsel ke posisi tegak untuk pengalaman terbaik
+    </div>
+  </div>
+
+  <!-- ===== PAUSE MENU ===== -->
+  <div id="screen-pause" class="screen overlay">
+    <div class="modal-box">
+      <h2>Permainan Dijeda</h2>
+      <div class="settings-row">
+        <label for="pause-music-vol">Musik</label>
+        <input type="range" id="pause-music-vol" min="0" max="1" step="0.05" value="0.45" />
+        <button class="btn-mute" id="pause-mute-music" aria-label="Bisukan musik">On</button>
+      </div>
+      <div class="settings-row">
+        <label for="pause-sfx-vol">Efek Suara</label>
+        <input type="range" id="pause-sfx-vol" min="0" max="1" step="0.05" value="0.7" />
+        <button class="btn-mute" id="pause-mute-sfx" aria-label="Bisukan efek suara">On</button>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-resume">Lanjut</button>
+        <button class="btn btn-secondary" id="btn-restart">Mulai Ulang</button>
+        <button class="btn btn-outline" id="btn-quit-to-menu">Kembali ke Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GAME OVER ===== -->
+  <div id="screen-gameover" class="screen overlay">
+    <div class="modal-box gameover-box">
+      <h2>Warung Tutup</h2>
+      <p id="gameover-reason">Pelanggan kecewa terlalu banyak menunggu.</p>
+      <div class="result-stats" id="gameover-stats">
+        <div class="result-row"><span>Total Pendapatan</span><span id="go-revenue">Rp 0</span></div>
+        <div class="result-row"><span>Waktu Bertahan</span><span id="go-time">0:00</span></div>
+        <div class="result-row"><span>Fase Tercapai</span><span id="go-phase">Hari ke-1</span></div>
+        <div class="result-row"><span>Pesanan Terlayani</span><span id="go-served">0</span></div>
+        <div class="result-row"><span>Kombo Terbaik</span><span id="go-combo">x0</span></div>
+        <div class="result-row"><span>Rekor Pendapatan</span><span id="go-best-rev">Rp 0</span></div>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-retry-go">Main Lagi</button>
+        <button class="btn btn-outline" id="btn-menu-go">Menu Utama</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div id="screen-settings" class="screen overlay">
+    <div class="modal-box">
+      <h2>Pengaturan</h2>
+      <div class="settings-row">
+        <label for="set-music-vol">Musik</label>
+        <input type="range" id="set-music-vol" min="0" max="1" step="0.05" value="0.45" />
+        <button class="btn-mute" id="set-mute-music" aria-label="Bisukan musik">On</button>
+      </div>
+      <div class="settings-row">
+        <label for="set-sfx-vol">Efek Suara</label>
+        <input type="range" id="set-sfx-vol" min="0" max="1" step="0.05" value="0.7" />
+        <button class="btn-mute" id="set-mute-sfx" aria-label="Bisukan efek suara">On</button>
+      </div>
+      <div class="settings-row">
+        <label for="set-hints">Petunjuk Bermain</label>
+        <input type="checkbox" id="set-hints" checked />
+      </div>
+      <div class="settings-row">
+        <label for="set-vibrate">Getar (Haptik)</label>
+        <input type="checkbox" id="set-vibrate" checked />
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-settings-close">Simpan</button>
+        <a href="../index.html" class="btn btn-outline" id="btn-back-catalog">Kembali ke Menu Utama</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CARA BERMAIN ===== -->
+  <div id="screen-howto" class="screen overlay">
+    <div class="modal-box howto-box">
+      <h2>Cara Bermain</h2>
+      <ul class="howto-list">
+        <li><strong>1. Lihat Pesanan:</strong> Perhatikan kartu pesanan pelanggan di bagian atas layar.</li>
+        <li><strong>2. Racik Piring:</strong> Seret atau ketuk lauk dari wadah ke piring saji.</li>
+        <li><strong>3. Sajikan Cepat:</strong> Seret piring ke pelanggan yang sesuai atau tekan <strong>SAJIKAN</strong> sebelum kesabaran habis.</li>
+        <li><strong>4. Jaga Kombo:</strong> Layani beruntun untuk bonus kombo dan buka menu baru di hari berikutnya!</li>
+      </ul>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-howto-close">Mengerti!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: local Three.js 0.161 ES module via importmap -->
+  <script type="importmap">
+{
+  "imports": {
+    "three": "./js/lib/three.module.min.js"
+  }
+}
+</script>
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
