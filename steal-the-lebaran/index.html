@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<link rel="icon" href="data:,"/>
+<title>Steal the Lebaran — Curi, Kabur, Buka Hadiah!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="game" aria-label="Arena 3D Steal the Lebaran"></div>
+<div id="err" role="alert"></div>
+<div id="flashFx" aria-hidden="true">⚡⚡⚡</div>
+
+<div class="hud" id="topbar">
+  <div class="pill"><span class="ic coin-ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3l2.5 5.3 5.5.7-4 4 1 5.7-5-2.8-5 2.8 1-5.7-4-4 5.5-.7L12 3z" fill="#2b2118"/></svg></span><span id="coins">0</span></div>
+  <div class="pill"><span class="ic spd-ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4.5 14H11l-1 8 8.5-12H12l1-8z" fill="#2b2118"/></svg></span><span id="speedPill">Lv 1</span></div>
+  <div class="spacer"></div>
+  <button class="iconbtn" id="btnSound" aria-label="Suara nyala atau mati"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10v4h3.5L13 18.5v-13L7.5 10H4z" fill="currentColor"/><path class="snd-waves" d="M16.5 9.5a4 4 0 010 5M19 7a7.5 7.5 0 010 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+</div>
+
+<div class="hud" id="roombar">
+  <div class="pill" id="roomPill">🏠 Zona Aman</div>
+  <div class="pill"><span class="ic col-ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6c-1.7-1.5-4-2-7-2v14c3 0 5.3.5 7 2 1.7-1.5 4-2 7-2V4c-3 0-5.3.5-7 2zm0 0v14" stroke="#0f7a3d" stroke-width="2.2" stroke-linejoin="round"/></svg></span><span id="colProg">0 / 112</span></div>
+  <div class="pill">⭐ Lv <span id="playerLv">1</span></div>
+  <div id="roomDots" aria-hidden="true"></div>
+</div>
+
+<div class="hud" id="alert">
+  <div id="chaseBanner"><img src="assets/hd-tungtung.png" alt="Tung Tung Tung Sahur"><span id="chaseText">TUNG TUNG TUNG MENGEJARMU! Lari ke zona aman!</span></div>
+  <div id="toast" role="status"></div>
+</div>
+
+<div class="hud" id="speedAlert" role="alert">
+  <div class="inner">
+    <img class="hd-ic" src="assets/hd-petir.png" alt="Ikon petir kecepatan">
+    <p><b>BELI SPEED biar gampang mencuri!</b><br>Penjaga makin cepat di ruangan jauh. Naikkan speed mulai 100 koin — tombolnya ada di tengah bawah 👇</p>
+    <button id="btnSpeedAlert">⚡ BELI</button>
+  </div>
+  <button id="speedAlertClose" aria-label="Tutup pengingat speed">✕</button>
+</div>
+
+<div class="hud" id="carryBar"></div>
+<div id="hint">⌨️ WASD / panah: jalan &nbsp;•&nbsp; Shift: lari &nbsp;•&nbsp; E / Spasi: ambil &amp; buka &nbsp;•&nbsp; Seret layar: putar kamera</div>
+
+<div id="controls">
+  <div id="joy" aria-label="Joystick gerak"><div id="joyKnob">🕹️</div></div>
+  <div id="actions">
+    <button id="btnSprint">💨 LARI</button>
+    <button id="btnAction">MASUK<br>TAMAN!</button>
+  </div>
+</div>
+
+<div id="dock" aria-label="Menu utama game">
+  <button class="dockbtn" id="btnCatalog" aria-label="Buka katalog koleksi — hadiah Basic sampai Secret">
+    <img class="hd-ic" src="assets/hd-peti.png" alt="">
+    <span class="txt"><b>📖 KATALOG</b><small id="dockColSub">112 item • Basic–Secret</small></span>
+  </button>
+  <button class="dockbtn speed attention" id="btnSpeed" aria-label="Beli upgrade speed di tengah — biar gampang kabur saat mencuri">
+    <span class="badge">BUAT KABUR!</span>
+    <img class="hd-ic" src="assets/hd-petir.png" alt="">
+    <span class="txt"><b>⚡ BELI SPEED</b><small id="dockSpeedSub">Lv 1 • mulai 100 🪙</small></span>
+  </button>
+  <button class="dockbtn hadiah" id="btnRooms" aria-label="Peta 6 ruangan Basic sampai Secret">
+    <img class="hd-ic" src="assets/hd-portal.png" alt="">
+    <span class="txt"><b>🚪 RUANGAN</b><small>6 room • Basic–Secret</small></span>
+  </button>
+  <button class="dockbtn" id="btnUpg" aria-label="Buka upgrade markas">
+    <img class="hd-ic" src="assets/hd-mahkota.png" alt="">
+    <span class="txt"><b>👑 MARKAS</b><small>Luck &amp; etalase</small></span>
+  </button>
+</div>
+
+<div id="start">
+  <div id="startCard">
+    <div class="heroRow" aria-hidden="true">
+      <img class="hd-hero" src="assets/hd-lentera.png" alt="">
+      <img class="hd-hero" src="assets/hd-ketupat.png" alt="">
+      <img class="hd-hero" src="assets/hd-tungtung.png" alt="">
+      <img class="hd-hero" src="assets/hd-giftbox.png" alt="">
+      <img class="hd-hero" src="assets/hd-nastar.png" alt="">
+    </div>
+    <h1>STEAL THE <span>LEBARAN</span></h1>
+    <p>Jelajahi <b>6 ruangan</b> dari Basic sampai Secret — makin jauh dari zona aman, makin langka barangnya dan makin cepat <b>Tung Tung Tung Sahur</b> penjaganya. Curi, kabur, buka hadiah, lalu naikkan kecepatan larimu!</p>
+    <div class="featRow">
+      <div class="feat"><img src="assets/hd-peti.png" alt="Peti katalog koleksi"><b>📖 KATALOG</b><small>112 hadiah<br>Basic – Secret</small></div>
+      <div class="feat"><img src="assets/hd-petir.png" alt="Petir beli speed"><b>⚡ BELI SPEED</b><small>Biar gampang kabur<br>mulai 100 🪙</small></div>
+      <div class="feat"><img src="assets/hd-giftbox.png" alt="Kotak hadiah Lebaran"><b>🎁 BUKA HADIAH</b><small>Cuma bisa dibuka<br>di Zona Aman</small></div>
+    </div>
+    <div class="steps">
+      <span class="step"><i>1</i>Masuk ruangan</span><span class="step"><i>2</i>Ambil barang</span><span class="step"><i>3</i>Penjaga ngejar terus — kabur ke zona aman!</span><span class="step"><i>4</i>Buka hadiah &amp; upgrade speed</span>
+    </div>
+    <button class="bigbtn" id="btnStart">▶ MULAI MAIN</button>
+    <button id="btnStartSpeed">⚡ BELI SPEED DULU — BIAR GAMPANG MENCURI!</button>
+    <p class="fineprint">Hadiah HANYA bisa dibuka setelah selamat sampai zona aman. Ruangan baru terbuka dari jumlah ekstraksi berhasilmu. Tertangkap = barang jatuh!</p>
+  </div>
+</div>
+
+<!-- OPENING MODAL -->
+<div class="modal" id="openModal" role="dialog" aria-label="Buka hadiah">
+  <div class="sheet" id="openSheet" style="max-width:440px">
+    <header><h2>Buka Barang Curian</h2></header>
+    <div class="body">
+      <div id="openStage"><img class="asset-img" src="assets/hd-giftbox.png" alt="Kotak hadiah"></div>
+      <div id="rarityBig"></div>
+      <div id="rewardName">Siap dibuka…</div>
+      <div id="rewardMeta">Goyang-goyang dulu biar seru!</div>
+      <button class="bigbtn" id="btnOpen">BUKA SEKARANG!</button>
+      <button class="bigbtn" id="btnCollect" style="display:none;background:var(--gold);color:var(--ink)">KOLEKSI! +<span id="coinGain">0</span> 🪙</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOGUE MODAL -->
+<div class="modal" id="catModal" role="dialog" aria-label="Katalog koleksi">
+  <div class="sheet">
+    <header><h2>📖 Katalog — Basic s/d Secret</h2><button class="xbtn" data-close="catModal" aria-label="Tutup">✕</button></header>
+    <div class="body">
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><img class="hd-ic" src="assets/hd-ketupat.png" alt="Ketupat Basic"><img class="hd-ic" src="assets/hd-nastar.png" alt="Nastar"><img class="hd-ic" src="assets/hd-giftbox.png" alt="Kotak hadiah"><img class="hd-ic" src="assets/hd-lentera.png" alt="Lentera"><img class="hd-ic" src="assets/hd-bulansabit.png" alt="Bulan sabit Secret"><img class="hd-ic" src="assets/hd-baju.png" alt="Baju Lebaran"><span style="font-weight:900;font-size:12.5px">Semua hadiah: Basic • Common • Uncommon • Rare • Epic • Legendary • Mythic • Secret</span></div>
+      <div style="font-weight:900" id="catProgText">0 / 112 ditemukan</div>
+      <div class="progbar"><i id="catProgBar"></i></div>
+      <div class="tabs" id="catTabs"></div>
+      <div class="grid" id="catGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal" id="detailModal" role="dialog" aria-label="Detail koleksi">
+  <div class="sheet" style="max-width:420px">
+    <header><h2 id="detTitle">Detail</h2><button class="xbtn" data-close="detailModal" aria-label="Tutup">✕</button></header>
+    <div class="body">
+      <div class="detailEmo" id="detEmo"><span class="emo-big">❓</span></div>
+      <div class="kv"><span>Rarity</span><span id="detRarity">—</span></div>
+      <div class="kv"><span>Mutasi</span><span id="detMut">—</span></div>
+      <div class="kv"><span>Status</span><span id="detStatus">—</span></div>
+      <div class="kv"><span>Nilai</span><span id="detValue">—</span></div>
+      <p id="detDesc" style="font-weight:800;line-height:1.5"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ROOMS MODAL -->
+<div class="modal" id="roomsModal" role="dialog" aria-label="Peta ruangan">
+  <div class="sheet" style="max-width:480px">
+    <header><h2>Peta 6 Ruangan</h2><button class="xbtn" data-close="roomsModal" aria-label="Tutup">✕</button></header>
+    <div class="body" id="roomsList"></div>
+  </div>
+</div>
+
+<!-- SPEED SHOP MODAL -->
+<div class="modal" id="speedModal" role="dialog" aria-label="Toko upgrade kecepatan">
+  <div class="sheet" style="max-width:440px">
+    <header><h2>⚡ Upgrade Kecepatan</h2><button class="xbtn" data-close="speedModal" aria-label="Tutup">✕</button></header>
+    <div class="body" id="speedBody"></div>
+  </div>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="modal" id="upgModal" role="dialog" aria-label="Upgrade markas">
+  <div class="sheet" style="max-width:460px">
+    <header><h2>Upgrade Markas</h2><button class="xbtn" data-close="upgModal" aria-label="Tutup">✕</button></header>
+    <div class="body" id="upgList"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

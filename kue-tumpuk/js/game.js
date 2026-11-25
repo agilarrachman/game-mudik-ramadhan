@@ -407,6 +407,20 @@
         var rect=canvas.getBoundingClientRect();
         return (clientX-rect.left)/rect.width*W;
       }
+      /* ---- prevent double-tap / pinch zoom on mobile ---- */
+      document.addEventListener("gesturestart",function(e){ e.preventDefault(); });
+      document.addEventListener("gesturechange",function(e){ e.preventDefault(); });
+      document.addEventListener("dblclick",function(e){ e.preventDefault(); },{passive:false});
+      var lastTouchEnd=0;
+      document.addEventListener("touchend",function(e){
+        var now=Date.now();
+        if(now-lastTouchEnd<=300){ e.preventDefault(); }
+        lastTouchEnd=now;
+      },{passive:false});
+      document.addEventListener("wheel",function(e){
+        if(e.ctrlKey) e.preventDefault();
+      },{passive:false});
+
       var pressing=false;
       frame.addEventListener("pointermove",function(e){
         aimX=pointerX(e.clientX);
