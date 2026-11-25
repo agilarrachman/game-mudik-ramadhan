@@ -76,6 +76,7 @@ body {
   font-family: var(--font-title);
   font-weight: 700;
   font-size: 1rem;
+  text-decoration: none;
   border: 2px solid transparent;
   border-radius: 50px;
   cursor: pointer;
