@@ -26,15 +26,17 @@
 
 <div class="hud" id="roombar">
   <div class="pill" id="roomPill">🏠 Zona Aman</div>
-  <div class="pill"><span class="ic col-ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6c-1.7-1.5-4-2-7-2v14c3 0 5.3.5 7 2 1.7-1.5 4-2 7-2V4c-3 0-5.3.5-7 2zm0 0v14" stroke="#0f7a3d" stroke-width="2.2" stroke-linejoin="round"/></svg></span><span id="colProg">0 / 112</span></div>
+  <div class="pill"><span class="ic col-ic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 6c-1.7-1.5-4-2-7-2v14c3 0 5.3.5 7 2 1.7-1.5 4-2 7-2V4c-3 0-5.3.5-7 2zm0 0v14" stroke="#0f7a3d" stroke-width="2.2" stroke-linejoin="round"/></svg></span><span id="colProg">0 / 20</span></div>
   <div class="pill">⭐ Lv <span id="playerLv">1</span></div>
   <div id="roomDots" aria-hidden="true"></div>
 </div>
 
 <div class="hud" id="alert">
-  <div id="chaseBanner"><img src="assets/hd-tung.png" alt="Tung Tung Tung Sahur"><span id="chaseText">TUNG TUNG TUNG MENGEJARMU! Lari ke zona aman!</span></div>
+  <div id="chaseBanner"><span style="font-size:30px;line-height:1" aria-hidden="true">👹</span><span id="chaseText">SI PENJAGA JAHAT MENGEJARMU! Lari ke zona aman!</span></div>
   <div id="toast" role="status"></div>
 </div>
+
+<div id="secretAlert" role="alert"><div class="sa-in">⚠️ AWAS! ⚠️<br>ADA RUANGAN RAHASIA<br>YANG TERBUKA!<br><span>SIAP-SIAP!</span></div></div>
 
 <div class="hud" id="speedAlert" role="alert">
   <div class="inner">
@@ -46,10 +48,9 @@
 </div>
 
 <div class="hud" id="carryBar"></div>
-<div id="hint">⌨️ WASD / panah: jalan &nbsp;•&nbsp; Shift: lari &nbsp;•&nbsp; E / Spasi: ambil &amp; buka &nbsp;•&nbsp; Seret layar: putar kamera</div>
+<div id="hint">⌨️ WASD / panah: jalan • Shift: lari • E / Spasi: ambil &amp; buka • 🖱️ Seret mouse: putar kamera • 📱 Sentuh &amp; seret layar ke segala arah: bergerak (joystick tak terlihat di seluruh layar)</div>
 
 <div id="controls">
-  <div id="joy" aria-label="Joystick gerak"><div id="joyKnob">🕹️</div></div>
   <div id="actions">
     <button id="btnAction">MASUK<br>TAMAN!</button>
   </div>
@@ -58,16 +59,16 @@
 <div id="dock" aria-label="Menu utama game">
   <button class="dockbtn" id="btnCatalog" aria-label="Buka katalog koleksi — hadiah Basic sampai Secret">
     <img class="hd-ic" src="assets/hd-chest.png" alt="">
-    <span class="txt"><b>📖 KATALOG</b><small id="dockColSub">112 item • Basic–Secret</small></span>
+    <span class="txt"><b>📖 KATALOG</b><small id="dockColSub">20 item • Basic–Secret</small></span>
   </button>
   <button class="dockbtn speed attention" id="btnSpeed" aria-label="Beli upgrade speed — biar gampang kabur saat mencuri">
     <span class="badge">BUAT KABUR!</span>
     <img class="hd-ic" src="assets/hd-speed.png" alt="">
     <span class="txt"><b>⚡ BELI SPEED</b><small id="dockSpeedSub">Lv 1 • mulai 100 🪙</small></span>
   </button>
-  <button class="dockbtn hadiah" id="btnRooms" aria-label="Peta 6 ruangan Basic sampai Secret">
+  <button class="dockbtn hadiah" id="btnRooms" aria-label="Peta ruangan Pemula, Penakluk, Sang Legenda, dan ruangan rahasia">
     <img class="hd-ic" src="assets/hd-portal.png" alt="">
-    <span class="txt"><b>🚪 RUANGAN</b><small>6 room • Basic–Secret</small></span>
+    <span class="txt"><b>🚪 RUANGAN</b><small>Pemula – Legenda</small></span>
   </button>
   <button class="dockbtn" id="btnUpg" aria-label="Buka upgrade markas">
     <img class="hd-ic" src="assets/hd-crown.png" alt="">
@@ -82,9 +83,9 @@
 <div id="start">
   <div id="startCard">
     <h1>STEAL THE <span>LEBARAN</span></h1>
-    <p>Jelajahi <b>6 ruangan</b> dari Basic sampai Secret — makin jauh dari zona aman, makin langka barangnya dan makin cepat <b>Tung Tung Tung Sahur</b> penjaganya. Curi, kabur, buka hadiah, lalu naikkan kecepatan larimu!</p>
+    <p>Jelajahi <b>3 ruangan</b> — <b>Ruangan Pemula</b>, <b>Ruangan Penakluk</b>, dan <b>Ruangan Sang Legenda</b> — tiap ruangan dijaga monster berbeda ukuran: <b>Si Penjaga Jahat</b> yang kecil, <b>Penjaga Sangat Jahat</b> yang sedang, dan <b>Mister Penjaga Sangat Jahat</b> yang besar, masing-masing dengan skin &amp; glow sendiri. Di balik tebing raksasa di utara konon ada ruangan rahasia berisi 5 katalog spesial, dijaga bos <b>Ketua Para Penjaga Jahat</b> yang RAKSASA — tapi wujudnya belum terlihat. Lengkapi <b>15 katalog</b> dan saksikan sendiri ruangan itu muncul dari dalam bumi! Total cuma <b>20 katalog</b> untuk tamat!</p>
     <div class="featRow">
-      <div class="feat"><img src="assets/hd-chest.png" alt="Peti katalog koleksi"><b>📖 KATALOG</b><small>112 hadiah<br>Basic – Secret</small></div>
+      <div class="feat"><img src="assets/hd-chest.png" alt="Peti katalog koleksi"><b>📖 KATALOG</b><small>20 hadiah<br>Basic – Secret</small></div>
       <div class="feat"><img src="assets/hd-speed.png" alt="Petir beli speed"><b>⚡ BELI SPEED</b><small>Biar gampang kabur<br>mulai 100 🪙</small></div>
       <div class="feat"><img src="assets/hd-gift.png" alt="Kotak hadiah Lebaran"><b>🎁 BUKA HADIAH</b><small>Cuma bisa dibuka<br>di Zona Aman</small></div>
     </div>
@@ -93,7 +94,7 @@
     </div>
     <button class="bigbtn" id="btnStart">▶ MULAI MAIN</button>
     <button id="btnStartSpeed">⚡ BELI SPEED DULU — BIAR GAMPANG MENCURI!</button>
-    <p class="fineprint">Hadiah HANYA bisa dibuka setelah selamat sampai zona aman. Ruangan baru terbuka dari jumlah ekstraksi berhasilmu. Tertangkap = barang jatuh!</p>
+    <p class="fineprint">Hadiah HANYA bisa dibuka setelah selamat sampai zona aman. Ruangan Penakluk &amp; Sang Legenda terbuka dari ekstraksi berhasil; ruangan rahasia masih tersembunyi di dalam bumi — kumpulkan 15 katalog untuk membukanya. Tertangkap = barang jatuh! Di HP: sentuh &amp; seret layar ke segala arah untuk bergerak — joystick-nya tak terlihat, seluruh layar adalah joystick.</p>
   </div>
 </div>
 
@@ -117,8 +118,8 @@
   <div class="sheet">
     <header><h2>📖 Katalog — Basic s/d Secret</h2><button class="xbtn" data-close="catModal" aria-label="Tutup">✕</button></header>
     <div class="body">
-      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><img class="hd-ic" src="assets/hd-ketupat.png" alt="Ketupat Basic"><img class="hd-ic" src="assets/hd-nastar.png" alt="Nastar"><img class="hd-ic" src="assets/hd-gift.png" alt="Kotak hadiah"><img class="hd-ic" src="assets/hd-lantern.png" alt="Lentera"><img class="hd-ic" src="assets/hd-crescent.png" alt="Bulan sabit Secret"><img class="hd-ic" src="assets/hd-baju.png" alt="Baju Lebaran"><img class="hd-ic" src="assets/hd-kastengel.png" alt="Kastengel"><img class="hd-ic" src="assets/hd-thr.png" alt="Amplop THR"><img class="hd-ic" src="assets/hd-sarung.png" alt="Sarung"><span style="font-weight:900;font-size:12.5px">Semua hadiah: Basic • Common • Uncommon • Rare • Epic • Legendary • Mythic • Secret</span></div>
-      <div style="font-weight:900" id="catProgText">0 / 112 ditemukan</div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><img class="hd-ic" src="assets/hd-ketupat.png" alt="Ketupat Basic"><img class="hd-ic" src="assets/hd-nastar.png" alt="Nastar"><img class="hd-ic" src="assets/hd-gift.png" alt="Kotak hadiah"><img class="hd-ic" src="assets/hd-lantern.png" alt="Lentera"><img class="hd-ic" src="assets/hd-crescent.png" alt="Bulan sabit Secret"><img class="hd-ic" src="assets/hd-baju.png" alt="Baju Lebaran"><img class="hd-ic" src="assets/hd-thr.png" alt="Amplop THR"><img class="hd-ic" src="assets/hd-mosque.png" alt="Masjid"><span style="font-weight:900;font-size:12.5px">20 hadiah: Basic • Rare • Legendary • Secret — lengkapi 15 katalog utama untuk membuka Ruangan Rahasia Mythic!</span></div>
+      <div style="font-weight:900" id="catProgText">0 / 20 ditemukan</div>
       <div class="progbar"><i id="catProgBar"></i></div>
       <div class="tabs" id="catTabs"></div>
       <div class="grid" id="catGrid"></div>
@@ -144,7 +145,7 @@
 <!-- ROOMS MODAL -->
 <div class="modal" id="roomsModal" role="dialog" aria-label="Peta ruangan">
   <div class="sheet" style="max-width:480px">
-    <header><h2>Peta 6 Ruangan</h2><button class="xbtn" data-close="roomsModal" aria-label="Tutup">✕</button></header>
+    <header><h2>Peta Ruangan</h2><button class="xbtn" data-close="roomsModal" aria-label="Tutup">✕</button></header>
     <div class="body" id="roomsList"></div>
   </div>
 </div>

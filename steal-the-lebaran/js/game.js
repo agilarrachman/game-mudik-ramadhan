@@ -3,24 +3,17 @@
 window.addEventListener('error',function(e){var d=document.getElementById('err');d.style.display='block';d.textContent='Ups, ada error: '+(e.message||'tidak dikenal');});
 /* ============ DATA ============ */
 var RARITIES=[
- {id:'basic',name:'Basic',color:'#9aa3ad',w:34,value:10},
- {id:'common',name:'Common',color:'#58b368',w:27,value:20},
- {id:'uncommon',name:'Uncommon',color:'#2f9e6e',w:17,value:35},
- {id:'rare',name:'Rare',color:'#2f7fe0',w:10.5,value:60},
- {id:'epic',name:'Epic',color:'#9b4de0',w:6,value:110},
- {id:'legendary',name:'Legendary',color:'#f5a623',w:3.4,value:220},
- {id:'mythic',name:'Mythic',color:'#ef3b6b',w:1.6,value:450},
- {id:'secret',name:'Secret',color:'#22242c',w:0.5,value:900}
+ {id:'basic',name:'Basic',color:'#9aa3ad',w:40,value:20},
+ {id:'rare',name:'Rare',color:'#2f7fe0',w:30,value:80},
+ {id:'legendary',name:'Legendary',color:'#f5a623',w:20,value:300},
+ {id:'secret',name:'Secret',color:'#22242c',w:10,value:1000}
 ];
-var COIN_RANGES={basic:[10,25],common:[25,50],uncommon:[50,100],rare:[100,250],epic:[250,500],legendary:[500,1500],mythic:[1500,5000],secret:[5000,8000]};
+var COIN_RANGES={basic:[10,30],rare:[50,120],legendary:[200,500],secret:[800,1500]};
 var MUTATIONS=[
- {id:'basic',name:'Basic',mult:1,w:46,tint:null},
- {id:'golden',name:'Golden',mult:3,w:22,tint:0xffc93c},
- {id:'diamond',name:'Diamond',mult:5,w:11,tint:0x9be8ff},
- {id:'rainbow',name:'Rainbow',mult:7,w:8,tint:'rainbow'},
- {id:'neon',name:'Neon',mult:6,w:6,tint:0x39ff88},
- {id:'galaxy',name:'Galaxy',mult:10,w:4.4,tint:0x3b2a6d},
- {id:'celestial',name:'Celestial',mult:14,w:2.6,tint:0xfff3b0}
+ {id:'basic',name:'Basic',mult:1,w:50,tint:null},
+ {id:'golden',name:'Golden',mult:3,w:26,tint:0xffc93c},
+ {id:'diamond',name:'Diamond',mult:5,w:16,tint:0x9be8ff},
+ {id:'celestial',name:'Celestial',mult:12,w:8,tint:0xfff3b0}
 ];
 var BASES=[
  {id:'ketupat',name:'Ketupat',emo:'🧆',cat:'ketupat',color:0x3da33f,img:'assets/hd-ketupat.png',desc:'Anyaman daun kelapa berisi beras, ikon wajib meja Lebaran.'},
@@ -28,48 +21,47 @@ var BASES=[
  {id:'crescent',name:'Bulan Sabit',emo:'🌙',cat:'ramadan',color:0xffc93c,img:'assets/hd-crescent.png',desc:'Sabit emas penanda datangnya bulan suci.'},
  {id:'mosque',name:'Ornamen Masjid',emo:'🕌',cat:'ramadan',color:0x2f9e8f,img:'assets/hd-mosque.png',desc:'Miniatur masjid dengan kubah hijau yang megah.'},
  {id:'bedug',name:'Bedug',emo:'🥁',cat:'ramadan',color:0xa06a35,img:'assets/hd-bedug.png',desc:'Bedug besar penanda waktu berbuka dan takbiran.'},
- {id:'sahurdrum',name:'Kentongan Sahur',emo:'🪘',cat:'ramadan',color:0x8a5a2b,img:'assets/hd-sahurdrum.png',desc:'Alat pukul legendaris pembangun sahur: tung… tung… tung!'},
  {id:'nastar',name:'Nastar',emo:'🍍',cat:'food',color:0xf08c1e,img:'assets/hd-nastar.png',desc:'Kue nanas lumer di mulut, primadona toples Lebaran.'},
- {id:'kastengel',name:'Kastengel',emo:'🧀',cat:'food',color:0xf5a623,img:'assets/hd-kastengel.png',desc:'Kue keju gurih renyah yang selalu habis duluan.'},
- {id:'putrisalju',name:'Putri Salju',emo:'❄️',cat:'food',color:0xf4f6f8,img:'assets/hd-putrisalju.png',desc:'Kue lembut bersalut gula halus seputih salju.'},
- {id:'lidahkucing',name:'Lidah Kucing',emo:'🍪',cat:'food',color:0xd9a05b,img:'assets/hd-lidahkucing.png',desc:'Kue tipis panjang yang renyah dan manis.'},
  {id:'giftbox',name:'Kotak Hadiah Idul Fitri',emo:'🎁',cat:'special',color:0x2fae4e,img:'assets/hd-gift.png',desc:'Parsel misterius untuk sanak saudara.'},
  {id:'thr',name:'Amplop THR',emo:'🧧',cat:'special',color:0x2fbf71,img:'assets/hd-thr.png',desc:'Amplop hijau berisi THR yang paling ditunggu anak-anak.'},
  {id:'baju',name:'Baju Lebaran',emo:'👕',cat:'outfit',color:0x1d2c5e,img:'assets/hd-baju.png',desc:'Baju koko baru untuk salat Id dan silaturahmi.'},
- {id:'sarong',name:'Sarung',emo:'🧣',cat:'outfit',color:0x7a4de0,img:'assets/hd-sarung.png',desc:'Sarung motif klasik, nyaman untuk tarawih.'},
- {id:'prayer',name:'Set Mukena & Sajadah',emo:'🙏',cat:'outfit',color:0xf2f2f2,img:'assets/hd-prayer.png',desc:'Perlengkapan salat yang bersih dan wangi.'},
  {id:'decor',name:'Dekorasi Idul Fitri',emo:'✨',cat:'special',color:0xff7ab6,img:'assets/hd-decor.png',desc:'Hiasan bintang dan lampu warna-warni khas Lebaran.'}
 ];
 function baseById(id){for(var i=0;i<BASES.length;i++)if(BASES[i].id===id)return BASES[i];return BASES[0];}
-var CATS=[{id:'all',name:'Semua'},{id:'ramadan',name:'Ramadan'},{id:'ketupat',name:'Ketupat'},{id:'food',name:'Jajanan Lebaran'},{id:'outfit',name:'Outfit Lebaran'},{id:'special',name:'Spesial'},{id:'secret',name:'Secret'}];
+var CATS=[{id:'all',name:'Semua'},{id:'main',name:'Koleksi Utama (15)'},{id:'secret',name:'Secret (5)'}];
+var MUT_RARITY={basic:'basic',golden:'rare',diamond:'legendary',celestial:'secret'};
 var CATALOG=[];
-BASES.forEach(function(b){
-  MUTATIONS.forEach(function(m){
-    var rmap={basic:'common',golden:'rare',diamond:'epic',rainbow:'legendary',neon:'epic',galaxy:'mythic',celestial:'secret'};
-    var r=RARITIES.filter(function(x){return x.id===rmap[m.id]})[0];
-    CATALOG.push({key:b.id+'_'+m.id,base:b,mut:m,rarity:r,value:Math.round(r.value*m.mult/5)*5||10,cat:(m.id==='celestial'||m.id==='galaxy')?'secret':b.cat});
+['ketupat','nastar','lantern','giftbox','baju'].forEach(function(bid){
+  ['basic','golden','diamond'].forEach(function(mid){
+    var b=baseById(bid),m=MUTATIONS.filter(function(x){return x.id===mid})[0];
+    var r=RARITIES.filter(function(x){return x.id===MUT_RARITY[mid]})[0];
+    CATALOG.push({key:bid+'_'+mid,base:b,mut:m,rarity:r,value:r.value,cat:'main'});
   });
+});
+['crescent','mosque','bedug','thr','decor'].forEach(function(bid){
+  var b=baseById(bid),m=MUTATIONS.filter(function(x){return x.id==='celestial'})[0];
+  var r=RARITIES.filter(function(x){return x.id==='secret'})[0];
+  CATALOG.push({key:bid+'_celestial',base:b,mut:m,rarity:r,value:r.value,cat:'secret'});
 });
 var TOTAL=CATALOG.length;
 /* ============ ROOMS ============ */
 /* Linear progression north from the safe zone. unlock = successful extractions needed.
    guard: patrol/chase speeds, detection radius, reaction time (s) before the chase starts. */
 var ROOMS=[
- {id:1,name:'Basic Room',short:'BASIC',rarities:'Basic • Common',floor:0x5db84c,accent:0x2f9e6e,accentCss:'#2f9e6e',zMin:-18,zMax:12,unlock:0,diff:'Mudah ★☆☆☆☆',guard:{patrol:2.8,chase:7.4,detect:11,reaction:.8,attack:1.7},items:['ketupat','nastar','lantern','giftbox'],pool:{basic:55,common:35,uncommon:10}},
- {id:2,name:'Uncommon Room',short:'UNCOMMON',rarities:'Uncommon • Rare',floor:0x3fae8a,accent:0x12b5a5,accentCss:'#12b5a5',zMin:-48,zMax:-18,unlock:1,diff:'Sedang ★★☆☆☆',guard:{patrol:3.4,chase:8.4,detect:14,reaction:.6,attack:1.7},items:['ketupat','nastar','lantern','giftbox'],pool:{common:30,uncommon:45,rare:25}},
- {id:3,name:'Rare Room',short:'RARE',rarities:'Rare • Epic',floor:0x4a90d9,accent:0x35c4e8,accentCss:'#35c4e8',zMin:-78,zMax:-48,unlock:3,diff:'Susah ★★★☆☆',guard:{patrol:4.0,chase:9.6,detect:17,reaction:.45,attack:1.8},items:['ketupat','kastengel','giftbox','baju'],pool:{uncommon:25,rare:45,epic:30}},
- {id:4,name:'Epic Room',short:'EPIC',rarities:'Epic • Legendary',floor:0x8a5fe0,accent:0x9b4de0,accentCss:'#9b4de0',zMin:-108,zMax:-78,unlock:6,diff:'Sangat Susah ★★★★☆',guard:{patrol:4.6,chase:10.8,detect:20,reaction:.3,attack:1.8},items:['ketupat','nastar','giftbox','decor'],pool:{rare:25,epic:45,legendary:30}},
- {id:5,name:'Legendary Room',short:'LEGENDARY',rarities:'Legendary • Mythic • Secret',floor:0xe8a33d,accent:0xf5a623,accentCss:'#f5a623',zMin:-138,zMax:-108,unlock:10,diff:'Ekstrem ★★★★★',guard:{patrol:5.2,chase:12.2,detect:24,reaction:.2,attack:1.9},items:['ketupat','giftbox','baju','crescent'],pool:{epic:25,legendary:45,mythic:22,secret:8}},
- {id:6,name:'Secret Room',short:'SECRET',rarities:'Secret Eksklusif',floor:0x33254d,accent:0xb46ae0,accentCss:'#b46ae0',zMin:-168,zMax:-138,unlock:15,diff:'Mimpi Buruk ★★★★★+',guard:{patrol:5.8,chase:13.8,detect:28,reaction:.12,attack:1.9},items:['crescent','decor','giftbox'],pool:{legendary:25,mythic:45,secret:30}}
+ {id:1,name:'Ruangan Pemula',short:'BASIC',guardName:'Si Penjaga Jahat',glow:0xff6a00,glowCss:'#ff7a1a',rarities:'Basic',floor:0x5db84c,accent:0x2f9e6e,accentCss:'#2f9e6e',zMin:-18,zMax:12,unlock:0,diff:'Mudah ★☆☆☆',guard:{patrol:2.6,chase:7.2,detect:11,reaction:.8,attack:1.7},items:['ketupat','nastar','lantern']},
+ {id:2,name:'Ruangan Penakluk',short:'RARE',guardName:'Penjaga Sangat Jahat',glow:0x00b7ff,glowCss:'#35c4ff',rarities:'Rare • Golden',floor:0x4a90d9,accent:0x35c4e8,accentCss:'#35c4e8',zMin:-48,zMax:-18,unlock:2,diff:'Sedang ★★☆☆',guard:{patrol:3.2,chase:8.6,detect:15,reaction:.55,attack:1.7},items:['giftbox','baju','ketupat']},
+ {id:3,name:'Ruangan Sang Legenda',short:'LEGEND',guardName:'Mister Penjaga Sangat Jahat',glow:0xff1e3c,glowCss:'#ff2a3c',rarities:'Legendary • Diamond',floor:0xe8a33d,accent:0xf5a623,accentCss:'#f5a623',zMin:-78,zMax:-48,unlock:5,diff:'Susah ★★★★',guard:{patrol:3.8,chase:10.2,detect:19,reaction:.35,attack:1.8},items:['nastar','baju','giftbox']},
+ {id:4,name:'Ruangan Rahasia Mythic',short:'SECRET',guardName:'Ketua Para Penjaga Jahat',glow:0xb46ae0,glowCss:'#b46ae0',rarities:'Secret Eksklusif',floor:0x33254d,accent:0xb46ae0,accentCss:'#b46ae0',zMin:-108,zMax:-78,unlock:15,secret:true,diff:'Mimpi Buruk ★★★★★',guard:{patrol:4.4,chase:11.6,detect:23,reaction:.2,attack:1.9},items:['crescent','mosque','bedug','thr','decor']}
 ];
 /* Gate boundaries between zones: z line, half-width of the open gap, room north of it. */
-var BOUNDARIES=[{z:12,gap:6.8,north:1,always:true},{z:-18,gap:5,north:2},{z:-48,gap:5,north:3},{z:-78,gap:5,north:4},{z:-108,gap:5,north:5},{z:-138,gap:5,north:6}];
-function roomAt(z){if(z>12)return 0;for(var i=0;i<ROOMS.length;i++){if(z<=ROOMS[i].zMax&&z>ROOMS[i].zMin)return ROOMS[i].id;}return 6;}
-function isUnlocked(room){return S.escapes>=room.unlock;}
+var BOUNDARIES=[{z:12,gap:6.8,north:1,always:true},{z:-18,gap:5,north:2},{z:-48,gap:5,north:3},{z:-78,gap:5,north:4}];
+function roomAt(z){if(z>12)return 0;for(var i=0;i<ROOMS.length;i++){if(z<=ROOMS[i].zMax&&z>ROOMS[i].zMin)return ROOMS[i].id;}return 4;}
+function isUnlocked(room){if(room.secret)return S.secretRevealed===true;return S.escapes>=room.unlock;}
+function unlockText(room){if(room.secret)return 'Ruangan rahasia masih tersembunyi di dalam bumi — butuh 15 katalog terbuka (kamu: '+discoveredCount()+' / 15).';return 'Butuh '+room.unlock+' ekstraksi berhasil (kamu: '+S.escapes+').';}
 /* ============ REWARD ROLLS ============ */
 function catImg(base,mut){return 'assets/catalog/'+base.id+'_'+mut.id+'.png';}
 function visualHTML(base,big,mut){
-  if(mut)return '<img class="asset-img catimg mut-'+mut.id+'" src="assets/catalog/'+base.id+'_'+mut.id+'.png" alt="'+base.name+' '+mut.name+'">';
+  if(mut)return '<img class="asset-img catimg mut-'+mut.id+'" src="'+catImg(base,mut)+'" alt="'+base.name+' '+mut.name+'">';
   if(base.img)return '<img class="asset-img" src="'+base.img+'" alt="'+base.name+'">';
   return '<span class="'+(big?'emo-big':'emo')+'">'+base.emo+'</span>';
 }
@@ -85,23 +77,22 @@ function pickFromWeights(pairs){
 }
 function rollReward(base,roomId){
   var room=ROOMS[(roomId||1)-1]||ROOMS[0];
-  var pairs=[];Object.keys(room.pool).forEach(function(rid){var r=RARITIES.filter(function(x){return x.id===rid})[0];pairs.push([r,room.pool[rid]]);});
-  var r=pickFromWeights(pairs);
-  if(S.luckLv>0&&Math.random()<S.luckLv*0.09){var idx=RARITIES.indexOf(r);if(idx<RARITIES.length-1)r=RARITIES[idx+1];}
-  var mpairs=MUTATIONS.map(function(m){var w=(m.id==='basic')?Math.max(8,46-room.id*6):m.w*Math.pow(1.22,room.id-1);return [m,w];});
-  var m=pickFromWeights(mpairs);
-  var range=COIN_RANGES[r.id]||[10,25];
-  var raw=range[0]+Math.random()*(range[1]-range[0]);
-  var value=Math.max(5,Math.round(raw*Math.pow(m.mult,0.6)/5)*5);
+  var pools={1:[['basic',100]],2:[['basic',55],['golden',45]],3:[['golden',45],['diamond',55]],4:[['celestial',100]]};
+  var pool=pools[room.id]||pools[1];
+  var m=pickFromWeights(pool.map(function(p){return [MUTATIONS.filter(function(x){return x.id===p[0]})[0],p[1]];}));
+  if(S.luckLv>0&&room.id<4&&Math.random()<S.luckLv*0.09){var order=['basic','golden','diamond'];var oi=order.indexOf(m.id);if(oi>-1&&oi<2)m=MUTATIONS.filter(function(x){return x.id===order[oi+1]})[0];}
+  var r=RARITIES.filter(function(x){return x.id===MUT_RARITY[m.id]})[0];
+  var range=COIN_RANGES[r.id]||[10,30];
+  var value=Math.max(5,Math.round((range[0]+Math.random()*(range[1]-range[0]))/5)*5);
   return {base:base,rarity:r,mut:m,value:value,key:base.id+'_'+m.id,room:room.id};
 }
 /* ============ STATE ============ */
-var S={coins:150,collection:{},counts:{},carrying:null,extracted:null,started:false,muted:false,
+var S={coins:150,collection:{},counts:{},carrying:null,extracted:null,started:false,muted:false,secretRevealed:false,secretRevealing:false,
  speedLevel:1,luckLv:0,standLv:0,outfit:0,steals:0,escapes:0,caught:0,lastReward:null,currentRoom:0,announced:{1:true},lockToastAt:0};
 var MAX_SPEED_LEVEL=10;
-function speedCost(level){return 100*Math.pow(5,level-1);} /* cost from `level` to level+1 */
+function speedCost(level){return 100*Math.pow(3,level-1);} /* cost from `level` to level+1 */
 function speedMult(){return Math.pow(1.1,S.speedLevel-1);}
-function playerLevel(){return 1+Math.floor(S.escapes/3)+Math.floor(discoveredCount()/14);}
+function playerLevel(){return 1+Math.floor(S.escapes/3)+Math.floor(discoveredCount()/5);}
 function discoveredCount(){return Object.keys(S.collection).length;}
 /* ============ AUDIO (WebAudio synth) ============ */
 var AC=null;
@@ -112,7 +103,7 @@ function sfx(name){
  if(name==='drop'){tone(300,0,.15,'square',.12,140);}
  if(name==='safe'){tone(523,0,.1,'triangle',.16);tone(659,.09,.1,'triangle',.16);tone(784,.18,.2,'triangle',.16);}
  if(name==='caught'){tone(220,0,.2,'sawtooth',.14,110);tone(160,.18,.3,'sawtooth',.14,80);}
- if(name==='tung'){tone(180,0,.09,'square',.10);tone(180,.14,.09,'square',.10);tone(180,.28,.09,'square',.10);}
+ if(name==='roar'){tone(92,0,.35,'sawtooth',.16,54);tone(70,.12,.42,'sawtooth',.14,44);tone(120,.3,.2,'sawtooth',.08,60);}
  if(name==='open'){tone(440,0,.08,'square',.1);tone(554,.07,.08,'square',.1);tone(659,.14,.08,'square',.1);tone(880,.21,.25,'square',.12);}
  if(name==='fanfare'){[523,659,784,1046,784,1046].forEach(function(f,i){tone(f,i*.11,.22,'triangle',.16);});}
  if(name==='coin'){tone(988,0,.07,'square',.1);tone(1318,.06,.14,'square',.1);}
@@ -123,6 +114,8 @@ function sfx(name){
 var BOUND_Z=12;
 var scene,camera,renderer,clock;
 var player,bots=[],items=[],stands=[],decorGroup,guardians=[],gateBarriers={},animDeco=[];
+var secretGroup=null,secretCover=null;
+var reveal={active:false,t:0,shown:false,lastRoar:0};
 var camYaw=0;
 var rainbowFx=[];
 var keys={},joyVec={x:0,y:0},sprinting=false;
@@ -147,7 +140,7 @@ function makeLabel(text,accentCss,w){
 /* ===== Bondee-style chibi avatar: big round head, soft clay proportions, outfit styles ===== */
 var OUTFITS=[
  {name:'Koko Biru',shirt:0x2f7fe0,pants:0x2b3a55,hair:'peci',hairColor:0x1c1c22,acc:null,shoe:0xffffff},
- {name:'Sweater Merah',shirt:0xe8342e,pants:0x23242a,hair:'bun',hairColor:0xc9a86a,acc:'backpack',shoe:0xf2f2f2},
+ {name:'Hijab Pink',shirt:0x3d3d47,pants:0x33333d,hair:'hijab',hairColor:0xf2a3b8,acc:null,shoe:0xffffff,longDress:true},
  {name:'Puffer Hitam',shirt:0x23242a,pants:0x2a2d34,hair:'cap',hairColor:0x14151a,acc:'skate',shoe:0x1c1c22},
  {name:'Koko Hijau Emas',shirt:0x1da851,pants:0x3a2c14,hair:'peci',hairColor:0x1c1c22,acc:null,shoe:0xffffff}
 ];
@@ -158,7 +151,7 @@ function makeAvatar(shirt,pants,skin,style){
   function leg(sx){
     var lg=new THREE.Group();lg.position.set(sx,1.04,0);
     var th=cyl(.17,.16,.44,pants,0,-.2,0,10);lg.add(th);
-    var sh=cyl(.145,.135,.42,skin,0,-.6,0,10);lg.add(sh);
+    var sh=cyl(.145,.135,.42,(style&&style.longDress)?pants:skin,0,-.6,0,10);lg.add(sh);
     var sock=cyl(.15,.15,.14,0xffffff,0,-.78,0,10);lg.add(sock);
     var shoe=box(.32,.15,.5,style.shoe||0xffffff,0,-.9,.07);lg.add(shoe);
     var sole=box(.34,.06,.54,0x2b2118,0,-.99,.07);lg.add(sole);
@@ -194,6 +187,24 @@ function makeAvatar(shirt,pants,skin,style){
   if(style.hair==='peci'){var peci=cyl(.4,.48,.36,0x1c1c22,0,3.26,0,14);peci.rotation.x=.04;g.add(peci);}
   else if(style.hair==='bun'){var capH=sph(.585,hc,0,2.86,-.05);capH.scale.set(1,.78,1);g.add(capH);var bun=sph(.25,hc,0,3.42,-.12);g.add(bun);var fringe=sph(.5,hc,0,3.02,.22);fringe.scale.set(1,.5,.6);g.add(fringe);}
   else if(style.hair==='cap'){var capT=sph(.59,0x14151a,0,2.98,0);capT.scale.set(1,.55,1);g.add(capT);var brim=box(.6,.06,.38,0x14151a,0,2.99,.58);g.add(brim);var capB=sph(.09,0xffffff,0,3.14,.5);g.add(capB);}
+  else if(style.hair==='hijab'){
+    /* Hijab pink seperti referensi: kain membungkus kepala (celah wajah terbuka di depan +Z),
+       ciput putih mengintip di dahi, kain jatuh di samping pipi & menutup dada,
+       manset pink di pergelangan tangan, bulu mata lentik. */
+    var hijabM=new THREE.MeshStandardMaterial({color:hc,roughness:.65,side:THREE.DoubleSide});
+    var wrap=new THREE.Mesh(new THREE.SphereGeometry(.66,26,18,Math.PI/2+.72,Math.PI*2-1.44),hijabM);
+    wrap.position.set(0,2.8,-.03);wrap.scale.set(1,1.05,1);wrap.castShadow=true;g.add(wrap);
+    var ciput=new THREE.Mesh(new THREE.SphereGeometry(.6,22,10,0,Math.PI*2,0,1.12),mat(0xffffff,.6));
+    ciput.position.set(0,2.78,.02);ciput.castShadow=true;g.add(ciput);
+    var fallL=sph(.3,hc,-.47,2.4,.04);fallL.scale.set(.55,1.3,.95);fallL.material=hijabM;g.add(fallL);
+    var fallR=sph(.3,hc,.47,2.4,.04);fallR.scale.set(.55,1.3,.95);fallR.material=hijabM;g.add(fallR);
+    var drape=new THREE.Mesh(new THREE.CylinderGeometry(.37,.68,.82,20,1,true),hijabM);
+    drape.position.set(0,2.0,.02);drape.castShadow=true;g.add(drape);
+    var cuffL=cyl(.175,.185,.15,hc,0,-.68,0,12);armL.add(cuffL);
+    var cuffR=cyl(.175,.185,.15,hc,0,-.68,0,12);armR.add(cuffR);
+    var lashL=box(.09,.025,.025,0x1c1c22,-.285,2.9,.52);lashL.rotation.z=.55;g.add(lashL);
+    var lashR=box(.09,.025,.025,0x1c1c22,.285,2.9,.52);lashR.rotation.z=-.55;g.add(lashR);
+  }
   if(style.acc==='backpack'){var bp=box(.64,.8,.3,0xd92b2b,0,1.72,-.52);g.add(bp);var pocket=box(.4,.34,.08,0x2f7fe0,0,1.55,-.7);g.add(pocket);var roll=cyl(.11,.11,.6,0xffc93c,0,2.2,-.52,10);roll.rotation.z=Math.PI/2;g.add(roll);}
   if(style.acc==='skate'){var board=box(.3,.07,.9,0xff5d8f,.78,1.1,.1);board.rotation.z=.5;g.add(board);var w1=sph(.07,0x35c4e8,.68,.82,.32),w2=sph(.07,0x35c4e8,.9,1.36,-.12);g.add(w1,w2);}
   g.userData={legL:legL,legR:legR,armL:armL,armR:armR,body:body};
@@ -210,90 +221,147 @@ function woodTexture(){
   var grad=cx.createLinearGradient(0,0,256,0);grad.addColorStop(0,'rgba(255,240,200,.34)');grad.addColorStop(.45,'rgba(255,255,255,0)');grad.addColorStop(1,'rgba(120,70,20,.13)');cx.fillStyle=grad;cx.fillRect(0,0,256,256);
   _woodTex=new THREE.CanvasTexture(cv);return _woodTex;
 }
-function makeEnemy(){
-  /* Tung Tung Tung Sahur, rebuilt to match the reference render: ONE polished
-     light-wood log — flat top with a rounded rim, flat bottom — with the face in
-     its upper half: thick arched brows, huge glossy eyes, a long bulbous nose and
-     a wide grin. Skinny arms and legs, bare feet with toes, and a long tapered
-     wooden bat held down in the right hand. */
+function makeMonster(room){
+  /* Empat skin penjaga berbeda, tetap gaya clay 3D Steal the Lebaran:
+     1 Basic  = Si Penjaga Jahat — golem batu bersayap kelelawar cokelat, glow ORANYE (karakter lama).
+     2 Rare   = Penjaga Sangat Jahat (foto 1) — naga batu abu-abu: tanduk bulan sabit raksasa,
+                moncong panjang bergigi, ekor panjang berujung sabit, TANPA sayap, glow BIRU CYAN.
+     3 Legend = Mister Penjaga Sangat Jahat (foto 2) — iblis lava merah-hitam super kekar,
+                EMPAT lengan, tanduk banteng, glow MERAH.
+     4 Secret = Ketua Para Penjaga Jahat (foto 3) — raja iblis merah ramping & tinggi,
+                tanduk emas menjulang, sayap pita tipis panjang, tombak trisula api, glow UNGU. */
+  var variant=room?room.id:1;
+  var PAL={
+    1:{rock:0x2e2e36,rockD:0x1d1d24,rockL:0x55555f,lava:0xff7a1a,lavaEm:0xff5a00,eye:0xffa02e,eyeEm:0xff7a00,wing:0xa85a1e,wingD:0x6e3a10,glow:0xff6a00},
+    2:{rock:0x5c5c66,rockD:0x3a3a42,rockL:0x8a8a94,lava:0x35c4ff,lavaEm:0x0099ff,eye:0x9be8ff,eyeEm:0x00b7ff,wing:0x4a6a7a,wingD:0x2e4a56,glow:0x00b7ff},
+    3:{rock:0x4a1a1e,rockD:0x260d10,rockL:0x7a3438,lava:0xff2a3c,lavaEm:0xff0a22,eye:0xff5a3c,eyeEm:0xff1800,wing:0x5a161c,wingD:0x38090d,glow:0xff1e3c},
+    4:{rock:0x6e1220,rockD:0x3d0a18,rockL:0xa83a4a,lava:0xc99aff,lavaEm:0x9b30ff,eye:0xffe98a,eyeEm:0xffb700,wing:0x7a1030,wingD:0x4a081c,glow:0xb46ae0}
+  };
+  var P=PAL[variant]||PAL[1];
   var g=new THREE.Group();
-  var woodM=new THREE.MeshStandardMaterial({map:woodTexture(),color:0xe6b066,roughness:.34,metalness:.02});
-  var woodD=new THREE.MeshStandardMaterial({map:woodTexture(),color:0xdda253,roughness:.42,metalness:.02});
-  var woodFace=new THREE.MeshStandardMaterial({map:woodTexture(),color:0xeab96e,roughness:.3,metalness:.02});
-  var darkM=new THREE.MeshStandardMaterial({color:0x4a2c14,roughness:.45});
-  /* The log itself: one tall cylinder, squashed sphere cap for the rounded top rim */
-  var body=new THREE.Mesh(new THREE.CylinderGeometry(.44,.47,2.55,24),woodM);body.position.set(0,2.6,0);body.castShadow=true;g.add(body);
-  var cap=new THREE.Mesh(new THREE.SphereGeometry(.44,24,12),woodM);cap.scale.set(1,.34,1);cap.position.set(0,3.87,0);cap.castShadow=true;g.add(cap);
-  var rim=new THREE.Mesh(new THREE.TorusGeometry(.4,.045,8,24),woodFace);rim.rotation.x=Math.PI/2;rim.position.y=3.9;g.add(rim);
-  /* Legs: hip-pivot groups so the walk cycle swings from the hip; knee bump,
-     big bare foot and five toes, like the reference */
+  var rockM=new THREE.MeshStandardMaterial({color:P.rock,roughness:.95,flatShading:true});
+  var rockD=new THREE.MeshStandardMaterial({color:P.rockD,roughness:1,flatShading:true});
+  var rockL=new THREE.MeshStandardMaterial({color:P.rockL,roughness:.9,flatShading:true});
+  var lavaM=new THREE.MeshStandardMaterial({color:P.lava,emissive:P.lavaEm,emissiveIntensity:1.6,roughness:.4});
+  var wingM=new THREE.MeshStandardMaterial({color:P.wing,roughness:.85,side:THREE.DoubleSide});
+  var wingD=new THREE.MeshStandardMaterial({color:P.wingD,roughness:.9,side:THREE.DoubleSide});
+  var goldM=new THREE.MeshStandardMaterial({color:0xffb627,roughness:.3,metalness:.7,emissive:0x8a5a00,emissiveIntensity:.45});
+  function rock(r,c,x,y,z,sx,sy,sz){var ms=new THREE.Mesh(new THREE.IcosahedronGeometry(r,0),c||rockM);ms.position.set(x||0,y||0,z||0);ms.scale.set(sx||1,sy||1,sz||1);ms.castShadow=true;g.add(ms);return ms;}
   function makeLeg(sx){
-    var lg=new THREE.Group();lg.position.set(sx,1.34,0);
-    var shin=cyl(.085,.07,1.18,0xdda253,0,-.58,0,10);shin.material=woodD;lg.add(shin);
-    var knee=sph(.105,0xdda253,0,-.6,.03);knee.material=woodD;lg.add(knee);
-    var foot=box(.27,.11,.5,0xdda253,0,-1.26,.1);foot.material=woodD;lg.add(foot);
-    var heel=sph(.12,0xdda253,0,-1.26,-.12);heel.material=woodD;heel.scale.set(1,.5,1);lg.add(heel);
-    [-.1,-.033,.033,.1].forEach(function(tx,ti){
-      var toe=sph(ti===1?.058:.048,0xdda253,tx,-1.28,.36);toe.material=woodD;toe.scale.set(1,.62,1.25);lg.add(toe);
-    });
-    var bigToe=sph(.062,0xdda253,sx<0?.13:-.13,-1.28,.35);bigToe.material=woodD;bigToe.scale.set(1,.62,1.3);lg.add(bigToe);
+    var lg=new THREE.Group();lg.position.set(sx,1.55,0);
+    var thigh=new THREE.Mesh(new THREE.IcosahedronGeometry(.34,0),rockM);thigh.position.set(0,-.3,0);thigh.scale.set(1,1.25,.95);thigh.castShadow=true;lg.add(thigh);
+    var shin=new THREE.Mesh(new THREE.IcosahedronGeometry(.24,0),rockD);shin.position.set(0,-.95,.03);shin.scale.set(.85,1.5,.8);shin.castShadow=true;lg.add(shin);
+    var foot=new THREE.Mesh(new THREE.IcosahedronGeometry(.26,0),rockD);foot.position.set(0,-1.5,.12);foot.scale.set(1,.5,1.5);lg.add(foot);
+    [-.16,0,.16].forEach(function(cx2){var claw=new THREE.Mesh(new THREE.ConeGeometry(.06,.3,6),rockL);claw.rotation.x=Math.PI/2.3;claw.position.set(cx2,-1.52,.42);lg.add(claw);});
     g.add(lg);return lg;
   }
-  var legL=makeLeg(-.2),legR=makeLeg(.2);
-  /* Arms: shoulder-pivot groups, long and skinny, hanging at the sides */
+  var legL=makeLeg(-.34),legR=makeLeg(.34);
+  var tail1=new THREE.Mesh(new THREE.ConeGeometry(.13,.7,6),rockD);tail1.position.set(0,1.35,-.62);tail1.rotation.x=-1.9;g.add(tail1);
+  var tail2=new THREE.Mesh(new THREE.ConeGeometry(.09,.6,6),rockD);tail2.position.set(0,1.0,-.95);tail2.rotation.x=-2.5;g.add(tail2);
+  if(variant===2){ /* foto 1: ekor panjang bersegmen berujung sabit besar */
+    [[1.3,-1.2,.15,.8],[1.15,-1.75,.12,.75],[1.35,-2.25,.09,.7]].forEach(function(ts){var seg=new THREE.Mesh(new THREE.ConeGeometry(ts[2],ts[3],6),rockD);seg.position.set(0,ts[0],ts[1]);seg.rotation.x=-2.3;g.add(seg);});
+    var blade=new THREE.Mesh(new THREE.ConeGeometry(.3,1.1,6),rockL);blade.scale.set(1,1,.26);blade.position.set(0,1.75,-2.6);blade.rotation.x=-2.1;g.add(blade);
+    var bladeEdge=new THREE.Mesh(new THREE.BoxGeometry(.05,.85,.05),lavaM);bladeEdge.position.set(0,1.8,-2.78);bladeEdge.rotation.x=-2.1;g.add(bladeEdge);
+  }
+  if(variant===4){ /* foto 3: ekor cambuk tipis panjang berujung emas */
+    [[1.15,-1.2,.05,1.0],[.95,-1.95,.04,.95],[1.2,-2.6,.03,.8]].forEach(function(ts){var seg=new THREE.Mesh(new THREE.ConeGeometry(ts[2],ts[3],6),rockD);seg.position.set(0,ts[0],ts[1]);seg.rotation.x=-2.4;g.add(seg);});
+    var whipTip=new THREE.Mesh(new THREE.ConeGeometry(.07,.45,6),goldM);whipTip.position.set(0,1.55,-3.0);whipTip.rotation.x=-2.4;g.add(whipTip);
+  }
+  rock(.52,rockD,0,1.72,0,1.15,.8,1);
+  rock(.62,rockM,0,2.35,.02,1.05,1.05,.9);
+  var chest=rock(.78,rockM,0,3.05,.02,1.25,1.0,1.0);
+  if(variant===3)chest.scale.set(1.5,1.12,1.18); /* foto 2: dada super kekar */
+  if(variant===4)chest.scale.set(.8,1.32,.82);   /* foto 3: badan ramping menjulang */
+  if(variant===2)chest.scale.set(1.12,1.02,1.05);
+  var core=new THREE.Mesh(new THREE.IcosahedronGeometry(.17,0),lavaM);core.position.set(0,2.95,.68);g.add(core);
+  [[0,2.6,.6,.05,.5],[.18,3.3,.62,.04,.34],[-.2,3.25,.6,.04,.3],[.3,2.45,.5,.035,.3],[-.3,2.5,.52,.035,.26]].forEach(function(cr){
+    var crack=new THREE.Mesh(new THREE.BoxGeometry(cr[3],cr[4],.03),lavaM);crack.position.set(cr[0],cr[1],cr[2]);crack.rotation.z=cr[0]*1.4;g.add(crack);});
+  rock(.42,rockD,-.86,3.42,0);rock(.42,rockD,.86,3.42,0);
+  [-.3,0,.3].forEach(function(bx,i){var sp=new THREE.Mesh(new THREE.ConeGeometry(.11,.55-i*.08,6),rockL);sp.position.set(bx,3.62,-.42);sp.rotation.x=-.5;g.add(sp);});
+  function makeWing(side){
+    var wg=new THREE.Group();wg.position.set(side*.5,3.55,-.3);
+    var shape=new THREE.Shape();
+    shape.moveTo(0,0);shape.lineTo(1.05,.95);shape.lineTo(1.35,.25);shape.lineTo(2.05,.8);shape.lineTo(2.2,-.05);shape.lineTo(1.6,-.3);shape.lineTo(1.5,-.8);shape.lineTo(.95,-.35);shape.lineTo(.6,-.85);shape.lineTo(.15,-.3);shape.lineTo(0,0);
+    var mem=new THREE.Mesh(new THREE.ShapeGeometry(shape),wingM);mem.castShadow=true;wg.add(mem);
+    var mem2=new THREE.Mesh(new THREE.ShapeGeometry(shape),wingD);mem2.position.z=-.012;mem2.scale.setScalar(.97);wg.add(mem2);
+    [[1.05,.95],[2.05,.8]].forEach(function(pt){var bone=new THREE.Mesh(new THREE.CylinderGeometry(.035,.05,Math.hypot(pt[0],pt[1]),6),rockD);bone.position.set(pt[0]/2,pt[1]/2,0);bone.rotation.z=Math.atan2(pt[1],pt[0])-Math.PI/2;wg.add(bone);});
+    var tip=new THREE.Mesh(new THREE.ConeGeometry(.07,.34,6),rockL);tip.position.set(2.2,.12,0);tip.rotation.z=-1.2;wg.add(tip);
+    wg.scale.x=side;wg.rotation.y=side*.25;
+    g.add(wg);return wg;
+  }
+  var wingL=null,wingR=null;
+  if(variant===1){wingL=makeWing(-1);wingR=makeWing(1);} /* sayap kelelawar cokelat (karakter lama) */
+  if(variant===4){wingL=makeWing(-1);wingR=makeWing(1);wingL.scale.set(.6,1.65,1);wingR.scale.set(.6,1.65,1);} /* foto 3: sayap pita tipis memanjang */
   function makeArm(sx){
-    var ag=new THREE.Group();ag.position.set(sx,3.02,0);
-    var a=cyl(.062,.052,1.24,0xdda253,0,-.6,0,8);a.material=woodD;ag.add(a);
-    var hand=sph(.095,0xdda253,0,-1.26,0);hand.material=woodD;hand.scale.set(.85,1.1,.85);ag.add(hand);
+    var ag=new THREE.Group();ag.position.set(sx,3.35,0);
+    var up=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,0),rockM);up.position.set(sx*.18,-.42,0);up.scale.set(.9,1.5,.9);up.castShadow=true;ag.add(up);
+    var fo=new THREE.Mesh(new THREE.IcosahedronGeometry(.36,0),rockD);fo.position.set(sx*.3,-1.12,.05);fo.scale.set(1,1.25,1);fo.castShadow=true;ag.add(fo);
+    var hand=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,0),rockM);hand.position.set(sx*.34,-1.62,.1);hand.scale.set(1.15,.8,1.15);ag.add(hand);
+    [-.2,-.07,.07,.2].forEach(function(cx2){
+      var claw=new THREE.Mesh(new THREE.ConeGeometry(.055,.42,6),rockL);claw.position.set(sx*.34+cx2,-1.95,.16);claw.rotation.x=.5;ag.add(claw);
+      var tipF=new THREE.Mesh(new THREE.ConeGeometry(.028,.16,6),lavaM);tipF.position.set(sx*.34+cx2,-2.12,.26);tipF.rotation.x=.5;ag.add(tipF);});
     g.add(ag);return ag;
   }
-  var armL=makeArm(-.5),armR=makeArm(.5);
-  armL.rotation.z=.1;armR.rotation.z=-.12;
-  /* Relaxed fingers on the open left hand */
-  [-.05,0,.05].forEach(function(fx){
-    var f=cyl(.02,.016,.17,0xdda253,fx,-1.44,0,6);f.material=woodD;armL.add(f);
-  });
-  /* The bat: long, thin handle in the right hand, thick rounded barrel near the ground */
-  var bat=new THREE.Group();bat.position.set(0,-1.28,.04);bat.rotation.z=.3;armR.add(bat);
-  var batMesh=cyl(.042,.155,1.78,0xe0a758,0,-.82,0,12);batMesh.material=woodFace;bat.add(batMesh);
-  var knob=cyl(.07,.07,.06,0xd99e52,0,.08,0,10);knob.material=woodD;bat.add(knob);
-  /* Face — brows: thick dark arches over the eyes */
-  function makeBrow(sx){
-    var b=new THREE.Mesh(new THREE.TorusGeometry(.125,.045,10,16,Math.PI),darkM);
-    b.position.set(sx,3.56,.42);b.rotation.x=.15;g.add(b);return b;
+  var armL=makeArm(-1),armR=makeArm(1);
+  armL.rotation.z=.18;armR.rotation.z=-.18;
+  if(variant===3){ /* foto 2: sepasang lengan kedua terangkat di belakang bahu */
+    var armL2=makeArm(-1),armR2=makeArm(1);
+    armL2.position.set(-1.0,4.0,-.35);armR2.position.set(1.0,4.0,-.35);
+    armL2.rotation.z=2.45;armR2.rotation.z=-2.45;armL2.scale.setScalar(.8);armR2.scale.setScalar(.8);
   }
-  var browL=makeBrow(-.185),browR=makeBrow(.185);
-  browL.rotation.z=.1;browR.rotation.z=-.1;
-  /* Eyes: huge and glossy — wooden eyelid rim, white sclera, brown iris, black pupil, twin highlights */
-  var eyeW=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.12});
-  var rimM=new THREE.MeshStandardMaterial({color:0x8a5a2b,roughness:.4});
-  var irisM=new THREE.MeshStandardMaterial({color:0x3a2312,roughness:.15});
-  var pupM=new THREE.MeshStandardMaterial({color:0x120c07,roughness:.08});
-  var hlM=new THREE.MeshBasicMaterial({color:0xffffff});
-  function makeEye(sx){
-    var eg=new THREE.Group();eg.position.set(sx,3.34,.36);
-    var rimE=new THREE.Mesh(new THREE.SphereGeometry(.215,18,14),rimM);rimE.scale.set(1,1.08,.55);eg.add(rimE);
-    var w=new THREE.Mesh(new THREE.SphereGeometry(.2,18,14),eyeW);w.position.z=.022;w.scale.set(1,1.08,.58);eg.add(w);
-    var iris=new THREE.Mesh(new THREE.SphereGeometry(.112,14,12),irisM);iris.position.z=.1;iris.scale.z=.5;eg.add(iris);
-    var pup=new THREE.Mesh(new THREE.SphereGeometry(.072,12,10),pupM);pup.position.z=.125;pup.scale.z=.5;eg.add(pup);
-    var h1=new THREE.Mesh(new THREE.SphereGeometry(.03,8,6),hlM);h1.position.set(.032,.042,.165);eg.add(h1);
-    var h2=new THREE.Mesh(new THREE.SphereGeometry(.015,8,6),hlM);h2.position.set(-.03,-.028,.168);eg.add(h2);
-    g.add(eg);return eg;
+  if(variant===2){ /* foto 1: deretan duri punggung bergerigi (tanpa sayap) */
+    [.3,.9,1.5].forEach(function(by,bi){var bs=new THREE.Mesh(new THREE.ConeGeometry(.13,.6-bi*.08,6),rockL);bs.position.set(0,3.55-by*.5,-.52-bi*.1);bs.rotation.x=-.6;g.add(bs);});
   }
-  makeEye(-.185);makeEye(.185);
-  /* Nose: long bridge running down between the eyes, round bulb at the tip */
-  var noseBridge=new THREE.Mesh(new THREE.SphereGeometry(.135,14,12),woodFace);noseBridge.scale.set(.68,1.6,.8);noseBridge.position.set(0,3.08,.44);noseBridge.castShadow=true;g.add(noseBridge);
-  var noseBulb=new THREE.Mesh(new THREE.SphereGeometry(.125,14,12),woodFace);noseBulb.scale.set(1.1,.85,.85);noseBulb.position.set(0,2.9,.47);g.add(noseBulb);
-  /* Mouth: the wide grin, with a short crease at each corner */
-  var mouth=new THREE.Mesh(new THREE.TorusGeometry(.26,.03,8,20,Math.PI*.88),darkM);
-  mouth.position.set(0,2.92,.43);mouth.rotation.z=Math.PI+Math.PI*.06;mouth.rotation.x=-.06;g.add(mouth);
-  var crL=box(.1,.028,.02,0x4a2c14,-.29,2.9,.36);crL.rotation.z=.55;crL.material=darkM;g.add(crL);
-  var crR=box(.1,.028,.02,0x4a2c14,.29,2.9,.36);crR.rotation.z=-.55;crR.material=darkM;g.add(crR);
-  /* Alert "!" sign, shown while chasing */
-  var bang=new THREE.Group();bang.position.set(0,4.12,0);
+  if(variant===4){ /* foto 3: tombak trisula api di tangan kanan */
+    var spear=new THREE.Group();spear.position.set(1.4,2.7,.25);spear.rotation.z=.3;
+    var pole=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,4.6,8),rockD);spear.add(pole);
+    [-.16,0,.16].forEach(function(px,pi){var prong=new THREE.Mesh(new THREE.ConeGeometry(.055,pi===1?.95:.7,6),lavaM);prong.position.set(px,2.35+(pi===1?.3:.15),0);spear.add(prong);});
+    var sbase=new THREE.Mesh(new THREE.ConeGeometry(.06,.5,6),goldM);sbase.rotation.x=Math.PI;sbase.position.set(0,-2.5,0);spear.add(sbase);
+    g.add(spear);armR.rotation.z=-.55;
+  }
+  rock(.5,rockM,0,4.05,.05,1,1.05,.95);
+  rock(.36,rockD,0,3.78,.14,1.05,.6,1);
+  rock(.4,rockD,0,4.22,.3,1.15,.42,.7);
+  var eyeM2=new THREE.MeshStandardMaterial({color:P.eye,emissive:P.eyeEm,emissiveIntensity:2.2});
+  var fangM=new THREE.MeshStandardMaterial({color:0xf5ead2,roughness:.5});
+  [-.17,.17].forEach(function(ex){var eye=new THREE.Mesh(new THREE.SphereGeometry(.075,10,8),eyeM2);eye.position.set(ex,4.08,.44);eye.scale.set(1.25,.8,.6);g.add(eye);
+    var fang=new THREE.Mesh(new THREE.ConeGeometry(.04,.16,6),fangM);fang.position.set(ex*.7,3.86,.42);fang.rotation.x=Math.PI;g.add(fang);});
+  var mouthGlow=new THREE.Mesh(new THREE.BoxGeometry(.3,.045,.03),lavaM);mouthGlow.position.set(0,3.9,.46);g.add(mouthGlow);
+  if(variant===2){ /* foto 1: moncong naga panjang + rahang bergigi */
+    rock(.3,rockD,0,3.98,.62,1.25,.62,1.7);
+    rock(.24,rockM,0,3.74,.55,1.1,.4,1.5);
+    for(var ti=-2;ti<=2;ti++){var tooth=new THREE.Mesh(new THREE.ConeGeometry(.035,.15,5),fangM);tooth.position.set(ti*.11,3.84,.95);tooth.rotation.x=Math.PI;g.add(tooth);}
+    var noseHorn=new THREE.Mesh(new THREE.ConeGeometry(.06,.3,6),rockL);noseHorn.position.set(0,4.2,.78);noseHorn.rotation.x=.7;g.add(noseHorn);
+  }
+  if(variant===4){ /* foto 3: jambul api di kepala */
+    var crest=new THREE.Mesh(new THREE.ConeGeometry(.09,.55,6),lavaM);crest.position.set(0,4.62,-.15);crest.rotation.x=-.35;g.add(crest);
+  }
+  function horn(side){
+    var hg=new THREE.Group();hg.position.set(side*.42,4.42,-.02);
+    var hm=variant===4?goldM:rockD;
+    if(variant===2){ /* foto 1: tanduk bulan sabit raksasa menyapu ke atas */
+      var h1=new THREE.Mesh(new THREE.ConeGeometry(.16,1.15,7),hm);h1.rotation.z=side*-1.15;h1.position.set(side*.34,.3,0);hg.add(h1);
+      var h2=new THREE.Mesh(new THREE.ConeGeometry(.1,.85,7),hm);h2.rotation.z=side*-1.95;h2.position.set(side*.78,.62,0);hg.add(h2);
+      var h3=new THREE.Mesh(new THREE.ConeGeometry(.06,.5,7),hm);h3.rotation.z=side*-2.5;h3.position.set(side*1.02,.95,0);hg.add(h3);
+    }else if(variant===4){ /* foto 3: tanduk emas menjulang ke atas */
+      var h1=new THREE.Mesh(new THREE.ConeGeometry(.13,1.25,7),hm);h1.rotation.z=side*-.18;h1.position.set(side*.1,.5,0);hg.add(h1);
+      var tipH=new THREE.Mesh(new THREE.ConeGeometry(.06,.5,7),lavaM);tipH.rotation.z=side*-.18;tipH.position.set(side*.21,1.22,0);hg.add(tipH);
+    }else if(variant===3){ /* foto 2: tanduk banteng tebal menukik ke depan */
+      var h1=new THREE.Mesh(new THREE.ConeGeometry(.15,.95,7),hm);h1.rotation.z=side*-1.35;h1.rotation.x=.5;h1.position.set(side*.3,.18,.15);hg.add(h1);
+      var h2=new THREE.Mesh(new THREE.ConeGeometry(.09,.6,7),hm);h2.rotation.z=side*-2.1;h2.rotation.x=.7;h2.position.set(side*.62,.42,.3);hg.add(h2);
+    }else{
+      var h1=new THREE.Mesh(new THREE.ConeGeometry(.11,.62,7),hm);h1.rotation.z=side*-.8;h1.position.set(side*.16,.14,0);hg.add(h1);
+      var h2=new THREE.Mesh(new THREE.ConeGeometry(.07,.45,7),hm);h2.rotation.z=side*-1.5;h2.position.set(side*.4,.34,0);hg.add(h2);
+    }
+    g.add(hg);return hg;
+  }
+  horn(-1);horn(1);
+  var backHorn=new THREE.Mesh(new THREE.ConeGeometry(.09,.5,7),rockD);backHorn.position.set(0,4.5,-.3);backHorn.rotation.x=-.7;g.add(backHorn);
+  var glow=new THREE.PointLight(P.glow,variant===4?1.2:.9,9,1.8);glow.position.set(0,3.4,1);g.add(glow);
+  var bang=new THREE.Group();bang.position.set(0,4.95,0);
   var bangT=box(.16,1.15,.16,0xef3b3b,0,.55,0);var bangTxt=box(.95,.5,.06,0xef3b3b,0,1.05,0);
   bang.add(bangT,bangTxt);bang.visible=false;g.add(bang);
-  g.userData={legL:legL,legR:legR,armL:armL,armR:armR,bat:bat,bang:bang,body:body};
+  g.userData={legL:legL,legR:legR,armL:armL,armR:armR,bang:bang,body:chest,wingL:wingL,wingR:wingR};
   return g;
 }
 function makeItemMesh(base){
@@ -312,7 +380,6 @@ function makeItemMesh(base){
     case 'mosque':{add(box(1.0,.6,.8,0xe8f4f2,0,-.1,0));var dome2=sph(.42,0x2f9e8f,0,.42,0);dome2.scale.y=.85;add(dome2);add(cyl(.05,.05,.4,0xffc93c,0,.85,0,8));
       add(cyl(.09,.11,.95,0xe8f4f2,-.62,.15,0,8));add(cyl(.09,.11,.95,0xe8f4f2,.62,.15,0,8));var mt1=new THREE.Mesh(new THREE.ConeGeometry(.15,.3,8),mat(0x2f9e8f));mt1.position.set(-.62,.78,0);add(mt1);var mt2=mt1.clone();mt2.position.x=.62;add(mt2);add(box(.3,.42,.06,0x0e5a50,0,-.28,.41));break;}
     case 'bedug':{var b=cyl(.34,.34,1.05,0xa06a35,0,0,0,14);b.rotation.z=Math.PI/2;add(b);var s1=cyl(.36,.36,.06,0xe8d9b0,-.55,0,0,14);s1.rotation.z=Math.PI/2;add(s1);var s2=cyl(.36,.36,.06,0xe8d9b0,.55,0,0,14);s2.rotation.z=Math.PI/2;add(s2);[-.3,0,.3].forEach(function(rx){var rr=new THREE.Mesh(new THREE.TorusGeometry(.35,.028,8,18),mat(0x6b4226,.8));rr.position.x=rx;rr.rotation.y=Math.PI/2;add(rr);});break;}
-    case 'sahurdrum':{var log=cyl(.34,.34,1.15,0x8a5a2b,0,.05,0,16);log.rotation.z=Math.PI/2;log.material=new THREE.MeshStandardMaterial({map:woodTexture(),color:0xb57a3e,roughness:.7});add(log);add(box(.62,.06,.14,0x4a2c14,0,.36,0));var cap1=cyl(.35,.35,.06,0xd9b98a,-.6,.05,0,16);cap1.rotation.z=Math.PI/2;add(cap1);var cap2=cyl(.35,.35,.06,0xd9b98a,.6,.05,0,16);cap2.rotation.z=Math.PI/2;add(cap2);add(box(.12,.4,.3,0x6b4226,-.35,-.42,0));add(box(.12,.4,.3,0x6b4226,.35,-.42,0));var stk=cyl(.04,.04,.62,0xd9a05b,.55,-.3,.35,6);stk.rotation.z=1.1;add(stk);var stk2=cyl(.04,.04,.62,0xd9a05b,-.55,-.3,.35,6);stk2.rotation.z=-1.1;add(stk2);break;}
     case 'nastar':{var n=sph(.42,0xf08c1e,0,0,0);n.scale.y=.74;n.material=new THREE.MeshStandardMaterial({color:0xf08c1e,roughness:.32});add(n);add(cyl(.43,.44,.09,0xe8c98f,0,-.24,0,16));
       [[-.16,.26,.1],[.14,.27,-.14],[0,.3,.16],[.2,.24,.12],[-.02,.28,-.2]].forEach(function(sp){var strip=box(.2,.035,.06,0xffe9a8,sp[0],sp[1],sp[2]);strip.rotation.y=sp[0]*4;strip.rotation.z=.15;add(strip);});var plate=cyl(.52,.46,.06,0xffc93c,0,-.3,0,18);plate.material=new THREE.MeshStandardMaterial({color:0xffc93c,roughness:.3,metalness:.6});add(plate);var jewel=sph(.09,0xef3b3b,0,.36,0);jewel.material=new THREE.MeshStandardMaterial({color:0xef3b3b,roughness:.2,emissive:0x7a0d0d,emissiveIntensity:.5});add(jewel);break;}
     case 'kastengel':{for(var ki2=0;ki2<3;ki2++){add(box(.88,.17,.3,0xf5a623,0,-.2+ki2*.19,(ki2%2? .05:-.05)));}[[ -.28,.32],[0,.34],[.28,.32],[-.14,.3],[.14,.3]].forEach(function(gp){var gr=box(.16,.045,.07,0xffe98a,gp[0],gp[1],0);gr.rotation.y=gp[0]*3;add(gr);});var kplate=cyl(.55,.48,.05,0xfdf6e3,0,-.34,0,16);add(kplate);break;}
@@ -356,6 +423,9 @@ function buildWorld(){
   if('outputColorSpace' in renderer&&THREE.SRGBColorSpace)renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
   document.getElementById('game').appendChild(renderer.domElement);
+  /* Ruangan Rahasia Mythic dibangun di grup TERSEMBUNYI — wujudnya tidak terlihat sama sekali
+     sampai reveal katalog ke-15. Yang terlihat pemain hanya tebing raksasa di utara Sang Legenda. */
+  secretGroup=new THREE.Group();secretGroup.visible=false;scene.add(secretGroup);
   camera.position.set(0,9.5,40);
   scene.add(new THREE.HemisphereLight(0xcfe8ff,0x5da24a,1.05));
   scene.add(new THREE.AmbientLight(0xffffff,.25));
@@ -367,11 +437,12 @@ function buildWorld(){
   var plaza=new THREE.Mesh(new THREE.PlaneGeometry(20,12),mat(0xf2d492,1));plaza.rotation.x=-Math.PI/2;plaza.position.set(0,.01,22);plaza.receiveShadow=true;scene.add(plaza);
   /* Room floors */
   ROOMS.forEach(function(room){
+    var par=room.id===4?secretGroup:scene;
     var depth=room.zMax-room.zMin,cz=(room.zMax+room.zMin)/2;
-    var fl=new THREE.Mesh(new THREE.PlaneGeometry(96,depth),mat(room.floor,1));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,cz);fl.receiveShadow=true;scene.add(fl);
-    var pl=new THREE.PointLight(room.accent,room.id>=5?.85:.55,34,1.6);pl.position.set(0,6.5,cz);scene.add(pl);
+    var fl=new THREE.Mesh(new THREE.PlaneGeometry(96,depth),mat(room.floor,1));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,cz);fl.receiveShadow=true;par.add(fl);
+    var pl=new THREE.PointLight(room.accent,room.id>=4?.85:.55,34,1.6);pl.position.set(0,6.5,cz);par.add(pl);
   });
-  var path=new THREE.Mesh(new THREE.PlaneGeometry(6,202),mat(0xd9905f,1));path.rotation.x=-Math.PI/2;path.position.set(0,.012,-67);path.receiveShadow=true;scene.add(path);
+  var path=new THREE.Mesh(new THREE.PlaneGeometry(6,140),mat(0xd9905f,1));path.rotation.x=-Math.PI/2;path.position.set(0,.012,-37);path.receiveShadow=true;scene.add(path);
   /* Safe boundary wall + glowing gate at z = BOUND_Z */
   var wallM=mat(0xfdf6e3,.8);
   [-27.4,27.4].forEach(function(x){var w=new THREE.Mesh(new THREE.BoxGeometry(41.2,2.4,.7),wallM);w.position.set(x,1.2,BOUND_Z);w.castShadow=true;w.receiveShadow=true;scene.add(w);});
@@ -384,25 +455,38 @@ function buildWorld(){
   /* Room divider walls, gates, labels, lock barriers */
   BOUNDARIES.slice(1).forEach(function(b){
     var room=ROOMS[b.north-1];
+    var par=b.north===4?secretGroup:scene;
     var segW=48-b.gap;
     [-1,1].forEach(function(sgn){
       var w=new THREE.Mesh(new THREE.BoxGeometry(segW,3,.7),mat(room.accent,.8));
-      w.position.set(sgn*(b.gap+segW/2),1.5,b.z);w.castShadow=true;w.receiveShadow=true;scene.add(w);
-      var post=box(1.1,4.6,1.1,room.accent,sgn*b.gap,2.3,b.z);scene.add(post);
-      var orb=sph(.48,room.accent,sgn*b.gap,4.95,b.z);orb.material=new THREE.MeshStandardMaterial({color:room.accent,emissive:room.accent,emissiveIntensity:.55});scene.add(orb);
+      w.position.set(sgn*(b.gap+segW/2),1.5,b.z);w.castShadow=true;w.receiveShadow=true;par.add(w);
+      var post=box(1.1,4.6,1.1,room.accent,sgn*b.gap,2.3,b.z);par.add(post);
+      var orb=sph(.48,room.accent,sgn*b.gap,4.95,b.z);orb.material=new THREE.MeshStandardMaterial({color:room.accent,emissive:room.accent,emissiveIntensity:.55});par.add(orb);
     });
     var lbl=makeLabel(room.name.toUpperCase()+'  •  '+room.rarities.toUpperCase(),room.accentCss,13);
-    lbl.position.set(0,6.4,b.z);scene.add(lbl);
+    lbl.position.set(0,6.4,b.z);par.add(lbl);
     var barrier=new THREE.Mesh(new THREE.PlaneGeometry(b.gap*2,3.1),new THREE.MeshBasicMaterial({color:0xef3b3b,transparent:true,opacity:.32,side:THREE.DoubleSide}));
-    barrier.position.set(0,1.55,b.z);scene.add(barrier);gateBarriers[room.id]=barrier;
+    barrier.position.set(0,1.55,b.z);par.add(barrier);gateBarriers[room.id]=barrier;
   });
+  /* Dinding tebing raksasa menutup utara Ruangan Sang Legenda — Ruangan Rahasia Mythic
+     bersembunyi di dalam bumi di baliknya sampai katalog ke-15 terkumpul. Saat reveal,
+     tebing ini bergetar lalu tenggelam ke dalam bumi. */
+  secretCover=new THREE.Group();
+  var cliff=new THREE.Mesh(new THREE.BoxGeometry(96,7.5,2.6),mat(0x4a4036,.95));cliff.position.set(0,3.75,-79.4);cliff.castShadow=true;cliff.receiveShadow=true;secretCover.add(cliff);
+  var cliffTop=new THREE.Mesh(new THREE.BoxGeometry(96,1.1,3.6),mat(0x5d7a35,.95));cliffTop.position.set(0,7.55,-79.4);cliffTop.castShadow=true;secretCover.add(cliffTop);
+  [[-38,6.2,2.6],[-24,7.4,3.4],[-9,6.4,2.8],[4,7.6,3.8],[18,6.3,2.7],[31,7.2,3.2],[43,6.5,2.5],[-31,3.2,3.0],[12,2.6,3.4],[26,4.0,2.6],[-14,4.4,2.9],[38,2.8,3.1]].forEach(function(bp,i){
+    var bld=new THREE.Mesh(new THREE.IcosahedronGeometry(bp[2]*.42,0),mat(i%3?0x554a3c:0x3e362c,.95));
+    bld.position.set(bp[0],bp[1],-78.6+(i%2?.5:-.3));bld.scale.set(1.4,.8,1);bld.castShadow=true;secretCover.add(bld);
+  });
+  scene.add(secretCover);
   /* Outer fences */
   function fenceRun(x1,z1,x2,z2){var dx=x2-x1,dz=z2-z1,len=Math.sqrt(dx*dx+dz*dz),n=Math.floor(len/2.2);for(var i=0;i<=n;i++){var t=i/n;var post=cyl(.07,.07,1.1,0x8a5a2b,x1+dx*t,.55,z1+dz*t,6);scene.add(post);}var rail=box(len,.12,.12,0xa06a35,(x1+x2)/2,.85,(z1+z2)/2);rail.rotation.y=-Math.atan2(dz,dx);scene.add(rail);}
-  fenceRun(-47,-168,47,-168);fenceRun(-47,-168,-47,12);fenceRun(47,-168,47,12);fenceRun(-47,32,-7,32);fenceRun(7,32,47,32);fenceRun(-47,12,-47,32);fenceRun(47,12,47,32);
+  fenceRun(-47,-108,47,-108);fenceRun(-47,-108,-47,12);fenceRun(47,-108,47,12);fenceRun(-47,32,-7,32);fenceRun(7,32,47,32);fenceRun(-47,12,-47,32);fenceRun(47,12,47,32);
   function tree(x,z,s){var g=new THREE.Group();g.add(cyl(.16,.22,1.4,0x8a5a2b,0,.7,0,7));var c1=sph(1.05,0x3f9e4d,0,2.0,0);var c2=sph(.75,0x55b862,.6,1.6,.2);var c3=sph(.7,0x2f8a3e,-.6,1.7,-.15);g.add(c1,c2,c3);g.position.set(x,0,z);g.scale.setScalar(s||1);scene.add(g);}
   [[-40,-6,1.2],[-18,-10,1],[38,-4,1.25],[44,-30,1],[-44,-52,1.15],[26,22,1.2],[-26,24,1.15],[-24,17,1],[24,28,1.1],[-40,-92,1.1],[42,-122,1.15],[40,-14,1],[-38,-140,1.05]].forEach(function(t){tree(t[0],t[1],t[2]);});
   /* Per-room decorations */
   ROOMS.forEach(function(room){
+    var par=room.id===4?secretGroup:scene;
     var cz=(room.zMax+room.zMin)/2,depth=room.zMax-room.zMin;
     if(room.id===1){
       [[-24,-6],[24,-10],[-36,-2],[36,-14]].forEach(function(r){var rock=sph(.8,0x9aa3ad,r[0],.3,r[1]);rock.scale.y=.65;scene.add(rock);});
@@ -424,18 +508,18 @@ function buildWorld(){
     if(room.id===4){
       for(var oi=0;oi<7;oi++){var ox=-33+oi*11,oz=room.zMin+((oi*37)%70)/100*depth+.15*depth;
         var orb2=new THREE.Mesh(new THREE.SphereGeometry(.55,14,12),new THREE.MeshStandardMaterial({color:0xc99aff,roughness:.3,emissive:0x7a2bd0,emissiveIntensity:.85}));
-        orb2.position.set(ox,3.4,oz);scene.add(orb2);animDeco.push({mesh:orb2,baseY:3.4,ph:oi*1.3});}
+        orb2.position.set(ox,3.4,oz);par.add(orb2);animDeco.push({mesh:orb2,baseY:3.4,ph:oi*1.3});}
     }
     if(room.id===5){
       [-38,-13,13,38].forEach(function(x){scene.add(cyl(.7,.85,4.6,0xd9a441,x,2.3,room.zMin+2.5,12));scene.add(cyl(.7,.85,4.6,0xd9a441,x,2.3,room.zMax-2.5,12));
         var capG=sph(.55,0xffc93c,x,5,room.zMin+2.5);capG.material=new THREE.MeshStandardMaterial({color:0xffc93c,emissive:0xcc8f00,emissiveIntensity:.8});});
       [[-26,.4],[26,.6]].forEach(function(cf){var z=room.zMin+cf[1]*depth;scene.add(box(1.6,1,1.1,0xb57a3e,cf[0],.5,z));scene.add(box(1.66,.22,1.16,0xffc93c,cf[0],1.05,z));});
     }
-    if(room.id===6){
+    if(room.id===4){
       var portal=new THREE.Mesh(new THREE.TorusGeometry(2.6,.28,10,32),new THREE.MeshStandardMaterial({color:0x8a4de0,roughness:.3,emissive:0x5b21b6,emissiveIntensity:1.1}));
-      portal.position.set(0,3.1,room.zMin+1.6);scene.add(portal);animDeco.push({mesh:portal,baseY:3.1,ph:0,spin:true});
+      portal.position.set(0,3.1,room.zMin+1.6);par.add(portal);animDeco.push({mesh:portal,baseY:3.1,ph:0,spin:true});
       for(var si=0;si<12;si++){var sx=-42+(si*7.3)%84,sz=room.zMin+((si*29)%80)/100*depth+.1*depth;
-        var star2=sph(.14,0xffffff,sx,4.5+(si%3),sz);star2.material=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xcfb8ff,emissiveIntensity:1.2});scene.add(star2);}
+        var star2=sph(.14,0xffffff,sx,4.5+(si%3),sz);star2.material=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xcfb8ff,emissiveIntensity:1.2});par.add(star2);}
     }
   });
   /* Fluffy low-poly clouds + sun glow for a softer high-render sky */
@@ -447,12 +531,12 @@ function buildWorld(){
   });
   var sunGlow=new THREE.Mesh(new THREE.SphereGeometry(3.4,16,12),new THREE.MeshBasicMaterial({color:0xfff3b0,transparent:true,opacity:.85}));
   sunGlow.position.set(38,34,-120);scene.add(sunGlow);
-  /* Mosque silhouette far north, beyond the Secret Room */
+  /* Mosque silhouette far north, beyond the Ruangan Rahasia Mythic */
   var mosqueG=new THREE.Group();
   mosqueG.add(box(10,4,6,0xe8f4f2,0,2,0));var md=sph(3.1,0x2f9e8f,0,5.4,0);md.scale.y=.8;mosqueG.add(md);mosqueG.add(cyl(.3,.3,2.6,0xffc93c,0,8.2,0,8));
   mosqueG.add(cyl(.7,.9,9,0xe8f4f2,-7,4.5,0,10));mosqueG.add(cyl(.7,.9,9,0xe8f4f2,7,4.5,0,10));
   var mc1=new THREE.Mesh(new THREE.ConeGeometry(1,2,10),mat(0x2f9e8f));mc1.position.set(-7,10,0);var mc2=mc1.clone();mc2.position.x=7;mosqueG.add(mc1,mc2);
-  mosqueG.position.set(0,0,-186);scene.add(mosqueG);
+  mosqueG.position.set(0,0,-126);scene.add(mosqueG);
   /* Hanging lanterns + ketupat deco over safe plaza */
   decorGroup=new THREE.Group();scene.add(decorGroup);
   for(var li=-2;li<=2;li++){var lx=li*4.4;
@@ -467,23 +551,23 @@ function buildWorld(){
   standPos.forEach(function(p,i){var st=new THREE.Group();st.add(cyl(.75,.9,.18,0x8a5a2b,0,.09,0,14));st.add(cyl(.16,.2,1.0,0x6b4226,0,.6,0,10));st.add(cyl(.62,.62,.14,0xf5a623,0,1.16,0,14));st.position.set(p[0],0,p[1]);scene.add(st);stands.push({group:st,item:null,slot:i});});
   /* Player + bots */
   player=makeAvatar(OUTFITS[0].shirt,OUTFITS[0].pants,0xffd9a0,OUTFITS[0]);playerPos=new THREE.Vector3(0,0,22);player.position.copy(playerPos);player.rotation.y=Math.PI;scene.add(player);
-  var botDefs=[{s:0xe8342e,p:0x23242a,x:-9,z:20,st:OUTFITS[1]},{s:0x23242a,p:0x2a2d34,x:9,z:20,st:OUTFITS[2]}];
+  var botDefs=[{s:OUTFITS[1].shirt,p:OUTFITS[1].pants,x:-9,z:20,st:OUTFITS[1]},{s:0x23242a,p:0x2a2d34,x:9,z:20,st:OUTFITS[2]}];
   botDefs.forEach(function(d,i){var b=makeAvatar(d.s,d.p,0xffd9a0,d.st);b.position.set(d.x,0,d.z);b.userData.ai={t:Math.random()*3,target:new THREE.Vector3(d.x,0,d.z),carry:null,phase:'idle',wait:1+i*2};scene.add(b);bots.push(b);});
-  /* Guardians: one Tung Tung Tung Sahur per room — patrols its own room, but chases thieves across the whole map to the safe gate */
+  /* Guardians: one Penjaga Jahat (rock monster) per room — patrols its own room, but chases thieves across the whole map to the safe gate */
   ROOMS.forEach(function(room){
-    var g=makeEnemy();
-    var band=cyl(.49,.5,.22,room.accent,0,1.46,0,20);g.add(band);
-    var ring=new THREE.Mesh(new THREE.TorusGeometry(1.15,.06,8,28),new THREE.MeshBasicMaterial({color:room.accent}));
+    var g=makeMonster(room);
+    var band=cyl(.98,1.08,.18,room.accent,0,.32,0,20);g.add(band);
+    var ring=new THREE.Mesh(new THREE.TorusGeometry(1.15,.06,8,28),new THREE.MeshBasicMaterial({color:room.glow||room.accent}));
     ring.rotation.x=Math.PI/2;ring.position.y=.07;g.add(ring);
-    var lbl=makeLabel('TUNG • '+room.short,room.accentCss,5.2);lbl.position.set(0,4.85,0);g.add(lbl);
-    g.scale.setScalar(1+(room.id-1)*0.045);
+    var lbl=makeLabel(room.guardName.toUpperCase(),room.glowCss||room.accentCss,room.id===4?6.2:(room.guardName.length>20?7.8:6.4));lbl.position.set(0,5.6,0);g.add(lbl);
+    g.scale.setScalar([0.82,1.0,1.28,1.65][room.id-1]||1); /* ukuran berjenjang: Pemula kecil, Penakluk sedang, Sang Legenda besar, Rahasia Mythic RAKSASA */
     var cz=(room.zMax+room.zMin)/2;
-    g.position.set(0,0,cz);scene.add(g);
+    g.position.set(0,0,cz);(room.id===4?secretGroup:scene).add(g);
     var pts=[[-32,.3],[30,.62],[0,.85],[-24,.68],[34,.28]].map(function(p){return new THREE.Vector3(p[0],0,room.zMin+p[1]*(room.zMax-room.zMin));});
-    guardians.push({mesh:g,room:room,state:'patrol',idx:0,pts:pts,alertTimer:0,tungTimer:0,home:new THREE.Vector3(0,0,cz)});
+    guardians.push({mesh:g,room:room,state:'patrol',idx:0,pts:pts,alertTimer:0,roarTimer:0,home:new THREE.Vector3(0,0,cz)});
   });
   /* Stealable items: each room spawns its own pool */
-  var spotFrac=[[-30,.3],[-11,.68],[12,.35],[32,.72]];
+  var spotFrac=[[-30,.3],[-11,.68],[12,.35],[32,.72],[-20,.52]];
   ROOMS.forEach(function(room){
     room.items.forEach(function(bid,i){
       var f=spotFrac[i%spotFrac.length];
@@ -496,16 +580,17 @@ function buildWorld(){
 }
 var itemIdSeq=1;
 function spawnItem(base,x,z,roomId){
+  var par=(roomId===4&&secretGroup)?secretGroup:scene;
   var g=makeItemMesh(base);g.position.set(x,1.05,z);
-  var ped=cyl(.55,.7,.5,0xfdf6e3,x,.25,z,12);scene.add(ped);
+  var ped=cyl(.55,.7,.5,0xfdf6e3,x,.25,z,12);par.add(ped);
   var ring=new THREE.Mesh(new THREE.TorusGeometry(.85,.05,8,26),new THREE.MeshBasicMaterial({color:0xffc93c}));
-  ring.rotation.x=Math.PI/2;ring.position.set(x,.55,z);scene.add(ring);
-  scene.add(g);
+  ring.rotation.x=Math.PI/2;ring.position.set(x,.55,z);par.add(ring);
+  par.add(g);
   items.push({id:itemIdSeq++,base:base,group:g,ped:ped,ring:ring,x:x,z:z,room:roomId||1,taken:false,bob:Math.random()*6});
 }
 function respawnLater(base,roomId){
   var room=ROOMS[(roomId||1)-1]||ROOMS[0];
-  var delay=room.id===6?15000:4500; /* Secret Room stock is deliberately scarce */
+  var delay=room.id===4?12000:4000; /* Ruangan Rahasia Mythic stock is deliberately scarce */
   setTimeout(function(){if(!scene)return;var x=Math.random()*80-40,z=room.zMin+3+Math.random()*(room.zMax-room.zMin-6);if(Math.abs(x)<3.5)x+=6;spawnItem(base,x,z,room.id);},delay);
 }
 function refreshGates(){
@@ -537,6 +622,7 @@ function updateRoomUI(){
   pill.classList.toggle('danger',anyChase());
   var dots=$('roomDots');dots.innerHTML='';
   ROOMS.forEach(function(room){
+    if(room.secret&&!S.secretRevealed)return; /* titik ruangan rahasia pun belum kelihatan sebelum reveal */
     var d=document.createElement('span');d.className='dot'+(isUnlocked(room)?' open':'')+(S.currentRoom===room.id?' cur':'');d.title=room.name;dots.appendChild(d);
   });
 }
@@ -561,25 +647,51 @@ function doAction(){
   if(S.extracted){openOpening();return;}
   if(S.carrying)return;
   var it=nearestItem();if(!it)return;
-  it.taken=true;scene.remove(it.group);scene.remove(it.ped);scene.remove(it.ring);
+  it.taken=true;[it.group,it.ped,it.ring].forEach(function(o){if(o.parent)o.parent.remove(o);});
   items=items.filter(function(x){return x!==it;});
   S.carrying={base:it.base,room:it.room};S.steals++;
   carryMesh=makeItemMesh(it.base);carryMesh.scale.setScalar(1.1);scene.add(carryMesh);
   var gd=guardianOf(it.room);
   if(gd){gd.state='alert';gd.alertTimer=gd.room.guard.reaction;gd.mesh.userData.bang.visible=true;}
-  sfx('pickup');sfx('tung');
-  $('chaseText').textContent='TUNG TUNG '+ROOMS[it.room-1].short+' MENGEJARMU! Lari ke zona aman!';
+  sfx('pickup');sfx('roar');
+  $('chaseText').textContent=ROOMS[it.room-1].guardName.toUpperCase()+' MENGEJARMU! Lari ke zona aman!';
   $('chaseBanner').classList.add('on');
-  toast('😱 KETAHUAN! Penjaga '+ROOMS[it.room-1].name+' mengejarmu — KABUR!',2200);
+  toast('😱 KETAHUAN! '+ROOMS[it.room-1].guardName+' mengejarmu — KABUR!',2200);
   respawnLater(it.base,it.room);
   updateHUD();
 }
 function checkUnlocks(){
   var newly=[];
   ROOMS.forEach(function(room){
+    if(room.secret)return; /* Ruangan Rahasia Mythic punya reveal khususnya sendiri di bawah */
     if(isUnlocked(room)&&!S.announced[room.id]){S.announced[room.id]=true;newly.push(room);}
   });
   if(newly.length){refreshGates();sfx('fanfare');toast('🔓 RUANGAN BARU TERBUKA: '+newly.map(function(r){return r.name;}).join(', ')+'!',3600);}
+  if(!S.secretRevealed&&!S.secretRevealing&&discoveredCount()>=15)startSecretReveal();
+}
+/* ===== REVEAL RUANGAN RAHASIA MYTHIC =====
+   Katalog ke-15 terkumpul → bumi bergetar ±1,3 detik sambil banner AWAS tampil,
+   lalu wujud ruangan muncul dan tebing raksasa tenggelam ke dalam bumi. */
+function startSecretReveal(){
+  if(S.secretRevealing||S.secretRevealed)return;
+  S.secretRevealing=true;reveal.active=true;reveal.t=0;reveal.shown=false;reveal.lastRoar=0;
+  var sa=$('secretAlert');if(sa)sa.classList.add('on');
+  sfx('roar');
+}
+function updateSecretReveal(dt){
+  if(!reveal.active)return;
+  reveal.t+=dt;
+  if(reveal.t-reveal.lastRoar>.55){reveal.lastRoar=reveal.t;sfx('roar');}
+  if(secretCover&&!reveal.shown){secretCover.position.x=(Math.random()-.5)*.4;secretCover.position.z=(Math.random()-.5)*.25;}
+  if(reveal.t>=1.3&&!reveal.shown){reveal.shown=true;if(secretGroup)secretGroup.visible=true;}
+  if(reveal.shown&&secretCover){var p=Math.min(1,(reveal.t-1.3)/1.8);secretCover.position.y=-p*9;secretCover.position.x=(Math.random()-.5)*.3*(1-p);secretCover.position.z=0;}
+  if(reveal.t>=3.4){
+    reveal.active=false;S.secretRevealing=false;S.secretRevealed=true;S.announced[4]=true;
+    if(secretCover)secretCover.visible=false;
+    var sa=$('secretAlert');if(sa)sa.classList.remove('on');
+    sfx('fanfare');refreshGates();updateHUD();
+    toast('🔓 RUANGAN RAHASIA MYTHIC TERBUKA! 5 katalog spesial Celestial menanti di balik tebing — dijaga Ketua Para Penjaga Jahat yang RAKSASA!',4800);
+  }
 }
 function onExtracted(){
   S.extracted=S.carrying;S.carrying=null;S.escapes++;
@@ -596,7 +708,7 @@ function onCaught(){
   sfx('caught');sfx('drop');
   if(dropped)spawnItem(dropped.base,playerPos.x,Math.max(ROOMS[dropped.room-1].zMin+2,Math.min(playerPos.z,ROOMS[dropped.room-1].zMax-2)),dropped.room);
   playerPos.set(0,0,24);
-  toast('💥 TERTANGKAP! "TUNG TUNG TUNG!" Barangmu jatuh di '+ (dropped?ROOMS[dropped.room-1].name:'taman') +'. Tidak ada koin untuk barang yang gagal diekstrak!',3200);
+  toast('💥 TERTANGKAP '+(dropped?ROOMS[dropped.room-1].guardName.toUpperCase():'PENJAGA JAHAT')+'! Barangmu jatuh di '+ (dropped?ROOMS[dropped.room-1].name:'taman') +'. Tidak ada koin untuk barang yang gagal diekstrak!',3200);
   if(S.speedLevel<3)showSpeedAlert(8000);
   updateHUD();
 }
@@ -613,7 +725,7 @@ function openOpening(){
 $('btnOpen').addEventListener('click',function(){
   if(openingBusy||!S.extracted)return;openingBusy=true;ac();
   $('btnOpen').style.display='none';
-  var st=$('openStage');st.classList.add('shake');sfx('tung');
+  var st=$('openStage');st.classList.add('shake');sfx('roar');
   $('rewardName').textContent='Goyang… goyang… goyang…';
   setTimeout(function(){
     st.classList.remove('shake');st.classList.add('pop');
@@ -625,7 +737,7 @@ $('btnOpen').addEventListener('click',function(){
     $('rewardMeta').textContent='Rarity '+rw.rarity.name+' • Mutasi '+rw.mut.name+' • Nilai '+rw.value+' 🪙'+(S.collection[rw.key]?' • (sudah punya — tetap dapat koin!)':' • ✨ BARU di katalog!');
     $('coinGain').textContent=rw.value;
     $('btnCollect').style.display='block';
-    if(rw.rarity.id==='legendary'||rw.rarity.id==='mythic'||rw.rarity.id==='secret')sfx('fanfare');else sfx('open');
+    if(rw.rarity.id==='legendary'||rw.rarity.id==='secret')sfx('fanfare');else sfx('open');
     openingBusy=false;
   },1400);
 });
@@ -637,12 +749,14 @@ $('btnCollect').addEventListener('click',function(){
   S.extracted=null;S.lastReward=null;
   $('openModal').classList.remove('open');sfx('coin');
   toast('🎁 +'+rw.value+' 🪙 dari '+ROOMS[rw.room-1].name+'! Koleksi: '+discoveredCount()+' / '+TOTAL,2600);
+  checkUnlocks();
+  if(discoveredCount()>=TOTAL){sfx('fanfare');setTimeout(function(){toast('🏆 TAMAT! 20 / 20 katalog lengkap — kamu resmi Master Steal the Lebaran! 🎉',5200);},2800);}
   refreshStands();updateHUD();
 });
 /* ============ CATALOGUE UI ============ */
 var catFilter='all';
 function renderCatalog(){
-  $('catProgText').textContent=discoveredCount()+' / '+TOTAL+' ditemukan';
+  $('catProgText').textContent=discoveredCount()+' / '+TOTAL+' ditemukan'+(discoveredCount()>=TOTAL?' • 🏆 TAMAT!':'');
   $('catProgBar').style.width=(discoveredCount()/TOTAL*100)+'%';
   var tabs=$('catTabs');tabs.innerHTML='';
   CATS.forEach(function(c){var b=document.createElement('button');b.className='tab'+(catFilter===c.id?' on':'');b.textContent=c.name;b.addEventListener('click',function(){catFilter=c.id;renderCatalog();});tabs.appendChild(b);});
@@ -676,7 +790,11 @@ function renderRooms(){
   ROOMS.forEach(function(room){
     var un=isUnlocked(room);
     var row=document.createElement('div');row.className='roomrow'+(un?'':' locked');
-    row.innerHTML='<div class="swatch" style="background:'+room.accentCss+'"></div><div class="info"><b>Room '+room.id+' — '+room.name+'</b><div>Rarity: '+room.rarities+'<br>Penjaga: '+room.diff+' • Kecepatan kejar '+room.guard.chase.toFixed(1)+'<br>Penjaga mengejar sampai gerbang Zona Aman.<br>'+(un?'Sudah bisa dimasuki.':'Butuh '+room.unlock+' ekstraksi berhasil (kamu: '+S.escapes+').')+'</div></div><span class="st" style="background:'+(un?'#d9f5df':'#f3d7d7')+'">'+(un?'🔓 TERBUKA':'🔒 TERKUNCI')+'</span>';
+    if(room.secret&&!S.secretRevealed){
+      row.innerHTML='<div class="swatch" style="background:#3a3630"></div><div class="info"><b>❓ Ruangan Misterius</b><div>Di utara Ruangan Sang Legenda berdiri dinding tebing raksasa. Konon ada ruangan yang tersembunyi di dalam bumi di baliknya…<br>Kumpulkan 15 katalog untuk membukanya. (Kamu: '+discoveredCount()+' / 15)</div></div><span class="st" style="background:#e8e2d4">🪨 TERSEMBUNYI</span>';
+      list.appendChild(row);return;
+    }
+    row.innerHTML='<div class="swatch" style="background:'+room.accentCss+'"></div><div class="info"><b>'+room.name+'</b><div>Rarity: '+room.rarities+'<br>Penjaga: '+room.guardName+' • '+room.diff+' • Kecepatan kejar '+room.guard.chase.toFixed(1)+'<br>Penjaga mengejar sampai gerbang Zona Aman.<br>'+(un?'Sudah bisa dimasuki.':unlockText(room))+'</div></div><span class="st" style="background:'+(un?'#d9f5df':'#f3d7d7')+'">'+(un?'🔓 TERBUKA':'🔒 TERKUNCI')+'</span>';
     list.appendChild(row);
   });
 }
@@ -700,7 +818,7 @@ function renderSpeedShop(){
       +'<div class="kv"><span>Speed Increase</span><span>+10% → '+nextSpeed.toFixed(1)+'</span></div>'
       +'<div class="kv"><span>Upgrade Cost</span><span>'+fmt(cost)+' Coins</span></div>'
       +'<button class="bigbtn" id="btnBuySpeed" style="margin-top:12px" '+(afford?'':'disabled')+'>'+(afford?'⚡ UPGRADE SPEED':'🔒 KURANG '+fmt(cost-S.coins)+' COINS LAGI')+'</button>'
-      +'<p class="fineprint" style="margin-top:10px">Harga naik 5× tiap level: 100 → 500 → 2.500 → 12.500 → 62.500 → 312.500 … Maksimum Level '+MAX_SPEED_LEVEL+'. Upgrade berlaku permanen selama sesi bermain ini.</p>';
+      +'<p class="fineprint" style="margin-top:10px">Harga naik 3× tiap level: 100 → 300 → 900 → 2.700 → 8.100 → 24.300 … Maksimum Level '+MAX_SPEED_LEVEL+'. Upgrade berlaku permanen selama sesi bermain ini.</p>';
   }
   body.innerHTML=html;
   var btn=$('btnBuySpeed');
@@ -751,21 +869,34 @@ function hideSpeedAlert(){$('speedAlert').classList.remove('on');clearTimeout(sp
 $('speedAlertClose').addEventListener('click',hideSpeedAlert);
 $('btnSpeedAlert').addEventListener('click',function(){hideSpeedAlert();ac();renderSpeedShop();$('speedModal').classList.add('open');});
 $('btnStartSpeed').addEventListener('click',function(){ac();renderSpeedShop();$('speedModal').classList.add('open');});
-$('btnStart').addEventListener('click',function(){ac();S.started=true;$('start').style.display='none';toast('🏃 Basic Room ada tepat di depan gerbang. Ambil barang terdekat, lalu kabur!',3400);updateHUD();showSpeedAlert(10000);});
+$('btnStart').addEventListener('click',function(){ac();S.started=true;$('start').style.display='none';toast('🏃 Ruangan Pemula ada tepat di depan gerbang. Ambil barang terdekat, lalu kabur!',3400);updateHUD();showSpeedAlert(10000);});
 /* ============ INPUT ============ */
 window.addEventListener('keydown',function(e){keys[e.key.toLowerCase()]=true;if(e.key===' '||e.key.toLowerCase()==='e'){e.preventDefault();if(S.started)doAction();}});
 window.addEventListener('keyup',function(e){keys[e.key.toLowerCase()]=false;});
-var joyEl=$('joy'),knob=$('joyKnob'),joyId=null;
-function joySet(dx,dy){var len=Math.hypot(dx,dy),max=34;if(len>max){dx=dx/len*max;dy=dy/len*max;}knob.style.transform='translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px))';joyVec.x=dx/max;joyVec.y=dy/max;}
-joyEl.addEventListener('pointerdown',function(e){joyId=e.pointerId;joyEl.setPointerCapture(joyId);var r=joyEl.getBoundingClientRect();joySet(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));ac();});
-joyEl.addEventListener('pointermove',function(e){if(e.pointerId!==joyId)return;var r=joyEl.getBoundingClientRect();joySet(e.clientX-(r.left+r.width/2),e.clientY-(r.top+r.height/2));});
-function joyEnd(e){if(e.pointerId===joyId){joyId=null;joyVec.x=0;joyVec.y=0;knob.style.transform='translate(-50%,-50%)';}}
-joyEl.addEventListener('pointerup',joyEnd);joyEl.addEventListener('pointercancel',joyEnd);
 var dragId=null,lastPX=0;
-document.addEventListener('pointerdown',function(e){if(e.target.closest('button')||e.target.closest('.modal')||e.target.closest('#joy')||e.target.closest('#start'))return;dragId=e.pointerId;lastPX=e.clientX;});
-document.addEventListener('pointermove',function(e){if(e.pointerId===dragId){camYaw-=(e.clientX-lastPX)*.005;lastPX=e.clientX;}});
-document.addEventListener('pointerup',function(e){if(e.pointerId===dragId)dragId=null;});
-/* ============ BOT AI (rival bots stay around Basic Room + safe zone) ============ */
+/* ===== JOYSTICK TRANSPARAN TAK TERLIHAT DI SELURUH LAYAR (mobile) =====
+   Tidak ada tombol joystick & tidak ada tombol kursor lagi. Sentuh & seret di mana pun
+   pada area game: titik sentuh menjadi pusat joystick tak terlihat — seret ke atas =
+   maju, bawah = mundur, kiri/kanan = geser menyamping. Lepas sentuhan = berhenti.
+   Pointer mouse (desktop) tetap menyeret untuk memutar kamera; WASD/panah juga bisa. */
+var joyTouchId=null,joyOX=0,joyOY=0;
+document.addEventListener('pointerdown',function(e){
+  if(e.target.closest('button')||e.target.closest('.modal')||e.target.closest('#start')||e.target.closest('#dock'))return;
+  if(e.pointerType==='mouse'){dragId=e.pointerId;lastPX=e.clientX;return;}
+  if(S.started&&joyTouchId===null){joyTouchId=e.pointerId;joyOX=e.clientX;joyOY=e.clientY;joyVec.x=0;joyVec.y=0;ac();}
+});
+document.addEventListener('pointermove',function(e){
+  if(e.pointerId===dragId){camYaw-=(e.clientX-lastPX)*.005;lastPX=e.clientX;return;}
+  if(e.pointerId===joyTouchId){
+    var dx=e.clientX-joyOX,dy=e.clientY-joyOY,len=Math.hypot(dx,dy),max=55;
+    if(len<7){joyVec.x=0;joyVec.y=0;}
+    else{if(len>max){dx=dx/len*max;dy=dy/len*max;}joyVec.x=dx/max;joyVec.y=dy/max;}
+  }
+});
+function ptrEnd(e){if(e.pointerId===dragId)dragId=null;if(e.pointerId===joyTouchId){joyTouchId=null;joyVec.x=0;joyVec.y=0;}}
+document.addEventListener('pointerup',ptrEnd);
+document.addEventListener('pointercancel',ptrEnd);
+/* ============ BOT AI (rival bots stay around Ruangan Pemula + safe zone) ============ */
 function updateBot(b,dt,t){
   var ai=b.userData.ai;ai.t-=dt;
   var p=b.position;
@@ -797,7 +928,7 @@ function updateGuardian(gd,dt,t){
   var eSpeed=0,eTarget=null;
   if(gd.state==='alert'){
     gd.alertTimer-=dt;ep.y=Math.abs(Math.sin(t*16))*.25;
-    if(gd.alertTimer<=0){gd.state='chase';gd.tungTimer=0;updateRoomUI();}
+    if(gd.alertTimer<=0){gd.state='chase';gd.roarTimer=0;updateRoomUI();}
   }else if(gd.state==='chase'){
     /* The chase does NOT end at the room edge: the guardian pursues across every room
        until the player crosses the safe gate (or drops / loses the loot). */
@@ -805,7 +936,7 @@ function updateGuardian(gd,dt,t){
       gd.state='return';ud.bang.visible=false;$('chaseBanner').classList.remove('on');updateRoomUI();
     }else{
       eTarget=playerPos;eSpeed=room.guard.chase;
-      gd.tungTimer-=dt;if(gd.tungTimer<=0){gd.tungTimer=1.15;sfx('tung');}
+      gd.roarTimer-=dt;if(gd.roarTimer<=0){gd.roarTimer=1.15;sfx('roar');}
       var distE=Math.hypot(playerPos.x-ep.x,playerPos.z-ep.z);
       if(distE<room.guard.attack){onCaught();return;}
     }
@@ -815,8 +946,8 @@ function updateGuardian(gd,dt,t){
   }else{ /* patrol — also notices a thief carrying this room's loot inside detection radius */
     if(S.carrying&&S.carrying.room===room.id&&playerPos.z<=room.zMax&&playerPos.z>=room.zMin){
       var dd=Math.hypot(playerPos.x-ep.x,playerPos.z-ep.z);
-      if(dd<room.guard.detect){gd.state='alert';gd.alertTimer=room.guard.reaction;ud.bang.visible=true;sfx('tung');
-        $('chaseText').textContent='TUNG TUNG '+room.short+' MENGEJARMU! Lari ke zona aman!';$('chaseBanner').classList.add('on');updateRoomUI();}
+      if(dd<room.guard.detect){gd.state='alert';gd.alertTimer=room.guard.reaction;ud.bang.visible=true;sfx('roar');
+        $('chaseText').textContent=room.guardName.toUpperCase()+' MENGEJARMU! Lari ke zona aman!';$('chaseBanner').classList.add('on');updateRoomUI();}
     }
     var pt=gd.pts[gd.idx];eTarget=pt;eSpeed=room.guard.patrol;
     if(Math.hypot(ep.x-pt.x,ep.z-pt.z)<1.1)gd.idx=(gd.idx+1)%gd.pts.length;
@@ -828,9 +959,10 @@ function updateGuardian(gd,dt,t){
     if(ed>.15){ep.x+=edx/ed*eSpeed*dt;ep.z+=edz/ed*eSpeed*dt;gd.mesh.rotation.y=Math.atan2(edx,edz);}
     ep.x=Math.max(-45,Math.min(45,ep.x));
     if(gd.state==='patrol'){ep.z=Math.max(room.zMin+0.7,Math.min(room.zMax-0.7,ep.z));} /* patrol stays in its own room */
-    else{ep.z=Math.max(-166,Math.min(BOUND_Z-0.8,ep.z));} /* chase/return roam the whole map — but NEVER enter the safe zone */
+    else{ep.z=Math.max(-106,Math.min(BOUND_Z-0.8,ep.z));} /* chase/return roam the whole map — but NEVER enter the safe zone */
     var esw=Math.sin(t*(gd.state==='chase'?13:7))*.55;
     ud.legL.rotation.x=esw;ud.legR.rotation.x=-esw;ud.armR.rotation.x=gd.state==='chase'?Math.sin(t*13)*.8-.4:-.9;
+    if(ud.wingL){var wf=.18+Math.sin(t*(gd.state==='chase'?11:3.5))*.2;ud.wingL.rotation.z=-wf;ud.wingR.rotation.z=wf;}
     ep.y=gd.state==='chase'?Math.abs(Math.sin(t*13))*.12:0;
   }
 }
@@ -861,7 +993,7 @@ function animate(){
         stepTimer-=dt;if(stepTimer<=0){stepTimer=run>1?.26:.34;sfx('step');}
       }else{player.userData.legL.rotation.x=0;player.userData.legR.rotation.x=0;player.userData.armL.rotation.x=Math.sin(t*2)*.06;player.userData.armR.rotation.x=-Math.sin(t*2)*.06;}
       playerPos.x=Math.max(-45,Math.min(45,playerPos.x));
-      playerPos.z=Math.max(-166,Math.min(31,playerPos.z));
+      playerPos.z=Math.max(-106,Math.min(31,playerPos.z));
       /* Gate / wall collision: divider walls block outside the gap; locked gates block the gap */
       BOUNDARIES.forEach(function(b){
         if((prevZ-b.z)*(playerPos.z-b.z)<0){
@@ -870,7 +1002,9 @@ function animate(){
             var rm=ROOMS[b.north-1];
             if(!isUnlocked(rm)){playerPos.z=prevZ;
               var now=Date.now();
-              if(now-S.lockToastAt>2500){S.lockToastAt=now;toast('🔒 '+rm.name+' terkunci! Butuh '+rm.unlock+' ekstraksi berhasil (kamu: '+S.escapes+'). Rarity di sana: '+rm.rarities+'.',3000);}
+              if(now-S.lockToastAt>2500){S.lockToastAt=now;
+                if(rm.secret&&!S.secretRevealed)toast('🪨 Dinding tebing raksasa menghalangimu! Ada sesuatu yang tersembunyi di dalam bumi di baliknya… Kumpulkan 15 katalog untuk membukanya. ('+discoveredCount()+' / 15)',3200);
+                else toast('🔒 '+rm.name+' terkunci! '+unlockText(rm)+' Rarity di sana: '+rm.rarities+'.',3000);}
             }
           }
         }
@@ -881,16 +1015,17 @@ function animate(){
       var rNow=roomAt(playerPos.z);
       if(rNow!==S.currentRoom){
         S.currentRoom=rNow;
-        if(rNow>0){var rm2=ROOMS[rNow-1];toast('🚪 Memasuki '+rm2.name+' — Rarity: '+rm2.rarities+' • Penjaga: '+rm2.diff,2600);sfx('open');}
+        if(rNow>0){var rm2=ROOMS[rNow-1];toast('🚪 Memasuki '+rm2.name+' — Rarity: '+rm2.rarities+' • Penjaga: '+rm2.guardName+' ('+rm2.diff+')',2600);sfx('open');}
         updateRoomUI();
       }
       if(S.carrying&&playerPos.z>BOUND_Z+1.2)onExtracted();
       items.forEach(function(it){it.group.position.y=1.05+Math.sin(t*2.2+it.bob)*.14;it.group.rotation.y=t*.9+it.bob;it.ring.rotation.z=t*1.4;});
-      guardians.forEach(function(gd){updateGuardian(gd,dt,t);});
+      guardians.forEach(function(gd){if(gd.room.id===4&&!S.secretRevealed)return;updateGuardian(gd,dt,t);});
+      updateSecretReveal(dt);
       bots.forEach(function(b){updateBot(b,dt,t);});
       if(scene.userData.beam)scene.userData.beam.material.emissiveIntensity=1.1+Math.sin(t*3)*.5;
       if(scene.userData.line)scene.userData.line.material.opacity=.55+Math.sin(t*3)*.25;
-      gateBarriers[6]&&(gateBarriers[6].material.opacity=.22+Math.sin(t*3)*.14);
+      gateBarriers[4]&&(gateBarriers[4].material.opacity=.22+Math.sin(t*3)*.14);
       animDeco.forEach(function(d){if(d.spin){d.mesh.rotation.z=t*0.8;}else{d.mesh.position.y=d.baseY+Math.sin(t*1.8+d.ph)*.35;if(d.drift)d.mesh.position.x+=Math.sin(t*.11+d.ph)*.006;}});
       rainbowFx.forEach(function(rf){rf.traverse(function(o){if(o.userData.rainbow&&o.material&&o.material.color)o.material.color.setHSL((t*.22+(o.userData.hueOff||0))%1,.85,.6);if(o.userData.rainbowRing&&o.material)o.material.color.setHSL((t*.3)%1,.9,.6);});});
       decorGroup.children.forEach(function(ch,i){if(ch.geometry&&ch.geometry.type==='OctahedronGeometry')ch.rotation.y=t*.7+i;});
@@ -901,6 +1036,7 @@ function animate(){
     var desired=new THREE.Vector3(playerPos.x+offX,camH,playerPos.z+offZ);
     camera.position.lerp(desired,.08);
     camera.lookAt(playerPos.x,1.6,playerPos.z);
+    if(reveal.active){var shAmp=reveal.t<1.3?.55:.25;camera.position.x+=(Math.random()-.5)*shAmp;camera.position.y+=(Math.random()-.5)*shAmp*.7;}
   }catch(err){var d=$('err');d.style.display='block';d.textContent='Error: '+err.message;}
   renderer.render(scene,camera);
 }
