@@ -274,54 +274,15 @@ body {
   animation: twinkle 3.2s ease-in-out infinite;
 }
 
-.sky-star.s1 {
-  top: 14%;
-  left: 16%;
-  animation-delay: 0s;
-}
-
-.sky-star.s2 {
-  top: 22%;
-  left: 28%;
-  width: 4px;
-  height: 4px;
-  animation-delay: 0.7s;
-}
-
-.sky-star.s3 {
-  top: 10%;
-  left: 48%;
-  width: 5px;
-  height: 5px;
-  animation-delay: 1.4s;
-}
-
-.sky-star.s4 {
-  top: 20%;
-  right: 24%;
-  width: 4px;
-  height: 4px;
-  animation-delay: 2.1s;
-}
-
-.sky-star.s5 {
-  top: 12%;
-  right: 34%;
-  animation-delay: 0.9s;
-}
+.sky-star.s1 { top: 14%; left: 16%; animation-delay: 0s; }
+.sky-star.s2 { top: 22%; left: 28%; width: 4px; height: 4px; animation-delay: 0.7s; }
+.sky-star.s3 { top: 10%; left: 48%; width: 5px; height: 5px; animation-delay: 1.4s; }
+.sky-star.s4 { top: 20%; right: 24%; width: 4px; height: 4px; animation-delay: 2.1s; }
+.sky-star.s5 { top: 12%; right: 34%; animation-delay: 0.9s; }
 
 @keyframes twinkle {
-
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: scale(0.85);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 .menu-horizon {
@@ -351,13 +312,8 @@ body {
   height: auto;
 }
 
-.bunting-left {
-  left: 0;
-}
-
-.bunting-right {
-  right: 0;
-}
+.bunting-left { left: 0; }
+.bunting-right { right: 0; }
 
 .lantern-wrap {
   position: absolute;
@@ -383,15 +339,8 @@ body {
 }
 
 @keyframes lantern-sway {
-
-  0%,
-  100% {
-    transform: rotate(-3.5deg);
-  }
-
-  50% {
-    transform: rotate(3.5deg);
-  }
+  0%, 100% { transform: rotate(-3.5deg); }
+  50% { transform: rotate(3.5deg); }
 }
 
 .menu-particles {
@@ -411,60 +360,18 @@ body {
   animation: float-spark 6.5s ease-in-out infinite;
 }
 
-.spark.sp1 {
-  left: 12%;
-  bottom: 26%;
-  animation-delay: 0s;
-}
-
-.spark.sp2 {
-  left: 26%;
-  bottom: 32%;
-  animation-delay: 1.2s;
-}
-
-.spark.sp3 {
-  left: 44%;
-  bottom: 24%;
-  animation-delay: 2.5s;
-}
-
-.spark.sp4 {
-  right: 32%;
-  bottom: 28%;
-  animation-delay: 0.8s;
-}
-
-.spark.sp5 {
-  right: 18%;
-  bottom: 34%;
-  animation-delay: 3.1s;
-}
-
-.spark.sp6 {
-  right: 8%;
-  bottom: 22%;
-  animation-delay: 1.9s;
-}
+.spark.sp1 { left: 12%; bottom: 26%; animation-delay: 0s; }
+.spark.sp2 { left: 26%; bottom: 32%; animation-delay: 1.2s; }
+.spark.sp3 { left: 44%; bottom: 24%; animation-delay: 2.5s; }
+.spark.sp4 { right: 32%; bottom: 28%; animation-delay: 0.8s; }
+.spark.sp5 { right: 18%; bottom: 34%; animation-delay: 3.1s; }
+.spark.sp6 { right: 8%; bottom: 22%; animation-delay: 1.9s; }
 
 @keyframes float-spark {
-  0% {
-    opacity: 0;
-    transform: translateY(0) scale(0.7);
-  }
-
-  25% {
-    opacity: 0.75;
-  }
-
-  75% {
-    opacity: 0.55;
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-75px) scale(1.1);
-  }
+  0% { opacity: 0; transform: translateY(0) scale(0.7); }
+  25% { opacity: 0.75; }
+  75% { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-75px) scale(1.1); }
 }
 
 .menu-table {
@@ -536,15 +443,8 @@ body {
 }
 
 @keyframes title-drop {
-  0% {
-    opacity: 0;
-    transform: translateY(-24px) scale(0.94);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  0% { opacity: 0; transform: translateY(-24px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .menu-greeting {
@@ -644,15 +544,8 @@ body {
 }
 
 @keyframes hero-pulse {
-
-  0%,
-  100% {
-    box-shadow: 0 5px 0 #124216, 0 10px 22px rgba(255, 213, 79, 0.28), 0 0 0 0 rgba(255, 213, 79, 0.35);
-  }
-
-  50% {
-    box-shadow: 0 5px 0 #124216, 0 12px 26px rgba(255, 213, 79, 0.42), 0 0 0 8px rgba(255, 213, 79, 0);
-  }
+  0%, 100% { box-shadow: 0 5px 0 #124216, 0 10px 22px rgba(255, 213, 79, 0.28), 0 0 0 0 rgba(255, 213, 79, 0.35); }
+  50% { box-shadow: 0 5px 0 #124216, 0 12px 26px rgba(255, 213, 79, 0.42), 0 0 0 8px rgba(255, 213, 79, 0); }
 }
 
 .menu-buttons-secondary {
@@ -698,15 +591,8 @@ body {
 }
 
 @keyframes fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 .stat-pill {
@@ -753,76 +639,25 @@ body {
 }
 
 @media (max-width: 600px) {
-  .bunting {
-    width: clamp(110px, 30vw, 136px);
-  }
-
-  .lantern-wrap svg {
-    height: clamp(54px, 11vh, 78px);
-  }
-
-  .lantern-left {
-    left: clamp(74px, 19vw, 90px);
-  }
-
-  .lantern-right {
-    right: clamp(74px, 19vw, 90px);
-  }
-
-  .sky-moon {
-    width: 42px;
-    right: auto;
-    left: 50%;
-    transform: translateX(34px);
-    top: 10px;
-  }
-
-  .title-ketupat {
-    width: 28px;
-    height: 34px;
-  }
-
-  .menu-content {
-    gap: 14px;
-    padding-bottom: clamp(86px, 16vh, 130px);
-  }
+  .bunting { width: clamp(110px, 30vw, 136px); }
+  .lantern-wrap svg { height: clamp(54px, 11vh, 78px); }
+  .lantern-left { left: clamp(74px, 19vw, 90px); }
+  .lantern-right { right: clamp(74px, 19vw, 90px); }
+  .sky-moon { width: 42px; right: auto; left: 50%; transform: translateX(34px); top: 10px; }
+  .title-ketupat { width: 28px; height: 34px; }
+  .menu-content { gap: 14px; padding-bottom: clamp(86px, 16vh, 130px); }
 }
 
 @media (max-height: 540px) and (orientation: landscape) {
-
-  .menu-top-ornaments,
-  .menu-greeting {
-    display: none;
-  }
-
-  .menu-content {
-    gap: 10px;
-    padding: 12px 16px 84px;
-  }
-
-  .game-title {
-    font-size: clamp(2rem, 6vw, 2.8rem);
-  }
-
-  .menu-table {
-    height: 52px;
-  }
-
-  .menu-horizon {
-    bottom: 48px;
-    height: 95px;
-  }
+  .menu-top-ornaments, .menu-greeting { display: none; }
+  .menu-content { gap: 10px; padding: 12px 16px 84px; }
+  .game-title { font-size: clamp(2rem, 6vw, 2.8rem); }
+  .menu-table { height: 52px; }
+  .menu-horizon { bottom: 48px; height: 95px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-  .sky-star,
-  .lantern-wrap,
-  .spark,
-  .menu-logo,
-  .menu-buttons,
-  .menu-stats,
-  .btn-play-hero {
+  .sky-star, .lantern-wrap, .spark, .menu-logo, .menu-buttons, .menu-stats, .btn-play-hero {
     animation: none !important;
   }
 }
@@ -890,6 +725,33 @@ body {
   gap: 5px;
   box-shadow: 0 3px 10px rgba(32, 16, 6, 0.25);
   white-space: nowrap;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hanya chip uang yang boleh menyusut (dipotong …) bila angkanya sangat panjang */
+.hud-money {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.hud-money>span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud-money>svg {
+  flex: 0 0 auto;
+}
+
+.hud-timer {
+  min-width: 3.4em;
+  justify-content: center;
+}
+
+.heart-icon {
+  flex: 0 0 auto;
 }
 
 .hud-phase {
@@ -913,8 +775,12 @@ body {
 }
 
 .hud-pause-btn {
+  flex: 0 0 auto; /* jangan ikut menyusut -> tetap bulat */
   width: 44px;
   height: 44px;
+  min-width: 44px;
+  padding: 0;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   background: var(--brown);
   color: var(--cream);
@@ -1147,8 +1013,7 @@ body {
   line-height: 1.05;
   text-align: center;
   width: 100%;
-  min-height: 2.1em;
-  /* selalu 2 baris agar tinggi kartu konsisten */
+  min-height: 2.1em;           /* selalu 2 baris agar tinggi kartu konsisten */
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1280,15 +1145,8 @@ body {
 }
 
 @keyframes trash-pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.1);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .drag-hint {
@@ -1524,8 +1382,8 @@ body {
 /* ===== MOBILE PORTRAIT TUNING ===== */
 @media (max-width: 600px) {
   .hud-top {
-    gap: 5px;
-    padding: 6px 8px;
+    gap: 4px;
+    padding: max(6px, env(safe-area-inset-top)) 8px 6px;
   }
 
   .hud-money,
@@ -1534,6 +1392,36 @@ body {
   .hud-lives {
     font-size: 0.78rem;
     padding: 4px 8px;
+    border-width: 1.5px;
+    gap: 4px;
+  }
+
+  .hud-lives {
+    padding: 4px 7px;
+    gap: 2px;
+  }
+
+  .heart-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .hud-pause-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .hud-pause-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .combo-badge {
+    top: calc(max(6px, env(safe-area-inset-top)) + 46px);
+    right: 8px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
   }
 
   .container-label {
@@ -1577,4 +1465,53 @@ body {
     z-index: 11;
   }
 
+}
+
+/* ===== HUD: layar sangat sempit (<= 400px) ===== */
+@media (max-width: 400px) {
+  .hud-top {
+    gap: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .hud-money,
+  .hud-phase,
+  .hud-timer,
+  .hud-lives {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+  }
+
+  .hud-money>svg {
+    display: none; /* ikon koin disembunyikan, "Rp" sudah jelas */
+  }
+
+  .hud-lives {
+    padding: 3px 5px;
+    gap: 1px;
+  }
+
+  .heart-icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .hud-pause-btn {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+}
+
+/* ===== HUD: layar ekstra sempit (<= 340px) ===== */
+@media (max-width: 340px) {
+  .hud-phase {
+    font-size: 0.64rem;
+    padding: 3px 5px;
+  }
+
+  .hud-timer {
+    min-width: 0;
+  }
 }
