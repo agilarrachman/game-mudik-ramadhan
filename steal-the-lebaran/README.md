@@ -328,3 +328,43 @@ ikon lagi dan hampir tidak kelihatan di ukuran tampil katalog.
 - **Progres tidak tersimpan permanen.** Koin, koleksi, dan level speed hanya
   berlaku selama halaman terbuka; reload akan mengulang dari nol. Itu perilaku
   versi aslinya, bukan karena split file ini.
+
+---
+
+## Perubahan 2026-11-26 (v11 — UI mobile diperkecil + tombol OUTFIT jadi CHARACTER)
+
+Dari screenshot HP pengguna (26 Nov): semua tombol dan font di mobile terlalu
+besar, dan shadow hitam di bawah tombol terlalu tebal.
+
+- **Tombol & font mobile diperkecil** — blok CSS v11 baru di `css/style.css`
+  (di akhir file, menimpa v5/v6): `@media(max-width:560px)` + landscape
+  `@media(orientation:landscape) and (max-height:540px)`. Pill HUD, dock,
+  joystick, tombol AMBIL, toast, banner, modal, kartu katalog, dan semua font
+  diperkecil (mis. dock label 10.5px, sub-label 8px, joystick 84px,
+  tombol AMBIL 68px).
+- **Shadow hitam di bawah tombol ditipiskan** — dari `0 4px 0 rgba(43,33,24,.88)`
+  jadi `0 2px 0 rgba(43,33,24,.45)` di v11 (portrait dan landscape).
+- **Tombol OUTFIT jadi CHARACTER** — `index.html`: tombol dock sekarang
+  `<b>🧒 CHARACTER</b><small id="dockOutfitSub">GANTI CHARACTER</small>`,
+  ikonnya `assets/hd-character.png` (480×480 RGBA transparan, baru).
+  `setOutfit()` di `js/game.js` TIDAK menimpa sub-label itu lagi, jadi
+  tulisannya tetap "GANTI CHARACTER" setelah ganti gaya. Toast ganti gaya
+  juga sudah "Character baru ... Ketuk CHARACTER lagi ...".
+- Aturan CSS `.heroRow` yang sudah mati (div-nya dihapus di v9) ikut dibuang
+  dari `css/style.css` di ronde ini.
+
+### File yang berubah di ronde ini (v11)
+
+| File | Sebelum | Sesudah | Yang berubah |
+|---|---|---|---|
+| `index.html` | 10.293 byte | 10.295 byte | Tombol dock: OUTFIT/Koko Biru/hd-baju.png → CHARACTER/GANTI CHARACTER/hd-character.png |
+| `css/style.css` | 27.142 byte | 32.253 byte | Blok v11 mobile compact + hapus aturan `.heroRow` mati |
+| `js/game.js` | 76.226 byte | 76.196 byte | Split ulang dari artifact; `setOutfit()` tidak lagi menimpa `dockOutfitSub`; `catImg()` tetap dipakai `visualHTML()` |
+| `js/three.min.js` | 865.452 byte | 865.452 byte | Tidak berubah |
+| `assets/hd-character.png` | — (baru) | 163.611 byte | Ikon character baru, 480×480 RGBA transparan |
+| `assets/` lain + `assets/catalog/` | tidak berubah | tidak berubah | 21 gambar HD lain + 112 katalog transparan 480×480 tetap utuh |
+| `README.md` | 21.368 byte | — | Bagian v11 ini |
+
+Catatan: nama variabel/kode `OUTFITS`/`btnOutfit` di `js/game.js` tetap
+dipakai (itu nama kode, bukan label yang tampil). Label yang tampil di
+layar sudah "CHARACTER" / "GANTI CHARACTER".
