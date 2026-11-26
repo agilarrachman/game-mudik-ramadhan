@@ -93,15 +93,17 @@ export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
       console.warn('[thumbs] gagal render', ing.id, err);
     }
     thumbnails[ing.id] = dataUrl || (getFallbackThumb ? getFallbackThumb(ing.id) : '');
+    // Lepas thread utama sebentar tiap bahan: animasi menu & input tetap lancar selama thumbnail dibuat
+    await new Promise(r => setTimeout(r, 0));
   }
 
-  // Tahap 2: decode gambar (async) setelah semua render selesai.
-  for (const ing of INGREDIENTS) {
+  // Tahap 2: decode semua gambar paralel setelah render selesai.
+  await Promise.all(INGREDIENTS.map(async (ing) => {
     const img = new Image();
     img.src = thumbnails[ing.id];
     try { if (img.decode) await img.decode(); } catch { }
     decodedImages.set(ing.id, img);
-  }
+  }));
 
   renderer.setRenderTarget(null);
 

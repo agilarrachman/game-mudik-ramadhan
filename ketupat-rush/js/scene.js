@@ -15,6 +15,7 @@ import {
   disposeClonedMaterials,
   createPlate3D,
   createCustomer3D,
+  disposeCustomer3D,
   setCustomerExpression,
 } from './foods3d.js';
 
@@ -78,6 +79,14 @@ export class Scene3D {
     this.thumbnails = {};
 
     this._worldTmp = new THREE.Vector3();
+    this._ray = new THREE.Raycaster();
+    this._ndcTmp = new THREE.Vector2();
+    this._custHitGeo = new THREE.CylinderGeometry(0.62, 0.62, 2.0, 12);
+    this._custHitMat = new THREE.MeshBasicMaterial({ visible: false });
+    this._lastFrameT = 0;
+    this._frameAvg = 16.7;
+    this._slowFrames = 0;
+    this._fastFrames = 0;
     this._onResizeBound = () => this._onResize();
   }
 
@@ -86,10 +95,13 @@ export class Scene3D {
     const H = this.canvas.clientHeight || window.innerHeight;
 
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Resolusi awal dibatasi 1.5x (layar 3x tidak perlu 3x piksel); turun otomatis bila FPS drop (lihat _adaptQuality)
+    this._pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    this._maxPixelRatio = this._pixelRatio;
+    this.renderer.setPixelRatio(this._pixelRatio);
     this.renderer.setSize(W, H);
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.05;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -887,10 +899,7 @@ export class Scene3D {
     group.userData.customerId = customerId;
     this.scene.add(group);
 
-    const hit = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.62, 0.62, 2.0, 12),
-      new THREE.MeshBasicMaterial({ visible: false })
-    );
+    const hit = new THREE.Mesh(this._custHitGeo, this._custHitMat);
     hit.position.set(x - 1.4, 1.35, -1.45);
     hit.userData.customerId = customerId;
     this.scene.add(hit);
@@ -900,10 +909,13 @@ export class Scene3D {
   }
 
   setCustomerHover(customerId, matchState) {
+    const key = `${customerId || ''}|${matchState || ''}`;
+    if (key === this._hoverKey) return; // tidak ada perubahan: hindari kerja berulang tiap pointermove
+    this._hoverKey = key;
     for (const [id, c] of this.customers3D.entries()) {
       const isTarget = id === customerId;
       c.hovered = isTarget;
-      const glow = c.group.getObjectByName('customerGlow');
+      const glow = c.group.userData.glow;
       if (glow) {
         if (!isTarget) {
           glow.material.opacity = 0;
@@ -925,6 +937,7 @@ export class Scene3D {
     if (!c) return;
     this.scene.remove(c.group);
     this.scene.remove(c.hit);
+    disposeCustomer3D(c.group);
     this.customerHitboxes = this.customerHitboxes.filter(h => h !== c.hit);
     this.customers3D.delete(customerId);
   }
@@ -977,9 +990,9 @@ export class Scene3D {
 
   // ---- Raycasting & Touch-Friendly Screen Picking ----
   _setRay(ndcX, ndcY) {
-    const ray = new THREE.Raycaster();
-    ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), this.camera);
-    return ray;
+    this._ndcTmp.set(ndcX, ndcY);
+    this._ray.setFromCamera(this._ndcTmp, this.camera);
+    return this._ray;
   }
 
   _containerCellPx() {
@@ -1199,10 +1212,34 @@ export class Scene3D {
     );
   }
 
+  /** Turunkan resolusi render bila FPS rendah terus-menerus; naikkan lagi bila sudah lancar. */
+  _adaptQuality(frameMs) {
+    if (frameMs > 250) return; // tab baru kembali / jeda: abaikan
+    this._frameAvg += (frameMs - this._frameAvg) * 0.05;
+    if (this._frameAvg > 24) { this._slowFrames++; this._fastFrames = 0; }
+    else if (this._frameAvg < 17.5) { this._fastFrames++; this._slowFrames = 0; }
+    else { this._slowFrames = 0; this._fastFrames = 0; }
+
+    let next = null;
+    if (this._slowFrames > 45 && this._pixelRatio > 0.8) next = Math.max(0.8, this._pixelRatio - 0.25);
+    else if (this._fastFrames > 600 && this._pixelRatio < this._maxPixelRatio) next = Math.min(this._maxPixelRatio, this._pixelRatio + 0.25);
+    if (next !== null) {
+      this._pixelRatio = next;
+      this._slowFrames = 0;
+      this._fastFrames = 0;
+      this._frameAvg = 16.7;
+      this.renderer.setPixelRatio(next);
+    }
+  }
+
   _animate() {
     this.animFrameId = requestAnimationFrame(() => this._animate());
-    const dt = 0.016;
+    const nowMs = performance.now();
+    const frameMs = this._lastFrameT ? nowMs - this._lastFrameT : 16.7;
+    this._lastFrameT = nowMs;
+    const dt = Math.min(0.05, Math.max(0.001, frameMs / 1000)); // dt nyata agar animasi tidak melambat saat FPS turun
     this.time += dt;
+    this._adaptQuality(frameMs);
 
     for (const l of this.lanternLights) {
       l.light.intensity = 1.0 + Math.sin(this.time * 3.2 + l.phase) * 0.14;
@@ -1288,7 +1325,7 @@ export class Scene3D {
     this.clearDragGhost();
     if (this.envRT) this.envRT.dispose();
     if (this.pmremGenerator) this.pmremGenerator.dispose();
-    disposeFoodCache();
+    // Cache tekstur/geometri makanan sengaja DIPERTAHANKAN (dipakai ulang menu & game berikutnya).
     this.renderer?.dispose();
   }
 }
@@ -1356,7 +1393,7 @@ export class MenuScene {
     const W = this.canvas.clientWidth || window.innerWidth;
     const H = this.canvas.clientHeight || window.innerHeight;
     this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     this.renderer.setSize(W, H);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setClearColor(0, 0);
@@ -1375,8 +1412,9 @@ export class MenuScene {
     key.position.set(3, 5, 4);
     this.scene.add(key);
 
-    await preloadFoods(this.renderer);
-    if (this._destroyed) return;
+    // Menu hanya butuh 6 model 3D, BUKAN thumbnail 14 bahan: jangan menunggu preload (itu yang bikin menu lama muncul).
+    window.addEventListener('resize', this._onResize);
+    this._animate(); // mulai render segera; hidangan muncul satu per satu
 
     const showcaseIds = ['ketupat', 'opor_ayam', 'rendang', 'telur_balado', 'kerupuk', 'ayam_goreng'];
     const layout = this._computeShowcaseLayout();
@@ -1388,7 +1426,9 @@ export class MenuScene {
       depthWrite: false,
     });
 
-    showcaseIds.forEach((id, i) => {
+    for (let i = 0; i < showcaseIds.length; i++) {
+      const id = showcaseIds[i];
+      if (this._destroyed) return;
       const slot = layout[i];
       const m = createFood3D(id, { variant: 'vessel', width: 0.88, seed: i + 1, shadow: false });
       m.position.set(slot.x, slot.y, slot.z);
@@ -1409,13 +1449,17 @@ export class MenuScene {
         baseY: slot.y,
         baseZ: slot.z,
         targetScale: slot.scale,
-        delay: i * 0.09,
+        spawnAt: this.time,
+        delay: 0,
         phase: i * 1.05,
       });
-    });
 
-    window.addEventListener('resize', this._onResize);
-    this._animate();
+      // Beri kesempatan browser menggambar frame antar hidangan (pembuatan tekstur pertama kali cukup berat)
+      await new Promise(r => setTimeout(r, 0));
+    }
+
+    // Thumbnail untuk kartu pesanan dibuat di latar belakang setelah menu tampil; game langsung memakainya.
+    preloadFoods(this.renderer);
   }
 
   _animate() {
@@ -1428,7 +1472,7 @@ export class MenuScene {
         o.mesh.position.y = o.baseY;
         o.mesh.rotation.y = o.phase * 0.4;
       } else {
-        const tPop = Math.max(0, Math.min(1, (this.time - o.delay) / 0.42));
+        const tPop = Math.max(0, Math.min(1, (this.time - (o.spawnAt || 0) - o.delay) / 0.42));
         // Soft overshoot pop-in curve
         const ease = tPop === 1 ? 1 : 1 - Math.pow(1 - tPop, 3) * Math.cos(tPop * Math.PI * 1.4);
         o.mesh.scale.setScalar(Math.max(0.001, ease * o.targetScale));

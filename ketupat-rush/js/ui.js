@@ -18,6 +18,14 @@ export class UI {
     this.customerBubbles = new Map();
     this.containerLabels = new Map();
     this.hintsEnabled = true;
+    this._hud = {};            // nilai HUD terakhir (hindari tulis DOM bila tidak berubah)
+    this._railDirty = true;    // posisi kartu pesanan perlu dihitung ulang
+    this._railFrame = 0;
+    this._bubbleRects = new Map();
+    this._labelsDirty = true;
+    this._labelFrame = 0;
+    this._hoverBubbleKey = '';
+    this._combo = { streak: -1, ratio: -1 };
 
     this.onTapStart = null;
     this.onPlay = null;
@@ -61,28 +69,48 @@ export class UI {
   }
 
   updateHUD(revenue, elapsedMs, lost, lostLimit, dayNumber) {
-    const moneyEl = document.getElementById('hud-money-val');
-    if (moneyEl) moneyEl.textContent = `Rp ${revenue.toLocaleString('id-ID')}`;
+    const h = this._hud;
 
-    const timerEl = document.getElementById('hud-timer');
-    if (timerEl) timerEl.textContent = formatTime(elapsedMs);
+    if (h.revenue !== revenue) {
+      h.revenue = revenue;
+      const moneyEl = document.getElementById('hud-money-val');
+      if (moneyEl) moneyEl.textContent = `Rp ${revenue.toLocaleString('id-ID')}`;
+    }
 
-    const phaseEl = document.getElementById('hud-phase');
-    if (phaseEl) phaseEl.textContent = `Hari ke-${dayNumber}`;
+    const sec = Math.floor(elapsedMs / 1000);
+    if (h.sec !== sec) {
+      h.sec = sec;
+      const timerEl = document.getElementById('hud-timer');
+      if (timerEl) timerEl.textContent = formatTime(elapsedMs);
+    }
 
-    const livesEl = document.getElementById('hud-lives');
-    if (livesEl) {
-      const remaining = Math.max(0, lostLimit - lost);
-      let html = '';
-      for (let i = 0; i < lostLimit; i++) {
-        const active = i < remaining;
-        html += `<svg class="heart-icon ${active ? 'active' : 'lost'}" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+    if (h.day !== dayNumber) {
+      h.day = dayNumber;
+      const phaseEl = document.getElementById('hud-phase');
+      if (phaseEl) phaseEl.textContent = `Hari ke-${dayNumber}`;
+    }
+
+    const remaining = Math.max(0, lostLimit - lost);
+    if (h.remaining !== remaining || h.lostLimit !== lostLimit) {
+      h.remaining = remaining;
+      h.lostLimit = lostLimit;
+      const livesEl = document.getElementById('hud-lives');
+      if (livesEl) {
+        let html = '';
+        for (let i = 0; i < lostLimit; i++) {
+          const active = i < remaining;
+          html += `<svg class="heart-icon ${active ? 'active' : 'lost'}" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+        }
+        livesEl.innerHTML = html;
       }
-      livesEl.innerHTML = html;
     }
   }
 
   updateCombo(streak, decayRatio) {
+    const q = Math.round(Math.max(0, decayRatio) * 100); // kuantisasi 1% cukup halus untuk bar kecil
+    if (this._combo.streak === streak && this._combo.ratio === q) return;
+    this._combo.streak = streak;
+    this._combo.ratio = q;
     const badge = document.getElementById('combo-badge');
     const num = document.getElementById('combo-num');
     const decay = document.getElementById('combo-decay');
@@ -139,6 +167,7 @@ export class UI {
   }
 
   updateContainerLabelsTier(unlockTier) {
+    this._labelsDirty = true;
     for (const ing of INGREDIENTS) {
       const el = this.containerLabels.get(ing.id);
       if (!el) continue;
@@ -160,14 +189,26 @@ export class UI {
     }
   }
 
+  markLayoutDirty() {
+    this._railDirty = true;
+    this._labelsDirty = true;
+  }
+
   updateContainerLabelPositions(scene3D) {
     if (!scene3D) return;
+    // Kamera & wadah statis: cukup hitung saat tier/ukuran layar berubah (plus refresh berkala sebagai pengaman)
+    this._labelFrame++;
+    if (!this._labelsDirty && this._labelFrame % 45 !== 0) return;
+    this._labelsDirty = false;
     for (const [id, el] of this.containerLabels.entries()) {
       if (el.classList.contains('hidden')) continue;
       const pos = scene3D.getContainerLabelScreenPos(id);
       if (!pos) continue;
-      el.style.left = `${pos.x}px`;
-      el.style.top = `${pos.y}px`;
+      const x = Math.round(pos.x);
+      const y = Math.round(pos.y);
+      if (el._x === x && el._y === y) continue;
+      el._x = x; el._y = y;
+      el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -2px)`; // transform: tanpa reflow
     }
   }
 
@@ -202,6 +243,7 @@ export class UI {
     bubble.addEventListener('click', () => this.onSelectCustomer?.(customer.id));
     layer.appendChild(bubble);
     this.customerBubbles.set(customer.id, bubble);
+    this._railDirty = true;
     this._updateOrderRailCompactMode();
   }
 
@@ -217,10 +259,17 @@ export class UI {
 
   updateBubblePositions(scene3D) {
     if (!scene3D || !this.customerBubbles.size) return;
+    // Membaca getBoundingClientRect tiap frame memicu reflow. Cukup saat kartu berubah,
+    // dan ~7x/detik selama kartu masih beranimasi masuk.
+    this._railFrame++;
+    if (!this._railDirty && this._railFrame % 8 !== 0) return;
+    this._railDirty = false;
     this._updateOrderRailCompactMode();
     const centerXMap = {};
+    this._bubbleRects.clear();
     for (const [id, bubble] of this.customerBubbles.entries()) {
       const rect = bubble.getBoundingClientRect();
+      this._bubbleRects.set(id, rect);
       if (rect.width > 0) centerXMap[id] = rect.left + rect.width / 2;
     }
     scene3D.alignCustomersToScreenX(centerXMap);
@@ -230,7 +279,7 @@ export class UI {
   customerAtPoint(clientX, clientY) {
     if (!this.customerBubbles.size) return null;
     for (const [id, bubble] of this.customerBubbles.entries()) {
-      const r = bubble.getBoundingClientRect();
+      const r = this._bubbleRects.get(id) || bubble.getBoundingClientRect(); // rect ter-cache: tanpa reflow tiap pointermove
       const pad = 6; // sedikit toleransi di sekitar kartu
       if (clientX >= r.left - pad && clientX <= r.right + pad && clientY >= r.top - pad && clientY <= r.bottom + pad + 10) {
         return id;
@@ -240,6 +289,9 @@ export class UI {
   }
 
   setCustomerHoverBubble(customerId, matchState) {
+    const hk = `${customerId || ''}|${matchState || ''}|${this.hintsEnabled}`;
+    if (hk === this._hoverBubbleKey) return;
+    this._hoverBubbleKey = hk;
     for (const [id, bubble] of this.customerBubbles.entries()) {
       const isTarget = id === customerId;
       bubble.classList.toggle('drag-hover', isTarget);
@@ -258,10 +310,18 @@ export class UI {
   }
 
   updateCustomerPatience(customerId, ratio) {
-    const bar = document.getElementById(`patience-${customerId}`);
+    const bubble = this.customerBubbles.get(customerId);
+    const bar = bubble?._bar || (bubble ? (bubble._bar = bubble.querySelector('.patience-bar')) : null);
     if (!bar) return;
-    bar.style.width = `${Math.max(0, ratio) * 100}%`;
-    bar.className = `patience-bar ${ratio > 0.66 ? '' : ratio > 0.33 ? 'mid' : 'low'}`;
+    const pct = Math.round(Math.max(0, ratio) * 200) / 200; // langkah 0.5%
+    if (bar._pct === pct) return;
+    bar._pct = pct;
+    bar.style.transform = `scaleX(${pct})`;
+    const level = ratio > 0.66 ? '' : ratio > 0.33 ? 'mid' : 'low';
+    if (bar._level !== level) {
+      bar._level = level;
+      bar.className = `patience-bar ${level}`;
+    }
   }
 
   updateCustomerBubbleMatches(customerId, plateItems) {
@@ -296,6 +356,8 @@ export class UI {
     if (bubble) {
       bubble.remove();
       this.customerBubbles.delete(customerId);
+      this._bubbleRects.delete(customerId);
+      this._railDirty = true;
       this._updateOrderRailCompactMode();
     }
   }
