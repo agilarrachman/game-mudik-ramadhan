@@ -69,7 +69,7 @@ function isUnlocked(room){return S.escapes>=room.unlock;}
 /* ============ REWARD ROLLS ============ */
 function catImg(base,mut){return 'assets/catalog/'+base.id+'_'+mut.id+'.png';}
 function visualHTML(base,big,mut){
-  if(mut)return '<img class="asset-img catimg mut-'+mut.id+'" src="'+catImg(base,mut)+'" alt="'+base.name+' '+mut.name+'">';
+  if(mut)return '<img class="asset-img catimg mut-'+mut.id+'" src="assets/catalog/'+base.id+'_'+mut.id+'.png" alt="'+base.name+' '+mut.name+'">';
   if(base.img)return '<img class="asset-img" src="'+base.img+'" alt="'+base.name+'">';
   return '<span class="'+(big?'emo-big':'emo')+'">'+base.emo+'</span>';
 }
@@ -740,9 +740,8 @@ function setOutfit(i){
   var np=makeAvatar(o.shirt,o.pants,0xffd9a0,o);
   np.position.copy(playerPos);np.rotation.y=player.rotation.y;
   scene.remove(player);player=np;scene.add(player);
-  var ds=$('dockOutfitSub');if(ds)ds.textContent=o.name;
 }
-$('btnOutfit').addEventListener('click',function(){ac();setOutfit((S.outfit+1)%OUTFITS.length);sfx('open');toast('👗 Outfit baru: '+OUTFITS[S.outfit].name+'! Ketuk OUTFIT lagi buat ganti gaya.',2400);});
+$('btnOutfit').addEventListener('click',function(){ac();setOutfit((S.outfit+1)%OUTFITS.length);sfx('open');toast('🧒 Character baru: '+OUTFITS[S.outfit].name+'! Ketuk CHARACTER lagi buat ganti gaya.',2400);});
 $('btnSound').addEventListener('click',function(){S.muted=!S.muted;var w=document.querySelector('#btnSound .snd-waves');if(w)w.style.display=S.muted?'none':'';$('btnSound').style.opacity=S.muted?.55:1;if(!S.muted)sfx('coin');});
 document.querySelectorAll('[data-close]').forEach(function(b){b.addEventListener('click',function(){$(b.getAttribute('data-close')).classList.remove('open');});});
 $('btnAction').addEventListener('click',doAction);
