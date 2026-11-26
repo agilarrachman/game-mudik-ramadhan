@@ -17,8 +17,8 @@ export class AudioManager {
     // Angklung/gamelan-ish pentatonic scale (Hz)
     this.scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
     this.bassScale = [65.41, 73.42, 82.41, 98.00, 110.00, 130.81];
-    this.melodyPattern = [0,2,4,5,2,4,7,5,4,2,0,4,5,7,4,2];
-    this.bassPattern = [0,0,2,2,0,0,3,3];
+    this.melodyPattern = [0, 2, 4, 5, 2, 4, 7, 5, 4, 2, 0, 4, 5, 7, 4, 2];
+    this.bassPattern = [0, 0, 2, 2, 0, 0, 3, 3];
     this.bpm = 112;
     this.beatMs = 60000 / this.bpm;
   }
@@ -104,6 +104,17 @@ export class AudioManager {
     osc.stop(t + dur + 0.05);
   }
 
+  _getNoise(key, seconds, amp) {
+    this._noiseCache = this._noiseCache || {};
+    const cached = this._noiseCache[key];
+    if (cached && cached.sampleRate === this.ctx.sampleRate) return cached;
+    const buf = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * seconds), this.ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * amp;
+    this._noiseCache[key] = buf;
+    return buf;
+  }
+
   _playPerc(t, type) {
     if (this.musicMuted) return;
     const gain = this.ctx.createGain();
@@ -119,21 +130,15 @@ export class AudioManager {
       osc.connect(gain);
       osc.start(t); osc.stop(t + 0.35);
     } else if (type === 'snare') {
-      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.15, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.5;
       const src = this.ctx.createBufferSource();
-      src.buffer = buf;
+      src.buffer = this._getNoise('snare', 0.15, 0.5); // buffer derau di-cache, tidak diisi ulang tiap ketukan
       gain.gain.setValueAtTime(0.15, t);
       gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
       src.connect(gain);
       src.start(t);
     } else if (type === 'hat') {
-      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.05, this.ctx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.3;
       const src = this.ctx.createBufferSource();
-      src.buffer = buf;
+      src.buffer = this._getNoise('hat', 0.05, 0.3);
       const hpf = this.ctx.createBiquadFilter();
       hpf.type = 'highpass'; hpf.frequency.value = 8000;
       src.connect(hpf); hpf.connect(gain);
@@ -150,18 +155,18 @@ export class AudioManager {
     const t = this.ctx.currentTime;
     switch (type) {
       case 'place_soft': this._sfxPlace(t, 500, 'sine', 0.15, 0.08); break;
-      case 'place_wet':  this._sfxPlace(t, 300, 'triangle', 0.2, 0.12); break;
+      case 'place_wet': this._sfxPlace(t, 300, 'triangle', 0.2, 0.12); break;
       case 'place_crisp': this._sfxCrisp(t); break;
-      case 'correct':    this._sfxCorrect(t); break;
-      case 'wrong':      this._sfxWrong(t); break;
-      case 'leave':      this._sfxLeave(t); break;
-      case 'money':      this._sfxMoney(t); break;
-      case 'combo':      this._sfxCombo(t); break;
-      case 'tick':       this._sfxTick(t); break;
-      case 'button':     this._sfxButton(t); break;
-      case 'levelup':    this._sfxLevelUp(t); break;
-      case 'gameover':   this._sfxGameOver(t); break;
-      case 'impatient':  this._sfxImpatient(t); break;
+      case 'correct': this._sfxCorrect(t); break;
+      case 'wrong': this._sfxWrong(t); break;
+      case 'leave': this._sfxLeave(t); break;
+      case 'money': this._sfxMoney(t); break;
+      case 'combo': this._sfxCombo(t); break;
+      case 'tick': this._sfxTick(t); break;
+      case 'button': this._sfxButton(t); break;
+      case 'levelup': this._sfxLevelUp(t); break;
+      case 'gameover': this._sfxGameOver(t); break;
+      case 'impatient': this._sfxImpatient(t); break;
     }
   }
 

@@ -253,7 +253,7 @@ async function init() {
   ui.onSelectCustomer = (id) => gameState?.selectCustomer(id);
 
   document.addEventListener('keydown', onKey);
-  window.addEventListener('resize', () => ui.checkOrientation());
+  window.addEventListener('resize', () => { ui.checkOrientation(); ui.markLayoutDirty(); });
   ui.checkOrientation();
 
   try {

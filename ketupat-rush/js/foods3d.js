@@ -13,6 +13,7 @@ const _texCache = new Map();
 const _dishThumbnails = {};
 let _decodedThumbImages = new Map();
 let _preloadPromise = null;
+let _thumbsReady = false; // thumbnail 3D sudah jadi: jangan dirender ulang tiap kembali ke menu / mulai game
 
 function getTex(key, creator) {
   if (!_texCache.has(key)) {
@@ -157,13 +158,15 @@ export function getFallbackThumb(id) {
 }
 
 export function preloadFoods(renderer, force = false) {
+  if (_thumbsReady && !force) return Promise.resolve(_dishThumbnails);
   if (_preloadPromise && !force) return _preloadPromise;
-  if (force) _preloadPromise = null;
+  if (force) { _preloadPromise = null; _thumbsReady = false; }
 
   _preloadPromise = renderFoodThumbnails(renderer, getFallbackThumb)
     .then(({ thumbnails, decodedImages }) => {
       Object.assign(_dishThumbnails, thumbnails);
       _decodedThumbImages = decodedImages;
+      _thumbsReady = true;
       return _dishThumbnails;
     })
     .catch((err) => {
@@ -265,68 +268,71 @@ export function createCustomer3D(archetypeId, seed = 0) {
   const skinColor = SKIN_TONES[seed % SKIN_TONES.length];
   g.scale.setScalar(isChild ? 0.82 : 1.0);
 
-  const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.65 });
-  const clothMat = new THREE.MeshStandardMaterial({ color: outfitColor, roughness: 0.7 });
-  const darkMat = new THREE.MeshStandardMaterial({ color: 0x212121, roughness: 0.5 });
+  // Semua geometri & material di-cache dan dipakai bersama; pelanggan baru tidak membuat objek GPU baru.
+  const std = (key, color, extra = {}) => getMat(`cust_${key}_${color}`, () => new THREE.MeshStandardMaterial({ color, roughness: 0.7, ...extra }));
+  const skinMat = std('skin', skinColor, { roughness: 0.65 });
+  const clothMat = std('cloth', outfitColor);
+  const darkMat = std('dark', 0x212121, { roughness: 0.5 });
 
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.34, 0.82, 16), clothMat);
+  const body = new THREE.Mesh(getGeo('cust_body', () => new THREE.CylinderGeometry(0.26, 0.34, 0.82, 16)), clothMat);
   body.position.y = 0.41; body.castShadow = true; g.add(body);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.27, 18, 14), skinMat);
+  const head = new THREE.Mesh(getGeo('cust_head', () => new THREE.SphereGeometry(0.27, 18, 14)), skinMat);
   head.position.y = 1.04; head.castShadow = true; g.add(head);
 
-  const eyeGeo = new THREE.SphereGeometry(0.038, 8, 8);
+  const eyeGeo = getGeo('cust_eye', () => new THREE.SphereGeometry(0.038, 8, 8));
   const eyeL = new THREE.Mesh(eyeGeo, darkMat);
   eyeL.position.set(-0.095, 1.06, 0.235);
   const eyeR = new THREE.Mesh(eyeGeo, darkMat);
   eyeR.position.set(0.095, 1.06, 0.235);
   g.add(eyeL, eyeR);
 
-  const blushMat = new THREE.MeshBasicMaterial({ color: 0xFF8A80, transparent: true, opacity: 0.6 });
-  const blushGeo = new THREE.SphereGeometry(0.042, 8, 6);
+  const blushMat = getMat('cust_blush', () => new THREE.MeshBasicMaterial({ color: 0xFF8A80, transparent: true, opacity: 0.6 }));
+  const blushGeo = getGeo('cust_blush', () => new THREE.SphereGeometry(0.042, 8, 6));
   const blushL = new THREE.Mesh(blushGeo, blushMat);
   blushL.scale.set(1.2, 0.7, 0.4); blushL.position.set(-0.15, 1.0, 0.22);
   const blushR = blushL.clone(); blushR.position.x = 0.15;
   g.add(blushL, blushR);
 
-  const browMat = new THREE.MeshBasicMaterial({ color: 0x3E2723 });
-  const browL = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.018, 0.02), browMat);
+  const browMat = getMat('cust_brow', () => new THREE.MeshBasicMaterial({ color: 0x3E2723 }));
+  const browGeo = getGeo('cust_brow', () => new THREE.BoxGeometry(0.075, 0.018, 0.02));
+  const browL = new THREE.Mesh(browGeo, browMat);
   browL.position.set(-0.095, 1.13, 0.245);
   const browR = browL.clone(); browR.position.x = 0.095;
   g.add(browL, browR);
 
   if (isFemale) {
-    const hijabMat = new THREE.MeshStandardMaterial({ color: isVip ? 0xFFD54F : 0xFFF8E1, roughness: 0.65 });
-    const hijab = new THREE.Mesh(new THREE.SphereGeometry(0.29, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.54), hijabMat);
+    const hijabMat = std('hijab', isVip ? 0xFFD54F : 0xFFF8E1, { roughness: 0.65 });
+    const hijab = new THREE.Mesh(getGeo('cust_hijab', () => new THREE.SphereGeometry(0.29, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.54)), hijabMat);
     hijab.position.y = 1.07; hijab.rotation.x = -0.35;
     g.add(hijab);
   } else {
-    const peciMat = new THREE.MeshStandardMaterial({ color: isElder ? 0xECEFF1 : 0x1A1A1A, roughness: 0.7 });
-    const peci = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.23, 0.15, 16), peciMat);
+    const peciMat = std('peci', isElder ? 0xECEFF1 : 0x1A1A1A);
+    const peci = new THREE.Mesh(getGeo('cust_peci', () => new THREE.CylinderGeometry(0.21, 0.23, 0.15, 16)), peciMat);
     peci.position.y = 1.26;
     g.add(peci);
   }
 
   if (isFamily) {
-    const mini = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 0.5, 12),
-      new THREE.MeshStandardMaterial({ color: 0xF9A825, roughness: 0.7 }));
+    const mini = new THREE.Mesh(getGeo('cust_mini', () => new THREE.CylinderGeometry(0.14, 0.18, 0.5, 12)), std('mini', 0xF9A825));
     mini.position.set(0.38, 0.25, 0.1);
-    const miniHead = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 10), skinMat);
+    const miniHead = new THREE.Mesh(getGeo('cust_minihead', () => new THREE.SphereGeometry(0.15, 12, 10)), skinMat);
     miniHead.position.set(0.38, 0.62, 0.1);
     g.add(mini, miniHead);
   }
 
   if (isVip) {
     const collar = new THREE.Mesh(
-      new THREE.TorusGeometry(0.26, 0.035, 6, 16),
-      new THREE.MeshStandardMaterial({ color: 0xFFD54F, metalness: 0.75, roughness: 0.2 })
+      getGeo('cust_collar', () => new THREE.TorusGeometry(0.26, 0.035, 6, 16)),
+      getMat('cust_collar', () => new THREE.MeshStandardMaterial({ color: 0xFFD54F, metalness: 0.75, roughness: 0.2 }))
     );
     collar.rotation.x = Math.PI / 2; collar.position.y = 0.8;
     g.add(collar);
   }
 
+  // Satu-satunya material per-pelanggan (warna & opacity diubah saat hover) -> dibuang di disposeCustomer3D
   const glow = new THREE.Mesh(
-    new THREE.RingGeometry(0.38, 0.48, 24),
+    getGeo('cust_glow', () => new THREE.RingGeometry(0.38, 0.48, 24)),
     new THREE.MeshBasicMaterial({ color: 0x66BB6A, side: THREE.DoubleSide, transparent: true, opacity: 0 })
   );
   glow.rotation.x = -Math.PI / 2; glow.position.y = 0.35;
@@ -335,7 +341,13 @@ export function createCustomer3D(archetypeId, seed = 0) {
 
   g.userData.browL = browL;
   g.userData.browR = browR;
+  g.userData.glow = glow;
   return g;
+}
+
+/** Bebaskan satu-satunya material milik pelanggan (sisanya cache bersama). */
+export function disposeCustomer3D(group) {
+  group?.userData?.glow?.material?.dispose();
 }
 
 export function setCustomerExpression(group, mood) {
