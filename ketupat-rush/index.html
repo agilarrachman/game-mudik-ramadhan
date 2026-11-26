@@ -254,33 +254,21 @@
     <!-- Fixed horizontal Order Rail below HUD -->
     <div class="customer-bubbles-layer" id="customer-bubbles-layer"></div>
 
-    <!-- Bottom Action Bar (compact, doesn't cover 3D table) -->
-    <div class="action-bar" id="action-bar">
-      <div class="plate-tabs hidden" id="plate-tabs">
-        <button class="plate-tab active" data-plate="a">Piring A</button>
-        <button class="plate-tab" data-plate="b">Piring B</button>
-      </div>
-      <button class="btn btn-outline btn-clear" id="btn-clear" aria-label="Kosongkan piring">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          aria-hidden="true">
-          <polyline points="3 6 5 6 21 6" />
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-        </svg>
-        <span>Kosongkan</span>
-      </button>
-      <button class="btn btn-primary btn-serve" id="btn-serve">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"
-          aria-hidden="true">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-        <span>SAJIKAN</span>
-      </button>
+    <!-- Tong sampah: seret piring ke sini untuk membuang (mengurangi uang) -->
+    <div class="trash-zone" id="trash-zone" aria-label="Tong sampah">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+        <path d="M10 11v6" />
+        <path d="M14 11v6" />
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+      </svg>
+      <span>Buang</span>
     </div>
 
     <!-- Drag hint / status -->
-    <div class="drag-hint" id="drag-hint">Seret bahan ke piring, lalu seret piring ke pelanggan atau ketuk Sajikan</div>
+    <div class="drag-hint" id="drag-hint">Seret bahan ke piring, lalu seret piring ke pelanggan</div>
 
     <!-- Toast notifications -->
     <div class="toast-container" id="toast-container"></div>
@@ -369,7 +357,7 @@
       <ul class="howto-list">
         <li><strong>1. Lihat Pesanan:</strong> Perhatikan kartu pesanan pelanggan di bagian atas layar.</li>
         <li><strong>2. Racik Piring:</strong> Seret atau ketuk lauk dari wadah ke piring saji.</li>
-        <li><strong>3. Sajikan Cepat:</strong> Seret piring ke pelanggan yang sesuai atau tekan <strong>SAJIKAN</strong> sebelum kesabaran habis.</li>
+        <li><strong>3. Sajikan Cepat:</strong> Seret piring ke pelanggan yang sesuai sebelum kesabaran habis. Salah bahan? Seret piring ke <strong>tong sampah</strong> (uang berkurang sebesar harga bahan yang terbuang).</li>
         <li><strong>4. Jaga Kombo:</strong> Layani beruntun untuk bonus kombo dan buka menu baru di hari berikutnya!</li>
       </ul>
       <div class="modal-buttons">

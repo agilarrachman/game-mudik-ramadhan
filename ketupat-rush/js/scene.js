@@ -945,6 +945,11 @@ export class Scene3D {
     return this._projectToScreen(new THREE.Vector3(c.group.position.x, c.group.position.y + 1.48, c.group.position.z));
   }
 
+  getPlateScreenPos(plateKey) {
+    const home = PLATE_HOMES[plateKey];
+    return home ? this._projectToScreen(home) : null;
+  }
+
   getContainerLabelScreenPos(ingredientId) {
     const entry = this.containers.get(ingredientId);
     if (!entry || !entry.unlocked) return null;

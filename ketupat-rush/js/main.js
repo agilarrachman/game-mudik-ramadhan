@@ -55,6 +55,7 @@ function bindCanvasPointerEvents(canvas) {
     const ds = dragState;
     dragState = null;
     ui.setDragging(false);
+    ui.setTrashState(false, false);
     scene3D?.clearDragGhost();
     scene3D?.setCustomerHover(null, null);
     ui.setCustomerHoverBubble(null, null);
@@ -145,11 +146,15 @@ function bindCanvasPointerEvents(canvas) {
     } else if (dragState.mode === 'removeItem') {
       const worldPt = scene3D.raycastCounterPlane(effNDC.x, effNDC.y);
       scene3D.showDragGhost(dragState.ingredientId, worldPt);
+      ui.setTrashState(true, ui.isOverTrash(e.clientX, e.clientY) || ui.isOverTrash(e.clientX, effY));
     } else if (dragState.mode === 'servePlate' || dragState.type === 'plate') {
       // Di layar sentuh piring diangkat di atas jari agar terlihat dan mudah diarahkan ke customer
       const worldPt = scene3D.raycastServePlane(effNDC.x, effNDC.y);
       scene3D.setPlateDragPosition(dragState.plateKey, worldPt);
-      const hoverCust = findServeTarget(e.clientX, effY, e.clientY, dragState.plateKey);
+      const hasItems = gameState.plates[dragState.plateKey].length > 0;
+      const overTrash = hasItems && (ui.isOverTrash(e.clientX, e.clientY) || ui.isOverTrash(e.clientX, effY));
+      ui.setTrashState(hasItems, overTrash);
+      const hoverCust = overTrash ? null : findServeTarget(e.clientX, effY, e.clientY, dragState.plateKey);
       const matchState = hoverCust ? getCustomerMatchState(hoverCust, dragState.plateKey) : null;
       scene3D.setCustomerHover(hoverCust, matchState);
       ui.setCustomerHoverBubble(hoverCust, matchState);
@@ -161,6 +166,7 @@ function bindCanvasPointerEvents(canvas) {
     const ds = dragState;
     dragState = null;
     ui.setDragging(false);
+    ui.setTrashState(false, false);
 
     if (!gameState || gameState.paused || gameState.finished) {
       scene3D.clearDragGhost();
@@ -188,7 +194,8 @@ function bindCanvasPointerEvents(canvas) {
       scene3D.clearDragGhost();
       const worldPt = scene3D.raycastCounterPlane(effNDC.x, effNDC.y);
       const snap = scene3D.getPlateSnapTarget(e.clientX, effY, worldPt, 80);
-      if (scene3D.isOverTrash(worldPt) || snap?.plateKey !== ds.plateKey) {
+      const overDomTrash = ui.isOverTrash(e.clientX, e.clientY) || ui.isOverTrash(e.clientX, effY);
+      if (overDomTrash || scene3D.isOverTrash(worldPt) || snap?.plateKey !== ds.plateKey) {
         gameState.removeIngredient(ds.ingredientId, ds.plateKey);
       }
     } else if (ds.type === 'plateOrItem' || ds.type === 'plate') {
@@ -198,6 +205,9 @@ function bindCanvasPointerEvents(canvas) {
 
       if (!ds.moved) {
         if (ds.ingredientId) gameState.removeIngredient(ds.ingredientId, ds.plateKey);
+      } else if (gameState.plates[ds.plateKey].length > 0
+        && (ui.isOverTrash(e.clientX, e.clientY) || ui.isOverTrash(e.clientX, effY))) {
+        gameState.discardPlate(ds.plateKey); // piring salah: buang ke tong sampah
       } else {
         const custId = findServeTarget(e.clientX, effY, e.clientY, ds.plateKey);
         if (custId && gameState.plates[ds.plateKey].length > 0) {
@@ -234,8 +244,7 @@ async function init() {
   ui.onResume = () => { gameState?.resume(); audio.startMusic(); };
   ui.onRestart = () => startGame();
   ui.onQuitToMenu = () => { stopGame(); goToMenu(); };
-  ui.onServe = () => gameState?.serve();
-  ui.onClearPlate = () => gameState?.clearPlate();
+  ui.onClearPlate = (key) => gameState?.clearPlate(key);
   ui.onSwitchPlate = (key) => {
     gameState?.switchPlate(key);
     scene3D?.setActivePlate(key);
@@ -286,8 +295,6 @@ async function startGame() {
   scene3D.setUnlockedTier(gameState.diff.unlockTier, gameState.diff.plateBUnlocked);
   scene3D.setActivePlate('a');
   ui.initContainerLabels(gameState.diff.unlockTier);
-  ui.setPlateBUnlocked(gameState.diff.plateBUnlocked);
-  ui.highlightActivePlate('a');
 
   gameState.start();
   audio.startMusic();
@@ -339,8 +346,9 @@ function onGameEvent(event, data) {
         ui.setPlateBUnlocked(true);
         ui.showToast('Piring B Terbuka!', 'success');
       }
-      if (data.newTier) ui.showToast('Menu Baru Terbuka!', 'info');
-      if (data.newDay) ui.showToast(`Hari ke-${data.diff.dayNumber} Dimulai!`, 'info');
+      if (data.newDay && data.newTier) ui.showToast(`Hari ke-${data.diff.dayNumber} Dimulai! Menu baru terbuka`, 'success');
+      else if (data.newDay) ui.showToast(`Hari ke-${data.diff.dayNumber} Dimulai!`, 'info');
+      else if (data.newTier) ui.showToast('Menu Baru Terbuka!', 'info');
       break;
 
     case 'customer_spawn': {
@@ -384,6 +392,17 @@ function onGameEvent(event, data) {
       }
       break;
 
+    case 'plate_discarded': {
+      scene3D.syncPlateItems(data.plate, []);
+      if (gameState.selectedCustomer) {
+        ui.updateCustomerBubbleMatches(gameState.selectedCustomer, gameState.plates[gameState.activePlate]);
+      }
+      ui.showToast(`Makanan terbuang! -Rp ${data.paid.toLocaleString('id-ID')}`, 'error');
+      const tr = document.getElementById('trash-zone')?.getBoundingClientRect();
+      if (tr) ui.showMoneyFly(`-Rp ${data.paid.toLocaleString('id-ID')}`, tr.left - 20, tr.top - 12);
+      break;
+    }
+
     case 'plate_switched':
       scene3D.setActivePlate(data.plate);
       ui.highlightActivePlate(data.plate);
@@ -393,10 +412,9 @@ function onGameEvent(event, data) {
       scene3D.setCustomerMood(data.customerId, 'happy');
       scene3D.syncPlateItems(data.plate, []);
       ui.showToast(`Tepat! +Rp ${data.payment.toLocaleString('id-ID')}`, 'success');
-      const btn = document.getElementById('btn-serve');
-      if (btn) {
-        const r = btn.getBoundingClientRect();
-        ui.showMoneyFly(`+Rp ${data.payment.toLocaleString('id-ID')}`, r.left, r.top - 10);
+      {
+        const r = ui.customerBubbles.get(data.customerId)?.getBoundingClientRect();
+        if (r) ui.showMoneyFly(`+Rp ${data.payment.toLocaleString('id-ID')}`, r.left + r.width / 2 - 30, r.bottom + 4);
       }
       break;
 
@@ -407,7 +425,6 @@ function onGameEvent(event, data) {
       break;
 
     case 'serve_empty':
-      ui.shakeServeButton();
       ui.showToast('Piring masih kosong!', 'info');
       break;
 

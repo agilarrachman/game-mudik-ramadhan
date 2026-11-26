@@ -21,7 +21,6 @@ export class UI {
 
     this.onTapStart = null;
     this.onPlay = null;
-    this.onServe = null;
     this.onClearPlate = null;
     this.onSwitchPlate = null;
     this.onSelectCustomer = null;
@@ -97,20 +96,25 @@ export class UI {
     }
   }
 
-  setPlateBUnlocked(unlocked) { document.getElementById('plate-tabs')?.classList.toggle('hidden', !unlocked); }
+  // Piring dipilih lewat ketukan langsung pada piring 3D; tidak ada panel/tab terpisah.
+  setPlateBUnlocked() {}
+  highlightActivePlate() {}
 
-  highlightActivePlate(key) {
-    document.querySelectorAll('.plate-tab').forEach(t => {
-      t.classList.toggle('active', t.dataset.plate === key);
-    });
+  // ===== TONG SAMPAH (drop target untuk piring) =====
+  isOverTrash(clientX, clientY) {
+    const el = document.getElementById('trash-zone');
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    const pad = 18;
+    return clientX >= r.left - pad && clientX <= r.right + pad && clientY >= r.top - pad && clientY <= r.bottom + pad;
   }
 
-  shakeServeButton() {
-    const btn = document.getElementById('btn-serve');
-    if (!btn) return;
-    btn.classList.remove('error-shake');
-    void btn.offsetWidth;
-    btn.classList.add('error-shake');
+  /** armed: sedang menyeret sesuatu yang bisa dibuang; over: pointer tepat di atas tong. */
+  setTrashState(armed, over) {
+    const el = document.getElementById('trash-zone');
+    if (!el) return;
+    el.classList.toggle('armed', !!armed);
+    el.classList.toggle('over', !!over);
   }
 
   setDragging(active) {
@@ -368,11 +372,6 @@ export class UI {
       if (!isMuted) this.audio?.playSfx('button');
     });
     document.getElementById('btn-pause')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onPause?.(); this.showOverlay('pause'); });
-    document.getElementById('btn-serve')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onServe?.(); });
-    document.getElementById('btn-clear')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.onClearPlate?.(); });
-    document.getElementById('plate-tabs')?.querySelectorAll('.plate-tab').forEach(tab => {
-      tab.addEventListener('click', () => { this.audio?.playSfx('button'); this.onSwitchPlate?.(tab.dataset.plate); });
-    });
 
     document.getElementById('btn-resume')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.hideOverlay('pause'); this.onResume?.(); });
     document.getElementById('btn-restart')?.addEventListener('click', () => { this.audio?.playSfx('button'); this.hideOverlay('pause'); this.onRestart?.(); });
