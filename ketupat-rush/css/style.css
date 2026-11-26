@@ -253,6 +253,7 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 1;
+  contain: layout paint style;
 }
 
 .sky-moon {
@@ -274,15 +275,54 @@ body {
   animation: twinkle 3.2s ease-in-out infinite;
 }
 
-.sky-star.s1 { top: 14%; left: 16%; animation-delay: 0s; }
-.sky-star.s2 { top: 22%; left: 28%; width: 4px; height: 4px; animation-delay: 0.7s; }
-.sky-star.s3 { top: 10%; left: 48%; width: 5px; height: 5px; animation-delay: 1.4s; }
-.sky-star.s4 { top: 20%; right: 24%; width: 4px; height: 4px; animation-delay: 2.1s; }
-.sky-star.s5 { top: 12%; right: 34%; animation-delay: 0.9s; }
+.sky-star.s1 {
+  top: 14%;
+  left: 16%;
+  animation-delay: 0s;
+}
+
+.sky-star.s2 {
+  top: 22%;
+  left: 28%;
+  width: 4px;
+  height: 4px;
+  animation-delay: 0.7s;
+}
+
+.sky-star.s3 {
+  top: 10%;
+  left: 48%;
+  width: 5px;
+  height: 5px;
+  animation-delay: 1.4s;
+}
+
+.sky-star.s4 {
+  top: 20%;
+  right: 24%;
+  width: 4px;
+  height: 4px;
+  animation-delay: 2.1s;
+}
+
+.sky-star.s5 {
+  top: 12%;
+  right: 34%;
+  animation-delay: 0.9s;
+}
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.35; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.2); }
+
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 .menu-horizon {
@@ -312,15 +352,34 @@ body {
   height: auto;
 }
 
-.bunting-left { left: 0; }
-.bunting-right { right: 0; }
+.bunting-left {
+  left: 0;
+}
+
+.bunting-right {
+  right: 0;
+}
 
 .lantern-wrap {
   position: absolute;
   top: 0;
   transform-origin: top center;
   animation: lantern-sway 4.2s ease-in-out infinite;
-  filter: drop-shadow(0 6px 12px rgba(255, 179, 0, 0.35));
+  will-change: transform;
+}
+
+/* Cahaya lentera: gradasi statis (bukan filter drop-shadow yang dihitung ulang tiap frame goyangan) */
+.lantern-wrap::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  width: 230%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 179, 0, 0.34) 0%, rgba(255, 179, 0, 0) 68%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .lantern-wrap svg {
@@ -339,8 +398,15 @@ body {
 }
 
 @keyframes lantern-sway {
-  0%, 100% { transform: rotate(-3.5deg); }
-  50% { transform: rotate(3.5deg); }
+
+  0%,
+  100% {
+    transform: rotate(-3.5deg);
+  }
+
+  50% {
+    transform: rotate(3.5deg);
+  }
 }
 
 .menu-particles {
@@ -348,6 +414,7 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 2;
+  contain: layout paint style;
 }
 
 .spark {
@@ -360,18 +427,60 @@ body {
   animation: float-spark 6.5s ease-in-out infinite;
 }
 
-.spark.sp1 { left: 12%; bottom: 26%; animation-delay: 0s; }
-.spark.sp2 { left: 26%; bottom: 32%; animation-delay: 1.2s; }
-.spark.sp3 { left: 44%; bottom: 24%; animation-delay: 2.5s; }
-.spark.sp4 { right: 32%; bottom: 28%; animation-delay: 0.8s; }
-.spark.sp5 { right: 18%; bottom: 34%; animation-delay: 3.1s; }
-.spark.sp6 { right: 8%; bottom: 22%; animation-delay: 1.9s; }
+.spark.sp1 {
+  left: 12%;
+  bottom: 26%;
+  animation-delay: 0s;
+}
+
+.spark.sp2 {
+  left: 26%;
+  bottom: 32%;
+  animation-delay: 1.2s;
+}
+
+.spark.sp3 {
+  left: 44%;
+  bottom: 24%;
+  animation-delay: 2.5s;
+}
+
+.spark.sp4 {
+  right: 32%;
+  bottom: 28%;
+  animation-delay: 0.8s;
+}
+
+.spark.sp5 {
+  right: 18%;
+  bottom: 34%;
+  animation-delay: 3.1s;
+}
+
+.spark.sp6 {
+  right: 8%;
+  bottom: 22%;
+  animation-delay: 1.9s;
+}
 
 @keyframes float-spark {
-  0% { opacity: 0; transform: translateY(0) scale(0.7); }
-  25% { opacity: 0.75; }
-  75% { opacity: 0.55; }
-  100% { opacity: 0; transform: translateY(-75px) scale(1.1); }
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.7);
+  }
+
+  25% {
+    opacity: 0.75;
+  }
+
+  75% {
+    opacity: 0.55;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-75px) scale(1.1);
+  }
 }
 
 .menu-table {
@@ -395,6 +504,7 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 3;
+  contain: strict;
 }
 
 .menu-mute-btn {
@@ -443,8 +553,15 @@ body {
 }
 
 @keyframes title-drop {
-  0% { opacity: 0; transform: translateY(-24px) scale(0.94); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.94);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .menu-greeting {
@@ -524,11 +641,22 @@ body {
   letter-spacing: 0.03em;
   background: linear-gradient(180deg, #66BB6A 0%, #2E7D32 55%, #1B5E20 100%);
   border: 2.5px solid var(--gold-light);
+  position: relative;
   box-shadow:
     0 5px 0 #124216,
-    0 10px 24px rgba(255, 213, 79, 0.32),
-    0 0 0 0 rgba(255, 213, 79, 0.45);
-  animation: hero-pulse 2.4s ease-in-out infinite;
+    0 10px 24px rgba(255, 213, 79, 0.34);
+}
+
+/* Denyut tombol: hanya transform+opacity (jalur GPU). Dulu box-shadow dianimasikan => repaint tiap frame
+   di atas canvas WebGL layar penuh, sehingga menu terasa patah-patah. */
+.btn-play-hero::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid rgba(255, 213, 79, 0.6);
+  pointer-events: none;
+  animation: hero-ring 2.4s ease-out infinite;
 }
 
 .btn-play-hero:hover {
@@ -543,9 +671,17 @@ body {
   box-shadow: 0 2px 0 #124216;
 }
 
-@keyframes hero-pulse {
-  0%, 100% { box-shadow: 0 5px 0 #124216, 0 10px 22px rgba(255, 213, 79, 0.28), 0 0 0 0 rgba(255, 213, 79, 0.35); }
-  50% { box-shadow: 0 5px 0 #124216, 0 12px 26px rgba(255, 213, 79, 0.42), 0 0 0 8px rgba(255, 213, 79, 0); }
+@keyframes hero-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.07, 1.3);
+  }
 }
 
 .menu-buttons-secondary {
@@ -591,8 +727,15 @@ body {
 }
 
 @keyframes fade-up {
-  0% { opacity: 0; transform: translateY(16px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stat-pill {
@@ -639,25 +782,77 @@ body {
 }
 
 @media (max-width: 600px) {
-  .bunting { width: clamp(110px, 30vw, 136px); }
-  .lantern-wrap svg { height: clamp(54px, 11vh, 78px); }
-  .lantern-left { left: clamp(74px, 19vw, 90px); }
-  .lantern-right { right: clamp(74px, 19vw, 90px); }
-  .sky-moon { width: 42px; right: auto; left: 50%; transform: translateX(34px); top: 10px; }
-  .title-ketupat { width: 28px; height: 34px; }
-  .menu-content { gap: 14px; padding-bottom: clamp(86px, 16vh, 130px); }
+  .bunting {
+    width: clamp(110px, 30vw, 136px);
+  }
+
+  .lantern-wrap svg {
+    height: clamp(54px, 11vh, 78px);
+  }
+
+  .lantern-left {
+    left: clamp(74px, 19vw, 90px);
+  }
+
+  .lantern-right {
+    right: clamp(74px, 19vw, 90px);
+  }
+
+  .sky-moon {
+    width: 42px;
+    right: auto;
+    left: 50%;
+    transform: translateX(34px);
+    top: 10px;
+  }
+
+  .title-ketupat {
+    width: 28px;
+    height: 34px;
+  }
+
+  .menu-content {
+    gap: 14px;
+    padding-bottom: clamp(86px, 16vh, 130px);
+  }
 }
 
 @media (max-height: 540px) and (orientation: landscape) {
-  .menu-top-ornaments, .menu-greeting { display: none; }
-  .menu-content { gap: 10px; padding: 12px 16px 84px; }
-  .game-title { font-size: clamp(2rem, 6vw, 2.8rem); }
-  .menu-table { height: 52px; }
-  .menu-horizon { bottom: 48px; height: 95px; }
+
+  .menu-top-ornaments,
+  .menu-greeting {
+    display: none;
+  }
+
+  .menu-content {
+    gap: 10px;
+    padding: 12px 16px 84px;
+  }
+
+  .game-title {
+    font-size: clamp(2rem, 6vw, 2.8rem);
+  }
+
+  .menu-table {
+    height: 52px;
+  }
+
+  .menu-horizon {
+    bottom: 48px;
+    height: 95px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sky-star, .lantern-wrap, .spark, .menu-logo, .menu-buttons, .menu-stats, .btn-play-hero {
+
+  .sky-star,
+  .lantern-wrap,
+  .spark,
+  .menu-logo,
+  .menu-buttons,
+  .menu-stats,
+  .btn-play-hero,
+  .btn-play-hero::after {
     animation: none !important;
   }
 }
@@ -775,7 +970,8 @@ body {
 }
 
 .hud-pause-btn {
-  flex: 0 0 auto; /* jangan ikut menyusut -> tetap bulat */
+  flex: 0 0 auto;
+  /* jangan ikut menyusut -> tetap bulat */
   width: 44px;
   height: 44px;
   min-width: 44px;
@@ -1013,7 +1209,8 @@ body {
   line-height: 1.05;
   text-align: center;
   width: 100%;
-  min-height: 2.1em;           /* selalu 2 baris agar tinggi kartu konsisten */
+  min-height: 2.1em;
+  /* selalu 2 baris agar tinggi kartu konsisten */
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1145,8 +1342,15 @@ body {
 }
 
 @keyframes trash-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 .drag-hint {
@@ -1484,7 +1688,8 @@ body {
   }
 
   .hud-money>svg {
-    display: none; /* ikon koin disembunyikan, "Rp" sudah jelas */
+    display: none;
+    /* ikon koin disembunyikan, "Rp" sudah jelas */
   }
 
   .hud-lives {

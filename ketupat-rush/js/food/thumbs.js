@@ -1,42 +1,39 @@
-// js/food/thumbs.js — Render 256x256 3D dish thumbnails using WebGLRenderTarget + RoomEnvironment
+// js/food/thumbs.js — Thumbnail 3D bahan makanan (kartu pesanan), dirender BERTAHAP di waktu senggang
+//
+// Perubahan performa (dulu menu patah-patah tepat setelah hidangan muncul):
+//  - Ukuran 256 -> 128 px: thumbnail hanya tampil 24-30 CSS px, 128 px masih tajam di layar 4x.
+//  - Tanpa readRenderTargetPixels + loop flip/unpremultiply di JS: hasil render langsung digambar ke canvas 2D.
+//  - Satu hidangan per "waktu senggang" browser (requestIdleCallback), bukan 14 sekaligus beruntun.
+//  - Shader konteks kedua dikompilasi paralel (compileAsync) agar tidak membekukan thread utama.
 import * as THREE from 'three';
 import { RoomEnvironment } from '../lib/RoomEnvironment.js';
 import { INGREDIENTS } from '../data.js';
 import { buatMakanan } from './dishes.js';
+import { idleSlice } from './sched.js';
 
-function unpremultiplyRGBA(data) {
-  for (let i = 0; i < data.length; i += 4) {
-    const a = data[i + 3];
-    if (a > 0 && a < 255) {
-      const inv = 255 / a;
-      data[i] = Math.min(255, Math.round(data[i] * inv));
-      data[i + 1] = Math.min(255, Math.round(data[i + 1] * inv));
-      data[i + 2] = Math.min(255, Math.round(data[i + 2] * inv));
-    }
-  }
-}
+const THUMB_SIZE = 128;
 
-export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
-  const size = 256;
-  // Selalu pakai renderer/canvas terpisah (offscreen). Memakai renderer scene yang sedang
-  // berjalan (menu/game) membuat render target tertimpa frame lain sehingga thumbnail rusak/identik.
+/**
+ * @param {*} _externalRenderer tidak dipakai (selalu renderer offscreen sendiri, agar frame menu/game tidak tertimpa)
+ * @param {(id:string)=>string} getFallbackThumb
+ * @param {{ urgent?: () => boolean }} ctl  urgent() true => pemain sudah menekan Main, jangan menunggu waktu senggang
+ */
+export async function renderFoodThumbnails(_externalRenderer, getFallbackThumb, ctl = {}) {
+  const size = THUMB_SIZE;
+  const urgent = ctl.urgent;
+
+  await idleSlice(urgent);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(1);
   renderer.setSize(size, size, false);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  const ownRenderer = true;
+  renderer.setClearColor(0x000000, 0);
 
+  await idleSlice(urgent);
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
-
-  const rt = new THREE.WebGLRenderTarget(size, size, {
-    format: THREE.RGBAFormat,
-    type: THREE.UnsignedByteType,
-    minFilter: THREE.LinearFilter,
-    magFilter: THREE.LinearFilter,
-  });
 
   const scene = new THREE.Scene();
   scene.environment = envRT.texture;
@@ -55,49 +52,36 @@ export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
   cam.position.set(0.32, 0.62, 0.78);
   cam.lookAt(0, 0.08, 0);
 
-  const canvas2d = document.createElement('canvas');
-  canvas2d.width = size;
-  canvas2d.height = size;
-  const ctx = canvas2d.getContext('2d');
-  const pixelBuf = new Uint8Array(size * size * 4);
-  const imgData = ctx.createImageData(size, size);
+  const out = document.createElement('canvas');
+  out.width = size;
+  out.height = size;
+  const ctx = out.getContext('2d');
 
   const thumbnails = {};
   const decodedImages = new Map();
 
-  // Tahap 1: render semua model secara SINKRON (tanpa await) agar tidak disela frame lain.
+  // Satu bahan per waktu senggang: bangun model -> kompilasi shader paralel -> render -> salin ke canvas 2D.
   for (const ing of INGREDIENTS) {
+    await idleSlice(urgent);
     let dataUrl = null;
     try {
       const model = buatMakanan(ing.id, { variant: 'vessel', width: 0.66, seed: 1, shadow: false });
       scene.add(model);
+      if (renderer.compileAsync) await renderer.compileAsync(scene, cam);
 
-      renderer.setRenderTarget(rt);
-      renderer.setClearColor(0x000000, 0);
-      renderer.clear();
+      // Render + salin harus dalam satu task (tanpa await di antaranya) agar drawing buffer masih utuh.
       renderer.render(scene, cam);
-      renderer.readRenderTargetPixels(rt, 0, 0, size, size, pixelBuf);
+      ctx.clearRect(0, 0, size, size);
+      ctx.drawImage(renderer.domElement, 0, 0, size, size);
       scene.remove(model);
-
-      // Flip Y dari origin WebGL (kiri-bawah) ke Canvas (kiri-atas)
-      const d = imgData.data;
-      for (let y = 0; y < size; y++) {
-        const srcRow = (size - 1 - y) * size * 4;
-        const dstRow = y * size * 4;
-        for (let x = 0; x < size * 4; x++) d[dstRow + x] = pixelBuf[srcRow + x];
-      }
-      unpremultiplyRGBA(d);
-      ctx.putImageData(imgData, 0, 0);
-      dataUrl = canvas2d.toDataURL('image/png');
+      dataUrl = out.toDataURL('image/png');
     } catch (err) {
       console.warn('[thumbs] gagal render', ing.id, err);
     }
     thumbnails[ing.id] = dataUrl || (getFallbackThumb ? getFallbackThumb(ing.id) : '');
-    // Lepas thread utama sebentar tiap bahan: animasi menu & input tetap lancar selama thumbnail dibuat
-    await new Promise(r => setTimeout(r, 0));
   }
 
-  // Tahap 2: decode semua gambar paralel setelah render selesai.
+  // Decode gambar paralel & asinkron (tidak memblokir).
   await Promise.all(INGREDIENTS.map(async (ing) => {
     const img = new Image();
     img.src = thumbnails[ing.id];
@@ -105,12 +89,10 @@ export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
     decodedImages.set(ing.id, img);
   }));
 
-  renderer.setRenderTarget(null);
-
-  rt.dispose();
   envRT.dispose();
   pmrem.dispose();
-  if (ownRenderer) { renderer.dispose(); try { renderer.forceContextLoss(); } catch { } }
+  renderer.dispose();
+  try { renderer.forceContextLoss(); } catch { }
 
   return { thumbnails, decodedImages };
 }
