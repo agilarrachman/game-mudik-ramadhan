@@ -806,7 +806,11 @@ body {
 
 .container-label {
   position: absolute;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -2px);
+  width: max-content;
+  max-width: 118px;
+  text-align: center;
+  justify-content: center;
   background: rgba(255, 248, 225, 0.94);
   color: #3E2723;
   border: 1.5px solid #8D5A36;
@@ -815,8 +819,8 @@ body {
   font-family: var(--font-title);
   font-weight: 800;
   font-size: 0.72rem;
-  line-height: 1.15;
-  white-space: nowrap;
+  line-height: 1.1;
+  white-space: normal;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -935,9 +939,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.1;
 }
 
 .bubble-items {
@@ -948,7 +951,7 @@ body {
 }
 
 .bubble-food {
-  width: 38px;
+  width: 44px;
   height: auto;
   padding: 2px;
   background: var(--cream-dark);
@@ -970,15 +973,20 @@ body {
 }
 
 .bf-name {
-  font-size: 0.56rem;
+  font-size: 0.54rem;
   font-weight: 800;
   color: var(--brown-dark);
-  line-height: 1;
+  line-height: 1.05;
   text-align: center;
-  max-width: 36px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+  min-height: 2.1em;           /* selalu 2 baris agar tinggi kartu konsisten */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  hyphens: manual;
 }
 
 /* Compact mode when card width < 96px */
@@ -1061,57 +1069,47 @@ body {
   background: var(--red);
 }
 
-/* ===== BOTTOM ACTION BAR ===== */
-.action-bar {
+/* ===== TONG SAMPAH ===== */
+.trash-zone {
   position: absolute;
-  bottom: max(12px, env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
+  right: 8px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  width: 54px;
+  height: 62px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  z-index: 20;
-  flex-wrap: wrap;
   justify-content: center;
-  width: min(96vw, 560px);
-}
-
-.plate-tabs {
-  display: flex;
-  gap: 6px;
-  background: rgba(62, 35, 20, 0.92);
-  padding: 4px;
-  border-radius: 50px;
-  border: 2px solid #D49B38;
-  box-shadow: 0 4px 12px rgba(20, 10, 4, 0.32);
-}
-
-.plate-tab {
-  background: transparent;
-  border: none;
+  gap: 1px;
+  background: rgba(62, 35, 20, 0.94);
   color: var(--cream);
+  border: 2px solid rgba(212, 155, 56, 0.55);
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(20, 10, 4, 0.4);
   font-family: var(--font-title);
-  font-weight: 700;
-  font-size: 0.85rem;
-  padding: 6px 14px;
-  border-radius: 50px;
-  cursor: pointer;
-  min-height: 36px;
+  font-weight: 800;
+  font-size: 0.62rem;
+  z-index: 21;
+  pointer-events: none;
+  transition: transform 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.plate-tab.active {
-  background: var(--gold);
-  color: var(--brown-dark);
+.trash-zone.armed {
+  border-color: var(--gold);
+  animation: trash-pulse 0.9s ease-in-out infinite;
 }
 
-.btn-serve {
-  padding: 10px 26px;
-  font-size: 1.05rem;
+.trash-zone.over {
+  animation: none;
+  transform: scale(1.22);
+  background: var(--red);
+  border-color: #FFCDD2;
+  color: #fff;
 }
 
-.btn-clear {
-  padding: 10px 18px;
-  font-size: 0.92rem;
+@keyframes trash-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 .drag-hint {
@@ -1360,8 +1358,13 @@ body {
   }
 
   .container-label {
-    font-size: 0.69rem;
-    padding: 2px 5px;
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    border-width: 1px;
+    border-radius: 8px;
+    max-width: 64px;
+    letter-spacing: -0.1px;
+    background: rgba(255, 248, 225, 0.9);
   }
 
   .container-label .cl-price {
@@ -1370,23 +1373,29 @@ body {
 
   .unlock-strip {
     top: auto;
-    bottom: 72px;
-    right: 8px;
+    bottom: calc(max(8px, env(safe-area-inset-bottom)) + 74px);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     font-size: 0.65rem;
+    white-space: nowrap;
   }
 
   .drag-hint {
     display: none;
   }
 
-  .action-bar {
-    bottom: max(8px, env(safe-area-inset-bottom));
-    gap: 8px;
+  /* Alas gelap di belakang tombol bawah: menyatukan area di bawah meja & memastikan tombol terbaca */
+  #screen-game::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(max(8px, env(safe-area-inset-bottom)) + 132px);
+    background: linear-gradient(to top, rgba(54, 30, 16, 0.97) 0%, rgba(54, 30, 16, 0.94) 50%, rgba(54, 30, 16, 0.55) 78%, rgba(54, 30, 16, 0) 100%);
+    pointer-events: none;
+    z-index: 11;
   }
 
-  .btn-serve,
-  .btn-clear {
-    min-height: 44px;
-    padding: 8px 16px;
-  }
 }

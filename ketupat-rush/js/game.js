@@ -379,21 +379,24 @@ export class GameState {
     }
   }
 
-  clearPlate(plateKey = null) {
+  /** Buang seluruh isi piring ke tong sampah. Makanan yang terbuang mengurangi uang (sebesar harga bahan). */
+  discardPlate(plateKey = null) {
     const key = plateKey || this.activePlate;
-    if (this.plates[key].length === 0) return;
-    if (this.diff.removeFeeRate > 0) {
-      const totalFee = this.plates[key].reduce((sum, id) => {
-        return sum + Math.max(250, Math.floor((INGREDIENT_MAP[id]?.price || 0) * this.diff.removeFeeRate));
-      }, 0);
-      if (totalFee > 0) {
-        this.revenue = Math.max(0, this.revenue - totalFee);
-        this.onStateChange('removal_fee', { fee: totalFee });
-      }
-    }
+    const plate = this.plates[key];
+    if (!plate || plate.length === 0) return false;
+    const loss = plate.reduce((sum, id) => sum + (INGREDIENT_MAP[id]?.price || 0), 0);
+    const paid = Math.min(this.revenue, loss);
+    this.revenue = Math.max(0, this.revenue - loss);
     this.plates[key] = [];
     this.plateRemovals[key] = 0;
-    this.onStateChange('plate_cleared', { plate: key });
+    this.audio.playSfx('wrong');
+    this.audio.vibrate([20, 10, 20]);
+    this.onStateChange('plate_discarded', { plate: key, loss, paid });
+    return true;
+  }
+
+  clearPlate(plateKey = null) {
+    this.discardPlate(plateKey);
   }
 
   switchPlate(key) {

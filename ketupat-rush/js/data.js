@@ -28,32 +28,32 @@ export const INGREDIENT_MAP = Object.fromEntries(INGREDIENTS.map(i => [i.id, i])
 
 // Plate slot local coordinates (matching PRD 8.3, scaled to plate radius = 1.0)
 export const PLATE_SLOTS = {
-  carb:    { x: -0.36, y: 0.06, z: 0.05 },
-  main:    { x: 0.04,  y: 0.06, z: 0.05 },
-  side0:   { x: 0.46,  y: 0.06, z: -0.28 },
-  side1:   { x: 0.46,  y: 0.06, z: 0.34 },
-  topping: { x: 0.04,  y: 0.24, z: 0.05 },
-  sauce:   { x: -0.05, y: 0.06, z: -0.58 },
-  crunch:  { x: -0.15, y: 0.14, z: 0.62 },
+  carb: { x: -0.36, y: 0.06, z: 0.05 },
+  main: { x: 0.04, y: 0.06, z: 0.05 },
+  side0: { x: 0.46, y: 0.06, z: -0.28 },
+  side1: { x: 0.46, y: 0.06, z: 0.34 },
+  topping: { x: 0.04, y: 0.24, z: 0.05 },
+  sauce: { x: -0.05, y: 0.06, z: -0.58 },
+  crunch: { x: -0.15, y: 0.14, z: 0.62 },
 };
 
 export const ARCHETYPES = {
-  kid_boy:  { name: 'Anak Laki-laki', patienceMult: 0.9,  tipMult: 0.8, maxItems: 3, minTier: 0 },
-  kid_girl: { name: 'Anak Perempuan', patienceMult: 0.9,  tipMult: 0.8, maxItems: 3, minTier: 0 },
-  teen:     { name: 'Remaja',         patienceMult: 0.85, tipMult: 1.0, maxItems: 5, minTier: 0 },
-  adult_m:  { name: 'Bapak',          patienceMult: 1.0,  tipMult: 1.0, maxItems: 6, minTier: 0 },
-  adult_f:  { name: 'Ibu',            patienceMult: 1.0,  tipMult: 1.0, maxItems: 6, minTier: 0 },
-  parent:   { name: 'Orang Tua',      patienceMult: 1.0,  tipMult: 1.1, maxItems: 6, minTier: 1 },
-  elder:    { name: 'Sesepuh',        patienceMult: 1.25, tipMult: 1.1, maxItems: 4, minTier: 1 },
-  family:   { name: 'Keluarga',       patienceMult: 1.2,  tipMult: 1.3, maxItems: 7, minTier: 2 },
-  vip:      { name: 'Tamu VIP',       patienceMult: 0.8,  tipMult: 2.0, maxItems: 6, minTier: 2, isVip: true },
+  kid_boy: { name: 'Anak Laki-laki', patienceMult: 0.9, tipMult: 0.8, maxItems: 3, minTier: 0 },
+  kid_girl: { name: 'Anak Perempuan', patienceMult: 0.9, tipMult: 0.8, maxItems: 3, minTier: 0 },
+  teen: { name: 'Remaja', patienceMult: 0.85, tipMult: 1.0, maxItems: 5, minTier: 0 },
+  adult_m: { name: 'Bapak', patienceMult: 1.0, tipMult: 1.0, maxItems: 6, minTier: 0 },
+  adult_f: { name: 'Ibu', patienceMult: 1.0, tipMult: 1.0, maxItems: 6, minTier: 0 },
+  parent: { name: 'Orang Tua', patienceMult: 1.0, tipMult: 1.1, maxItems: 6, minTier: 1 },
+  elder: { name: 'Sesepuh', patienceMult: 1.25, tipMult: 1.1, maxItems: 4, minTier: 1 },
+  family: { name: 'Keluarga', patienceMult: 1.2, tipMult: 1.3, maxItems: 7, minTier: 2 },
+  vip: { name: 'Tamu VIP', patienceMult: 0.8, tipMult: 2.0, maxItems: 6, minTier: 2, isVip: true },
 };
 
 export const ECONOMY = {
   tipTiers: [
     { minPatience: 0.66, rate: 0.25 },
     { minPatience: 0.33, rate: 0.12 },
-    { minPatience: 0.0,  rate: 0.05 },
+    { minPatience: 0.0, rate: 0.05 },
   ],
   perfectBonusRate: 0.10,
   comboMultipliers: [1.0, 1.0, 1.1, 1.2, 1.3, 1.4],
@@ -85,13 +85,10 @@ export function getDifficulty(elapsedSeconds, servedCount) {
   const serveFactor = Math.min(1, servedCount / 32);   // ramps over 32 serves
   const d = Math.max(0, Math.min(1, timeFactor * 0.55 + serveFactor * 0.45));
 
-  // Unlock tier: 0 (start), 1 (>=25s or >=3 served), 2 (>=70s or >=8 served), 3 (>=130s or >=16 served)
-  let unlockTier = 0;
-  if (elapsedSeconds >= 25 || servedCount >= 3) unlockTier = 1;
-  if (elapsedSeconds >= 70 || servedCount >= 8) unlockTier = 2;
-  if (elapsedSeconds >= 130 || servedCount >= 16) unlockTier = 3;
-
+  // Hari berganti tiap 45 detik. Menu baru HANYA terbuka saat hari berganti:
+  // Hari 1 = tier 0, Hari 2 = tier 1, Hari 3 = tier 2, Hari 4+ = tier 3.
   const dayNumber = Math.floor(elapsedSeconds / 45) + 1;
+  const unlockTier = Math.min(3, dayNumber - 1);
   const plateBUnlocked = elapsedSeconds >= 35 || servedCount >= 4;
 
   // Item count range
