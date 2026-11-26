@@ -20,25 +20,25 @@ import {
 
 // Initial fallback coordinates (overridden dynamically by _relayoutUnlockedContainers)
 const CONTAINER_LAYOUT = {
-  ketupat:               { x: -1.42, z: -0.74 },
-  lontong:               { x: -0.52, z: -0.74 },
-  opor_ayam:             { x:  0.48, z: -0.74 },
-  rendang:               { x:  1.42, z: -0.74 },
-  semur_daging:          { x: -1.44, z: -0.02 },
-  ayam_goreng:           { x: -0.72, z: -0.02 },
-  sambal_goreng_kentang: { x:  0.00, z: -0.02 },
-  telur_balado:          { x:  0.72, z: -0.02 },
-  sayur_labu_siam:       { x:  1.44, z: -0.02 },
-  perkedel:              { x: -1.44, z:  0.70 },
-  bawang_goreng:         { x: -0.72, z:  0.70 },
-  kerupuk:               { x:  0.00, z:  0.70 },
-  sambal:                { x:  0.72, z:  0.70 },
-  emping:                { x:  1.44, z:  0.70 },
+  ketupat: { x: -1.42, z: -0.74 },
+  lontong: { x: -0.52, z: -0.74 },
+  opor_ayam: { x: 0.48, z: -0.74 },
+  rendang: { x: 1.42, z: -0.74 },
+  semur_daging: { x: -1.44, z: -0.02 },
+  ayam_goreng: { x: -0.72, z: -0.02 },
+  sambal_goreng_kentang: { x: 0.00, z: -0.02 },
+  telur_balado: { x: 0.72, z: -0.02 },
+  sayur_labu_siam: { x: 1.44, z: -0.02 },
+  perkedel: { x: -1.44, z: 0.70 },
+  bawang_goreng: { x: -0.72, z: 0.70 },
+  kerupuk: { x: 0.00, z: 0.70 },
+  sambal: { x: 0.72, z: 0.70 },
+  emping: { x: 1.44, z: 0.70 },
 };
 
 const PLATE_HOMES = {
-  a: new THREE.Vector3(-0.68, 1.01, 1.48),
-  b: new THREE.Vector3(0.68, 1.01, 1.48),
+  a: new THREE.Vector3(-0.62, 1.01, 1.44),
+  b: new THREE.Vector3(0.62, 1.01, 1.44),
 };
 
 export class Scene3D {
@@ -127,8 +127,8 @@ export class Scene3D {
     if (isPortrait) {
       // Portrait 100dvh: fill vertical space with customers, counter, and large plates above action bar
       this.camera.fov = 52;
-      this.camera.position.set(0, 4.95, 5.25);
-      this.camera.lookAt(0, 0.80, 0.22);
+      this.camera.position.set(0, 5.35, 5.95);
+      this.camera.lookAt(0, 1.0, -0.42);
     } else {
       // Close 3/4 view so dishes are >= 110px wide on 1920x1080
       this.camera.fov = 40;
@@ -526,9 +526,9 @@ export class Scene3D {
 
     const jarSpecs = [
       { x: -0.62, y: 2.22, z: -2.30, r: 0.11, h: 0.24 },
-      { x:  0.00, y: 2.22, z: -2.30, r: 0.11, h: 0.24 },
-      { x:  0.62, y: 2.22, z: -2.30, r: 0.11, h: 0.24 },
-      { x:  2.36, y: 1.24, z: -0.28, r: 0.19, h: 0.44 }, // Toples kerupuk besar di kanan meja
+      { x: 0.00, y: 2.22, z: -2.30, r: 0.11, h: 0.24 },
+      { x: 0.62, y: 2.22, z: -2.30, r: 0.11, h: 0.24 },
+      { x: 2.36, y: 1.24, z: -0.28, r: 0.19, h: 0.44 }, // Toples kerupuk besar di kanan meja
     ];
     const glassParts = [], lidParts = [], fillParts = [];
     jarSpecs.forEach(j => {
@@ -727,26 +727,43 @@ export class Scene3D {
 
     const unlocked = INGREDIENTS.filter(i => i.unlockAt <= this.currentTier);
     const n = unlocked.length;
+    const BOWL = 0.66; // lebar dasar wadah pada scale 1
 
-    let cols = 3;
+    let cols;
+    let xStep;
+    let zStep;
+    let zCenter;
+    let scale;
+
     if (isPortrait) {
-      cols = n <= 6 ? 3 : 4;
+      // Maksimal 3 baris supaya tidak menumpuk; kolom menyesuaikan jumlah menu.
+      if (n <= 3) cols = 3;
+      else if (n <= 8) cols = 4;
+      else if (n <= 9) cols = 3;
+      else if (n <= 12) cols = 4;
+      else cols = 5;
+      const rows = Math.max(1, Math.ceil(n / cols));
+
+      // Lebar dunia yang terlihat di area meja (portrait) ~ 6.5 * aspect
+      const visibleW = 6.5 * Math.min(aspect, 0.62) * 0.92;
+      zStep = rows <= 2 ? 0.70 : 0.62;
+      const wantScale = cols <= 3 ? 1.15 : cols === 4 ? 1.0 : 0.88;
+      const itemW = BOWL * wantScale;
+      xStep = cols > 1 ? Math.min(1.0, (visibleW - itemW) / (cols - 1)) : 1.0;
+      // skala akhir: tidak boleh lebih lebar/dalam dari sel (tidak ada tumpang tindih)
+      scale = Math.max(0.6, Math.min(wantScale, (xStep * 0.98) / BOWL, (zStep * 1.0) / BOWL));
+      zCenter = rows === 1 ? 0.05 : -0.08;
     } else {
       cols = n <= 4 ? Math.max(1, n) : 5;
+      const rows = Math.max(1, Math.ceil(n / cols));
+      xStep = cols <= 4 ? 1.05 : 0.86;
+      zStep = rows <= 2 ? 0.64 : rows === 3 ? 0.56 : 0.44;
+      zCenter = rows === 1 ? 0.18 : 0.04;
+      scale = n <= 6 ? 1.18 : 1.0;
     }
     const rows = Math.max(1, Math.ceil(n / cols));
-
-    // Adapt xStep to portrait aspect so all 4 columns stay inside viewport, and keep rows above plates
-    const xStep = isPortrait
-      ? (cols <= 3 ? Math.min(1.0, aspect * 1.75) : Math.min(0.84, aspect * 1.52))
-      : (cols <= 4 ? 1.05 : 0.86);
-    const zStep = rows <= 2 ? 0.64 : rows === 3 ? 0.56 : 0.44;
-    const zCenter = isPortrait
-      ? (rows === 1 ? 0.05 : rows <= 3 ? -0.10 : -0.24)
-      : (rows === 1 ? 0.18 : 0.04);
-    this.baseContainerScale = isPortrait
-      ? (cols <= 3 ? 1.18 : 0.96)
-      : (n <= 6 ? 1.18 : 1.0);
+    this.baseContainerScale = scale;
+    this.containerCell = { xStep, zStep, cols, rows };
 
     // Hide all first
     for (const entry of this.containers.values()) {
@@ -767,10 +784,17 @@ export class Scene3D {
       entry.group.visible = true;
       entry.basePos.set(x, 1.015, z);
       entry.group.position.set(x, 1.015, z);
-      entry.group.scale.setScalar(this.baseContainerScale);
+      entry.group.scale.setScalar(scale);
 
       const hit = this.containerHitboxes.find(h => h.userData.ingredientId === ing.id);
-      if (hit) hit.position.set(x, 1.26, z);
+      if (hit) {
+        hit.position.set(x, 1.26, z);
+        // Hitbox tidak boleh melebihi sel agar tidak saling menimpa
+        const bw = hit.geometry.parameters.width;
+        const bd = hit.geometry.parameters.depth;
+        hit.scale.set(Math.min(1, (xStep * 0.98) / bw), 1, Math.min(1, (zStep * 0.98) / bd));
+        hit.updateMatrixWorld(true);
+      }
     });
   }
 
@@ -864,10 +888,10 @@ export class Scene3D {
     this.scene.add(group);
 
     const hit = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.55, 0.55, 1.7, 12),
+      new THREE.CylinderGeometry(0.62, 0.62, 2.0, 12),
       new THREE.MeshBasicMaterial({ visible: false })
     );
-    hit.position.set(x, 1.25, -1.45);
+    hit.position.set(x - 1.4, 1.35, -1.45);
     hit.userData.customerId = customerId;
     this.scene.add(hit);
     this.customerHitboxes.push(hit);
@@ -924,7 +948,8 @@ export class Scene3D {
   getContainerLabelScreenPos(ingredientId) {
     const entry = this.containers.get(ingredientId);
     if (!entry || !entry.unlocked) return null;
-    return this._projectToScreen(new THREE.Vector3(entry.basePos.x, entry.basePos.y + 0.01, entry.basePos.z + 0.22));
+    const depth = 0.30 * (this.baseContainerScale || 1);
+    return this._projectToScreen(new THREE.Vector3(entry.basePos.x, entry.basePos.y + 0.01, entry.basePos.z + depth));
   }
 
   // Align 3D customers directly underneath their Order Rail card centers
@@ -952,12 +977,22 @@ export class Scene3D {
     return ray;
   }
 
+  _containerCellPx() {
+    const cell = this.containerCell;
+    if (!cell || !this.camera) return null;
+    const a = this._projectToScreen(new THREE.Vector3(0, 1.1, 0));
+    const b = this._projectToScreen(new THREE.Vector3(cell.xStep, 1.1, 0));
+    return Math.abs(b.x - a.x);
+  }
+
   pickNearestContainerScreen(clientX, clientY, maxRadiusPx = 64) {
     const rect = this.canvas.getBoundingClientRect();
     const px = clientX - rect.left;
     const py = clientY - rect.top;
     let bestId = null;
-    let bestDist = maxRadiusPx;
+    // Radius sentuh dibatasi supaya tidak mengambil item tetangga pada layout padat
+    const cellPx = this._containerCellPx?.() || maxRadiusPx;
+    let bestDist = Math.min(maxRadiusPx, Math.max(30, cellPx * 0.62));
     for (const [id, entry] of this.containers.entries()) {
       if (!entry.unlocked) continue;
       const sp = this._projectToScreen(new THREE.Vector3(entry.basePos.x, entry.basePos.y + 0.24, entry.basePos.z));
@@ -1034,6 +1069,63 @@ export class Scene3D {
         bestDist = d;
         bestId = id;
       }
+    }
+    return bestId;
+  }
+
+  /**
+   * Pilih customer penerima saat piring dilepas (drop), toleran terhadap jari.
+   * - Jika piring sudah diseret jelas ke atas (area customer), pilih customer terdekat secara HORIZONTAL
+   *   (berbasis lajur/kolom) sehingga tidak perlu tepat di atas badan.
+   * - Jika belum, pakai pick biasa (raycast + radius layar).
+   */
+  pickCustomerForServe(clientX, clientY, plateKey) {
+    const rect = this.canvas.getBoundingClientRect();
+    const px = clientX - rect.left;
+    const py = clientY - rect.top;
+    const W = rect.width || window.innerWidth;
+    const H = rect.height || window.innerHeight;
+
+    // 1) Hit langsung pada hitbox customer
+    const ndcX = (px / W) * 2 - 1;
+    const ndcY = -(py / H) * 2 + 1;
+    const direct = this._setRay(ndcX, ndcY).intersectObjects(this.customerHitboxes, false);
+    if (direct.length) return direct[0].object.userData.customerId;
+
+    if (!this.customers3D.size) return null;
+
+    // 2) Zona saji: di atas rumah piring (dengan margin)
+    const home = this._projectToScreen(PLATE_HOMES[plateKey || 'a']);
+    const inServeZone = py < home.y - Math.max(70, H * 0.09);
+
+    // Posisi layar tiap customer (tinggi dada)
+    const list = [];
+    for (const [id, c] of this.customers3D.entries()) {
+      const sp = this._projectToScreen(new THREE.Vector3(c.group.position.x, c.group.position.y + 0.9, c.group.position.z));
+      list.push({ id, x: sp.x, y: sp.y });
+    }
+    list.sort((a, b) => a.x - b.x);
+
+    if (inServeZone) {
+      // Lajur: customer dengan jarak horizontal terdekat; batas = setengah jarak antar customer (min 56px)
+      let minGap = Infinity;
+      for (let i = 1; i < list.length; i++) minGap = Math.min(minGap, list[i].x - list[i - 1].x);
+      const maxDx = Number.isFinite(minGap) ? Math.max(56, minGap * 0.6) : Math.max(120, W * 0.35);
+      let best = null;
+      let bestDx = maxDx;
+      for (const it of list) {
+        const dx = Math.abs(px - it.x);
+        if (dx < bestDx) { bestDx = dx; best = it.id; }
+      }
+      return best;
+    }
+
+    // 3) Di luar zona: radius layar yang lebih longgar
+    let bestId = null;
+    let bestDist = 110;
+    for (const it of list) {
+      const d = Math.hypot(px - it.x, py - it.y);
+      if (d < bestDist) { bestDist = d; bestId = it.id; }
     }
     return bestId;
   }
@@ -1171,6 +1263,8 @@ export class Scene3D {
     // Customer walk-in & hover scale
     for (const c of this.customers3D.values()) {
       c.group.position.x += (c.targetX - c.group.position.x) * 0.14;
+      // Hitbox harus selalu mengikuti posisi customer (sebelumnya diam di slot awal)
+      if (c.hit) c.hit.position.x = c.group.position.x;
       c.group.position.y = 0.52 + Math.abs(Math.sin(this.time * 3 + c.slotIdx)) * 0.03;
       const targetScale = c.hovered ? 1.08 : 1.0;
       c.group.scale.x += (targetScale - c.group.scale.x) * 0.2;

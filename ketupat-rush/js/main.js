@@ -18,7 +18,7 @@ function loadStats() {
   catch { return { bestRevenue: 0, bestElapsed: 0 }; }
 }
 function saveStats(stats) {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify(stats)); } catch {}
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(stats)); } catch { }
 }
 
 const audio = new AudioManager();
@@ -60,6 +60,14 @@ function bindCanvasPointerEvents(canvas) {
     ui.setCustomerHoverBubble(null, null);
     if (ds.plateKey) scene3D?.resetPlatePosition(ds.plateKey);
     scene3D?.setActivePlate(gameState?.activePlate || 'a');
+  };
+
+  // Target saji toleran: kartu pesanan di bawah jari/piring, atau lajur customer terdekat
+  const findServeTarget = (clientX, liftedY, fingerY, plateKey) => {
+    return ui.customerAtPoint(clientX, fingerY)
+      || ui.customerAtPoint(clientX, liftedY)
+      || scene3D.pickCustomerForServe(clientX, liftedY, plateKey)
+      || scene3D.pickCustomerForServe(clientX, fingerY, plateKey);
   };
 
   const onDown = (e) => {
@@ -138,9 +146,10 @@ function bindCanvasPointerEvents(canvas) {
       const worldPt = scene3D.raycastCounterPlane(effNDC.x, effNDC.y);
       scene3D.showDragGhost(dragState.ingredientId, worldPt);
     } else if (dragState.mode === 'servePlate' || dragState.type === 'plate') {
-      const worldPt = scene3D.raycastServePlane(x, y);
+      // Di layar sentuh piring diangkat di atas jari agar terlihat dan mudah diarahkan ke customer
+      const worldPt = scene3D.raycastServePlane(effNDC.x, effNDC.y);
       scene3D.setPlateDragPosition(dragState.plateKey, worldPt);
-      const hoverCust = scene3D.pickCustomer(x, y);
+      const hoverCust = findServeTarget(e.clientX, effY, e.clientY, dragState.plateKey);
       const matchState = hoverCust ? getCustomerMatchState(hoverCust, dragState.plateKey) : null;
       scene3D.setCustomerHover(hoverCust, matchState);
       ui.setCustomerHoverBubble(hoverCust, matchState);
@@ -190,7 +199,7 @@ function bindCanvasPointerEvents(canvas) {
       if (!ds.moved) {
         if (ds.ingredientId) gameState.removeIngredient(ds.ingredientId, ds.plateKey);
       } else {
-        const custId = scene3D.pickCustomer(x, y);
+        const custId = findServeTarget(e.clientX, effY, e.clientY, ds.plateKey);
         if (custId && gameState.plates[ds.plateKey].length > 0) {
           gameState.serve(custId, ds.plateKey);
         }
@@ -239,8 +248,8 @@ async function init() {
   ui.checkOrientation();
 
   try {
-    if (screen.orientation?.lock) await screen.orientation.lock('portrait').catch(() => {});
-  } catch {}
+    if (screen.orientation?.lock) await screen.orientation.lock('portrait').catch(() => { });
+  } catch { }
 
   goToMenu();
   window.__APP_READY__ = true;

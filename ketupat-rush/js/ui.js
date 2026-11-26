@@ -180,7 +180,8 @@ export class UI {
       const ing = INGREDIENT_MAP[id];
       const fb = getFallbackThumb(id);
       const src = this.thumbnails[id] || fb;
-      const shortName = (ing?.name || id).split(' ')[0];
+      // Nama lengkap (bisa 2 baris) supaya tidak ambigu: "Ayam Goreng" vs "Opor Ayam", "Sambal" vs "Sambal Kentang"
+      const shortName = ing?.name || id;
       return `<div class="bubble-food" data-ingredient="${id}" title="${ing?.name || id}">
         <img src="${src}" alt="${ing?.name || id}" draggable="false" onerror="this.onerror=null;this.src='${fb}'" />
         <span class="bf-name">${shortName}</span>
@@ -204,7 +205,7 @@ export class UI {
     const cards = [...this.customerBubbles.values()];
     if (!cards.length) return;
     const minW = Math.min(...cards.map(c => c.getBoundingClientRect().width || 160));
-    const isCompact = minW < 96;
+    const isCompact = minW < 84;
     for (const c of cards) {
       c.classList.toggle('compact', isCompact);
     }
@@ -219,6 +220,19 @@ export class UI {
       if (rect.width > 0) centerXMap[id] = rect.left + rect.width / 2;
     }
     scene3D.alignCustomersToScreenX(centerXMap);
+  }
+
+  /** Customer yang kartu pesanannya berada di titik layar (untuk drop piring ke kartu). */
+  customerAtPoint(clientX, clientY) {
+    if (!this.customerBubbles.size) return null;
+    for (const [id, bubble] of this.customerBubbles.entries()) {
+      const r = bubble.getBoundingClientRect();
+      const pad = 6; // sedikit toleransi di sekitar kartu
+      if (clientX >= r.left - pad && clientX <= r.right + pad && clientY >= r.top - pad && clientY <= r.bottom + pad + 10) {
+        return id;
+      }
+    }
+    return null;
   }
 
   setCustomerHoverBubble(customerId, matchState) {

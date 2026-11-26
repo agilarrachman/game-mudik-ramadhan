@@ -18,17 +18,15 @@ function unpremultiplyRGBA(data) {
 
 export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
   const size = 256;
-  let renderer = externalRenderer;
-  let ownRenderer = false;
-
-  if (!renderer) {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-    renderer.setSize(size, size);
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    ownRenderer = true;
-  }
+  // Selalu pakai renderer/canvas terpisah (offscreen). Memakai renderer scene yang sedang
+  // berjalan (menu/game) membuat render target tertimpa frame lain sehingga thumbnail rusak/identik.
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1);
+  renderer.setSize(size, size, false);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const ownRenderer = true;
 
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
@@ -57,11 +55,6 @@ export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
   cam.position.set(0.32, 0.62, 0.78);
   cam.lookAt(0, 0.08, 0);
 
-  const prevTarget = renderer.getRenderTarget();
-  const prevClearAlpha = renderer.getClearAlpha();
-  const prevClearColor = new THREE.Color();
-  renderer.getClearColor(prevClearColor);
-
   const canvas2d = document.createElement('canvas');
   canvas2d.width = size;
   canvas2d.height = size;
@@ -72,46 +65,50 @@ export async function renderFoodThumbnails(externalRenderer, getFallbackThumb) {
   const thumbnails = {};
   const decodedImages = new Map();
 
-  renderer.setRenderTarget(rt);
-  renderer.setClearColor(0x000000, 0);
-
+  // Tahap 1: render semua model secara SINKRON (tanpa await) agar tidak disela frame lain.
   for (const ing of INGREDIENTS) {
-    const model = buatMakanan(ing.id, { variant: 'vessel', width: 0.66, seed: 1, shadow: false });
-    scene.add(model);
+    let dataUrl = null;
+    try {
+      const model = buatMakanan(ing.id, { variant: 'vessel', width: 0.66, seed: 1, shadow: false });
+      scene.add(model);
 
-    renderer.clear();
-    renderer.render(scene, cam);
-    renderer.readRenderTargetPixels(rt, 0, 0, size, size, pixelBuf);
-    scene.remove(model);
+      renderer.setRenderTarget(rt);
+      renderer.setClearColor(0x000000, 0);
+      renderer.clear();
+      renderer.render(scene, cam);
+      renderer.readRenderTargetPixels(rt, 0, 0, size, size, pixelBuf);
+      scene.remove(model);
 
-    // Flip Y from WebGL bottom-left origin to Canvas top-left origin
-    const d = imgData.data;
-    for (let y = 0; y < size; y++) {
-      const srcRow = (size - 1 - y) * size * 4;
-      const dstRow = y * size * 4;
-      for (let x = 0; x < size * 4; x++) {
-        d[dstRow + x] = pixelBuf[srcRow + x];
+      // Flip Y dari origin WebGL (kiri-bawah) ke Canvas (kiri-atas)
+      const d = imgData.data;
+      for (let y = 0; y < size; y++) {
+        const srcRow = (size - 1 - y) * size * 4;
+        const dstRow = y * size * 4;
+        for (let x = 0; x < size * 4; x++) d[dstRow + x] = pixelBuf[srcRow + x];
       }
+      unpremultiplyRGBA(d);
+      ctx.putImageData(imgData, 0, 0);
+      dataUrl = canvas2d.toDataURL('image/png');
+    } catch (err) {
+      console.warn('[thumbs] gagal render', ing.id, err);
     }
-    unpremultiplyRGBA(d);
-    ctx.putImageData(imgData, 0, 0);
+    thumbnails[ing.id] = dataUrl || (getFallbackThumb ? getFallbackThumb(ing.id) : '');
+  }
 
-    const dataUrl = canvas2d.toDataURL('image/png');
-    thumbnails[ing.id] = dataUrl;
-
+  // Tahap 2: decode gambar (async) setelah semua render selesai.
+  for (const ing of INGREDIENTS) {
     const img = new Image();
-    img.src = dataUrl;
-    try { if (img.decode) await img.decode(); } catch {}
+    img.src = thumbnails[ing.id];
+    try { if (img.decode) await img.decode(); } catch { }
     decodedImages.set(ing.id, img);
   }
 
-  renderer.setRenderTarget(prevTarget);
-  renderer.setClearColor(prevClearColor, prevClearAlpha);
+  renderer.setRenderTarget(null);
 
   rt.dispose();
   envRT.dispose();
   pmrem.dispose();
-  if (ownRenderer) renderer.dispose();
+  if (ownRenderer) { renderer.dispose(); try { renderer.forceContextLoss(); } catch { } }
 
   return { thumbnails, decodedImages };
 }
