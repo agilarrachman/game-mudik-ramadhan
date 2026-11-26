@@ -1,17 +1,37 @@
 // js/food/textures.js — Procedural CanvasTexture generators + height->normal map helper (<=512px)
 import * as THREE from 'three';
 import { fbm2D, mulberry32 } from './noise.js';
+import { runSync, runSliced, isGenerator, nextSlice } from './sched.js';
 
 const _texCache = new Map();
 
+function finishTex(t, isColor) {
+  t.colorSpace = isColor ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  t.needsUpdate = true;
+  return t;
+}
+
+/**
+ * Ambil tekstur dari cache (jalur SINKRON). `creator` boleh berupa fungsi biasa atau generator:
+ * generator dipakai tekstur berat agar bisa juga dibuat bertahap per frame lewat cachedTexAsync().
+ */
 function cachedTex(key, creator, isColor = true) {
   if (!_texCache.has(key)) {
-    const t = creator();
-    t.colorSpace = isColor ? THREE.SRGBColorSpace : THREE.NoColorSpace;
-    t.needsUpdate = true;
-    _texCache.set(key, t);
+    let t = creator();
+    if (isGenerator(t)) t = runSync(t);
+    _texCache.set(key, finishTex(t, isColor));
   }
   return _texCache.get(key);
+}
+
+/** Versi bertahap (tidak memblokir frame). Bila sudah ada di cache langsung dikembalikan. */
+async function cachedTexAsync(key, creator, isColor = true) {
+  if (_texCache.has(key)) return _texCache.get(key);
+  let t = creator();
+  if (isGenerator(t)) t = await runSliced(t);
+  if (_texCache.has(key)) { t.dispose?.(); return _texCache.get(key); } // keburu dibuat jalur sinkron
+  _texCache.set(key, finishTex(t, isColor));
+  return t;
 }
 
 export function disposeFoodTextures() {
@@ -20,9 +40,9 @@ export function disposeFoodTextures() {
 }
 
 /**
- * Convert a Float32Array heightmap [0..1] into a tangent-space normal CanvasTexture.
+ * Convert a Float32Array heightmap [0..1] into a tangent-space normal CanvasTexture (generator: yield per baris).
  */
-export function heightToNormalMap(heights, w, h, strength = 2.5, repeat = [1, 1]) {
+function* heightToNormalMapGen(heights, w, h, strength = 2.5, repeat = [1, 1]) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
@@ -51,6 +71,7 @@ export function heightToNormalMap(heights, w, h, strength = 2.5, repeat = [1, 1]
       d[idx + 2] = Math.round((nz * 0.5 + 0.5) * 255);
       d[idx + 3] = 255;
     }
+    if ((y & 15) === 15) yield;
   }
   ctx.putImageData(img, 0, 0);
   const tex = new THREE.CanvasTexture(c);
@@ -60,64 +81,73 @@ export function heightToNormalMap(heights, w, h, strength = 2.5, repeat = [1, 1]
   return tex;
 }
 
+export function heightToNormalMap(heights, w, h, strength = 2.5, repeat = [1, 1]) {
+  return runSync(heightToNormalMapGen(heights, w, h, strength, repeat));
+}
+
 /* ───────── Wood Grain (Warm Teak #B87A4B & Dark #7D4B2A) ───────── */
-export function getWoodTextures(variant = 'warm') {
+// Ukuran 512 -> 256: 4x lebih sedikit piksel noise. Pembuatan tekstur ini dulu menahan thread utama
+// ratusan ms (lebih lama di HP) tepat saat hidangan pertama muncul di menu.
+function* genWoodMap(variant) {
   const isDark = variant === 'dark';
   const baseR = isDark ? 124 : 186;
   const baseG = isDark ? 72 : 122;
   const baseB = isDark ? 42 : 74;
+  const S = 256;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(S, S);
+  const d = img.data;
 
-  const map = cachedTex(`wood_map_${variant}`, () => {
-    const S = 512;
-    const c = document.createElement('canvas');
-    c.width = S; c.height = S;
-    const ctx = c.getContext('2d');
-    const img = ctx.createImageData(S, S);
-    const d = img.data;
-
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        const nx = x / S;
-        const ny = y / S;
-        const n = fbm2D(nx * 4.5, ny * 18.0, 3, isDark ? 31 : 11);
-        const ring = Math.sin((ny * 14 + n * 4.2) * Math.PI * 2) * 0.5 + 0.5;
-        const streak = fbm2D(nx * 28, ny * 3.5, 2, 77);
-        const shade = 0.78 + ring * 0.24 + (streak - 0.5) * 0.14;
-        const idx = (y * S + x) * 4;
-        d[idx] = Math.min(255, Math.max(0, Math.round(baseR * shade)));
-        d[idx + 1] = Math.min(255, Math.max(0, Math.round(baseG * shade)));
-        d[idx + 2] = Math.min(255, Math.max(0, Math.round(baseB * shade)));
-        d[idx + 3] = 255;
-      }
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const nx = x / S;
+      const ny = y / S;
+      const n = fbm2D(nx * 4.5, ny * 18.0, 3, isDark ? 31 : 11);
+      const ring = Math.sin((ny * 14 + n * 4.2) * Math.PI * 2) * 0.5 + 0.5;
+      const streak = fbm2D(nx * 28, ny * 3.5, 2, 77);
+      const shade = 0.78 + ring * 0.24 + (streak - 0.5) * 0.14;
+      const idx = (y * S + x) * 4;
+      d[idx] = Math.min(255, Math.max(0, Math.round(baseR * shade)));
+      d[idx + 1] = Math.min(255, Math.max(0, Math.round(baseG * shade)));
+      d[idx + 2] = Math.min(255, Math.max(0, Math.round(baseB * shade)));
+      d[idx + 3] = 255;
     }
-    ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(c);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    return tex;
-  }, true);
+    if ((y & 7) === 7) yield;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
 
-  const bumpMap = cachedTex(`wood_bump_${variant}`, () => {
-    const S = 256;
-    const c = document.createElement('canvas');
-    c.width = S; c.height = S;
-    const ctx = c.getContext('2d');
-    const img = ctx.createImageData(S, S);
-    const d = img.data;
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        const n = fbm2D((x / S) * 18, (y / S) * 4, 2, 19);
-        const v = Math.round(90 + n * 110);
-        const idx = (y * S + x) * 4;
-        d[idx] = d[idx + 1] = d[idx + 2] = v;
-        d[idx + 3] = 255;
-      }
+function* genWoodBump() {
+  const S = 256;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(S, S);
+  const d = img.data;
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const n = fbm2D((x / S) * 18, (y / S) * 4, 2, 19);
+      const v = Math.round(90 + n * 110);
+      const idx = (y * S + x) * 4;
+      d[idx] = d[idx + 1] = d[idx + 2] = v;
+      d[idx + 3] = 255;
     }
-    ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(c);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    return tex;
-  }, false);
+    if ((y & 15) === 15) yield;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
 
+export function getWoodTextures(variant = 'warm') {
+  const map = cachedTex(`wood_map_${variant}`, () => genWoodMap(variant), true);
+  const bumpMap = cachedTex(`wood_bump_${variant}`, () => genWoodBump(), false);
   return { map, bumpMap };
 }
 
@@ -142,53 +172,57 @@ export function getCeramicTextures() {
   return { map };
 }
 
+function* genStoneMap() {
+  const S = 256;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(S, S);
+  const d = img.data;
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const n = fbm2D((x / S) * 18, (y / S) * 18, 3, 91);
+      const v = Math.round(48 + n * 42);
+      const idx = (y * S + x) * 4;
+      d[idx] = v + 2;
+      d[idx + 1] = v;
+      d[idx + 2] = v - 1;
+      d[idx + 3] = 255;
+    }
+    if ((y & 7) === 7) yield;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+function* genStoneBump() {
+  const S = 256;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(S, S);
+  const d = img.data;
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const n = fbm2D((x / S) * 28, (y / S) * 28, 3, 105);
+      const v = Math.round(n * 255);
+      const idx = (y * S + x) * 4;
+      d[idx] = d[idx + 1] = d[idx + 2] = v;
+      d[idx + 3] = 255;
+    }
+    if ((y & 7) === 7) yield;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
 export function getStoneTextures() {
-  const map = cachedTex('stone_mortar_map', () => {
-    const S = 256;
-    const c = document.createElement('canvas');
-    c.width = S; c.height = S;
-    const ctx = c.getContext('2d');
-    const img = ctx.createImageData(S, S);
-    const d = img.data;
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        const n = fbm2D((x / S) * 18, (y / S) * 18, 3, 91);
-        const v = Math.round(48 + n * 42);
-        const idx = (y * S + x) * 4;
-        d[idx] = v + 2;
-        d[idx + 1] = v;
-        d[idx + 2] = v - 1;
-        d[idx + 3] = 255;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(c);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    return tex;
-  }, true);
-
-  const bumpMap = cachedTex('stone_mortar_bump', () => {
-    const S = 256;
-    const c = document.createElement('canvas');
-    c.width = S; c.height = S;
-    const ctx = c.getContext('2d');
-    const img = ctx.createImageData(S, S);
-    const d = img.data;
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        const n = fbm2D((x / S) * 28, (y / S) * 28, 3, 105);
-        const v = Math.round(n * 255);
-        const idx = (y * S + x) * 4;
-        d[idx] = d[idx + 1] = d[idx + 2] = v;
-        d[idx + 3] = 255;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(c);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    return tex;
-  }, false);
-
+  const map = cachedTex('stone_mortar_map', () => genStoneMap(), true);
+  const bumpMap = cachedTex('stone_mortar_bump', () => genStoneBump(), false);
   return { map, bumpMap };
 }
 
@@ -314,29 +348,32 @@ export function getKetupatWeaveTextures() {
 }
 
 /* ───────── Food Surface Bumps & Maps ───────── */
-export function getMeatBumpTexture() {
-  return cachedTex('food_meat_bump', () => {
-    const S = 256;
-    const c = document.createElement('canvas');
-    c.width = S; c.height = S;
-    const ctx = c.getContext('2d');
-    const img = ctx.createImageData(S, S);
-    const d = img.data;
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        const fiber = fbm2D((x / S) * 26, (y / S) * 7, 3, 55);
-        const pore = fbm2D((x / S) * 32, (y / S) * 32, 2, 88);
-        const v = Math.round((fiber * 0.65 + pore * 0.35) * 255);
-        const idx = (y * S + x) * 4;
-        d[idx] = d[idx + 1] = d[idx + 2] = v;
-        d[idx + 3] = 255;
-      }
+function* genMeatBump() {
+  const S = 256;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(S, S);
+  const d = img.data;
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const fiber = fbm2D((x / S) * 26, (y / S) * 7, 3, 55);
+      const pore = fbm2D((x / S) * 32, (y / S) * 32, 2, 88);
+      const v = Math.round((fiber * 0.65 + pore * 0.35) * 255);
+      const idx = (y * S + x) * 4;
+      d[idx] = d[idx + 1] = d[idx + 2] = v;
+      d[idx + 3] = 255;
     }
-    ctx.putImageData(img, 0, 0);
-    const tex = new THREE.CanvasTexture(c);
-    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    return tex;
-  }, false);
+    if ((y & 7) === 7) yield;
+  }
+  ctx.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+
+export function getMeatBumpTexture() {
+  return cachedTex('food_meat_bump', () => genMeatBump(), false);
 }
 
 export function getFriedCrustTexture(baseHex = '#D99A3C', highlightHex = '#F2AE3D', darkHex = '#A85214') {
@@ -389,6 +426,22 @@ export function getFriedCrustBumpTexture() {
   }, false);
 }
 
+function* genSauceNormal() {
+  const S = 256;
+  const h = new Float32Array(S * S);
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const dx = x / S - 0.5;
+      const dy = y / S - 0.5;
+      const r = Math.sqrt(dx * dx + dy * dy);
+      const ripple = Math.sin(r * 34) * 0.15 + fbm2D((x / S) * 10, (y / S) * 10, 2, 12) * 0.5;
+      h[y * S + x] = ripple;
+    }
+    if ((y & 15) === 15) yield;
+  }
+  return yield* heightToNormalMapGen(h, S, S, 1.8);
+}
+
 export function getSauceTextures(baseHex = '#E9C86A', oilHex = '#D96B18') {
   const S = 256;
   const map = cachedTex(`sauce_map_${baseHex}_${oilHex}`, () => {
@@ -410,19 +463,7 @@ export function getSauceTextures(baseHex = '#E9C86A', oilHex = '#D96B18') {
     return new THREE.CanvasTexture(c);
   }, true);
 
-  const normalMap = cachedTex('sauce_ripple_normal', () => {
-    const h = new Float32Array(S * S);
-    for (let y = 0; y < S; y++) {
-      for (let x = 0; x < S; x++) {
-        const dx = x / S - 0.5;
-        const dy = y / S - 0.5;
-        const r = Math.sqrt(dx * dx + dy * dy);
-        const ripple = Math.sin(r * 34) * 0.15 + fbm2D((x / S) * 10, (y / S) * 10, 2, 12) * 0.5;
-        h[y * S + x] = ripple;
-      }
-    }
-    return heightToNormalMap(h, S, S, 1.8);
-  }, false);
+  const normalMap = cachedTex('sauce_ripple_normal', () => genSauceNormal(), false);
 
   return { map, normalMap };
 }
@@ -458,4 +499,34 @@ export function getSambalTextures() {
   }, true);
 
   return { map, bumpMap: getMeatBumpTexture() };
+}
+
+/**
+ * Panaskan semua tekstur berat SECARA BERTAHAP (tiap frame hanya ~9ms kerja) sebelum hidangan dibuat,
+ * sehingga saat model 3D dipasang teksturnya sudah ada di cache dan tidak ada patah-patah.
+ */
+export async function prewarmFoodTextures() {
+  const heavy = [
+    ['wood_map_warm', () => genWoodMap('warm'), true],
+    ['wood_bump_warm', () => genWoodBump(), false],
+    ['food_meat_bump', () => genMeatBump(), false],
+    ['sauce_ripple_normal', () => genSauceNormal(), false],
+    ['wood_map_dark', () => genWoodMap('dark'), true],
+    ['wood_bump_dark', () => genWoodBump(), false],
+    ['stone_mortar_map', () => genStoneMap(), true],
+    ['stone_mortar_bump', () => genStoneBump(), false],
+  ];
+  for (const [key, creator, isColor] of heavy) await cachedTexAsync(key, creator, isColor);
+
+  // Sisanya ringan (gradasi/lingkaran kecil), cukup satu per frame.
+  const light = [
+    () => getBananaLeafTextures(),
+    () => getKetupatWeaveTextures(),
+    () => getCeramicTextures(),
+    () => getFriedCrustTexture(),
+    () => getFriedCrustBumpTexture(),
+    () => getSauceTextures(),
+    () => getSambalTextures(),
+  ];
+  for (const make of light) { make(); await nextSlice(); }
 }

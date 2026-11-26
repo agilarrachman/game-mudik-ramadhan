@@ -270,8 +270,13 @@ function goToMenu() {
   ui.updateMenuStats(bestStats.bestRevenue, bestStats.bestElapsed);
   const menuCanvas = document.getElementById('menu-canvas');
   if (menuCanvas && !menuScene) {
-    menuScene = new MenuScene(menuCanvas);
-    menuScene.init();
+    const scene = new MenuScene(menuCanvas);
+    menuScene = scene;
+    // Biarkan menu (CSS) tampil & animasi masuknya jalan dulu; WebGL menyusul setelah frame pertama dipaint.
+    // Pembuatan renderer + lingkungan pencahayaan cukup berat bila bertabrakan dengan animasi masuk.
+    requestAnimationFrame(() => setTimeout(() => {
+      if (menuScene === scene) scene.init();
+    }, 150));
   }
   audio.startMusic();
 }

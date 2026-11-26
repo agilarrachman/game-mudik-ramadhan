@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { INGREDIENTS } from './data.js';
 import { buatMakanan, composePlate } from './food/dishes.js';
 import { renderFoodThumbnails } from './food/thumbs.js';
-import { disposeFoodTextures, getWoodTextures, getCeramicTextures } from './food/textures.js';
+import { disposeFoodTextures, getWoodTextures, getCeramicTextures, prewarmFoodTextures } from './food/textures.js';
 import { disposeVesselCache } from './food/vessels.js';
 import { disposePartsCache } from './food/parts.js';
 
@@ -14,6 +14,10 @@ const _dishThumbnails = {};
 let _decodedThumbImages = new Map();
 let _preloadPromise = null;
 let _thumbsReady = false; // thumbnail 3D sudah jadi: jangan dirender ulang tiap kembali ke menu / mulai game
+let _urgent = false;      // pemain sudah menekan Main -> selesaikan thumbnail secepatnya (tidak menunggu waktu senggang)
+
+/** Panaskan tekstur prosedural berat secara bertahap (per frame), sebelum hidangan 3D dibuat. */
+export { prewarmFoodTextures };
 
 function getTex(key, creator) {
   if (!_texCache.has(key)) {
@@ -157,19 +161,28 @@ export function getFallbackThumb(id) {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-export function preloadFoods(renderer, force = false) {
+/**
+ * @param {*} renderer
+ * @param {boolean} force  render ulang (mis. setelah context lost)
+ * @param {{background?: boolean}} opts background=true (menu): dikerjakan pelan-pelan di waktu senggang.
+ *   Tanpa opsi ini (game) thumbnail diselesaikan secepatnya karena game menunggunya.
+ */
+export function preloadFoods(renderer, force = false, { background = false } = {}) {
   if (_thumbsReady && !force) return Promise.resolve(_dishThumbnails);
+  if (!background) _urgent = true;
   if (_preloadPromise && !force) return _preloadPromise;
   if (force) { _preloadPromise = null; _thumbsReady = false; }
 
-  _preloadPromise = renderFoodThumbnails(renderer, getFallbackThumb)
+  _preloadPromise = renderFoodThumbnails(renderer, getFallbackThumb, { urgent: () => _urgent })
     .then(({ thumbnails, decodedImages }) => {
       Object.assign(_dishThumbnails, thumbnails);
       _decodedThumbImages = decodedImages;
       _thumbsReady = true;
+      _urgent = false;
       return _dishThumbnails;
     })
     .catch((err) => {
+      _urgent = false;
       console.warn('preloadFoods fallback:', err);
       for (const ing of INGREDIENTS) {
         if (!_dishThumbnails[ing.id]) _dishThumbnails[ing.id] = getFallbackThumb(ing.id);
